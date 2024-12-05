@@ -27,7 +27,7 @@ export default function RootLayout({
         <Providers>
          <SonnerToaster position="top-center" richColors theme="dark"/>
          <Toaster />
-         <NextTopLoader height={4} color="#ea580c" showSpinner={false} easing="ease"/>
+         <NextTopLoader height={4} color="#38bdf8" showSpinner={false} easing="ease"/>
          {children}
          </Providers>
       </body>

@@ -32,12 +32,13 @@ export function OAuthButton({label, provider}: {label: string, provider: string}
         }
       }}
       disabled={loading}
-      whileHover={{ scale: 1.03 }}
-      className={twMerge("flex-center gap-5 w-fit mx-auto rounded-xl border px-4 py-2 mb-2", loading && "cursor-not-allowed text-zinc-600 border-zinc-600")}
+      whileHover= {loading ? {} : { scale: 1.04, backgroundColor: '#1e3a8a', borderStyle: 'transparent'}}
+      className={twMerge("flex-center gap-4 w-full sm:w-fit mx-auto rounded-xl border border-blue-900 px-4 py-2 mb-2 text-base", loading && "cursor-not-allowed opacity-50")}
     >
        {label}
        {provider === 'github' ? <FaGithub className='size-8'/> : <FcGoogle className='size-8'/>}
+
     </motion.button>
-  );
+  )
 }
   
