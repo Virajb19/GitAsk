@@ -26,4 +26,6 @@ model User {
 
   OauthProvider OauthProvider?
   OauthId String?
+
+  credits Int @default(100)
 }

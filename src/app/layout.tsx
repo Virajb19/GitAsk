@@ -6,6 +6,7 @@ import { Toaster} from "~/components/ui/toaster"
 import Providers from "./providers";
 import NextTopLoader from 'nextjs-toploader';
 import { Lexend } from 'next/font/google';
+import Navbar from "~/components/Navbar";
 
 export const metadata: Metadata = {
   title: "GitChat",
@@ -23,11 +24,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <body className={lexend.className} suppressHydrationWarning={true}>
+      <body className={lexend.className}>
         <Providers>
          <SonnerToaster position="top-center" richColors theme="dark"/>
          <Toaster />
-         <NextTopLoader height={4} color="#38bdf8" showSpinner={false} easing="ease"/>
+         <NextTopLoader height={5} color="#38bdf8" showSpinner={false} easing="ease"/>
+         <Navbar />
          {children}
          </Providers>
       </body>
