@@ -24,7 +24,7 @@ export function OAuthButton({label, provider}: {label: string, provider: string}
       onClick={() => {
         try {
           setLoading(true)
-          signIn(provider === 'github' ? 'github' : 'google', { callbackUrl: "/" });
+          signIn(provider, { callbackUrl: "/" });
           toast.success("Signed in successfully");
         } catch (error) {
           toast.error("Something went wrong !!!");

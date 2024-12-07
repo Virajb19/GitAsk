@@ -1,27 +1,25 @@
 'use client'
 
-import { Bot, CreditCard, LayoutDashboard, SidebarOpen, SidebarClose } from 'lucide-react'
+import { Bot, CreditCard, LayoutDashboard, SidebarOpen, SidebarClose, Plus, Home } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from "react";
 import SidebarItems from "./Sidebar-items";
 import { useMediaQuery } from 'react-responsive';
+import Projects from './Projects';
+import { Button } from './ui/button';
+import Link from 'next/link';
 
 const items = [
-    {title: 'Dashboard', url: '/dashboard', icon: <LayoutDashboard className="size-7"/>},
-    {title: 'Q&A', url: '/qa', icon: <Bot className='size-8'/>},
-    {title: 'Billing', url: '/billing', icon: <CreditCard className='size-8'/>}
+    {title: 'Home', url: '/', icon: <Home className='size-6'/>},
+    {title: 'Dashboard', url: '/dashboard', icon: <LayoutDashboard className="size-6"/>},
+    {title: 'Q&A', url: '/qa', icon: <Bot className='size-6'/>},
+    {title: 'Billing', url: '/billing', icon: <CreditCard className='size-6'/>}
 ]
-
-const projects = [
-    { name: 'Project Alpha' },
-    { name: 'Project Beta' },
-    { name: 'Project Gamma' },
-];
 
 
 export default function AppSidebar() {
 
-    const [isCollapsed, setIsCollapsed] = useState(true)
+    const [isCollapsed, setIsCollapsed] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
 
     const isMediumToXL = useMediaQuery({
@@ -41,8 +39,8 @@ export default function AppSidebar() {
 
   return <>
   <motion.nav initial={false} animate={isMounted && (isCollapsed ? 'collapsed' : 'expanded')} variants={sidebarVariants} transition={{duration: 0.5, type: 'spring', damping: 15, stiffness: 200}}
-    className="hidden lg:flex flex-col p-1 min-w-16 fixed left-0 inset-y-0 z-[999] border-r border-primary/10 bg-background dark:bg-background">
-          <div className="flex flex-col gap-4">
+    className="hidden lg:flex flex-col p-1 min-w-16 h-[100vh] border-r border-primary/10 bg-background dark:bg-background">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between border-b border-primary/10 p-2">
                <motion.button onClick={toggleCollapse} className="p-3 rounded-lg transition-all duration-300 hover:bg-blue-600/5 hover:text-blue-500">
                    {isCollapsed ? <SidebarClose /> : <SidebarOpen />}
@@ -53,9 +51,21 @@ export default function AppSidebar() {
                     </motion.h2>
                 }
             </div>
-            <div className="flex flex-col p-1 gap-2">
+
+            <div className="flex flex-col p-1 gap-1">
+              {!isCollapsed && <span className='text-lg'>Application</span>}
              <SidebarItems items={items} isCollapsed={isCollapsed}/>
             </div>
+
+            <div className='flex flex-col p-1 gap-1'>
+              {!isCollapsed && <span className='text-xl font-semibold tracking-wide text-center'>Projects</span>}
+                 <Projects />
+            </div>
+
+            {!isCollapsed && <Link href={'/create'}>
+            <Button variant={'outline'} size={'icon'} className='flex items-center p-1 w-full gap-3 text-base'><Plus strokeWidth={3}/>Create Project</Button>
+            </Link>}
+
           </div>
   </motion.nav>
 

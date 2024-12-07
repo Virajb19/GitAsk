@@ -109,3 +109,22 @@ h3 {
     @apply bg-background text-foreground;
   }
 }
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020817;
+  border-radius: 15px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2e3a;
+  border-radius: 15px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+

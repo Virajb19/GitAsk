@@ -12,12 +12,12 @@ export default function UserAvatar() {
     {user?.image ? 
            (
             <div className="aspect-square">
-              <Image src={user?.image} alt="profileImage" width={40} height={40} className="object-cover rounded-full" referrerPolicy="no-referrer"/>
+              <Image src={user?.image} alt="profileImage" width={50} height={50} className="object-cover rounded-full" referrerPolicy="no-referrer"/>
             </div>
         ) : (
                 <AvatarFallback>
-                     <div className="flex-center size-10 rounded-full bg-gradient-to-b from-blue-400 to-blue-700">
-                       <User className="size-5" />
+                     <div className="flex-center size-12 rounded-full bg-gradient-to-b from-blue-400 to-blue-700">
+                       <User className="size-6" />
                   </div>
                 </AvatarFallback>
         )

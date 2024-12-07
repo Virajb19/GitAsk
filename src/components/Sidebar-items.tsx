@@ -25,7 +25,7 @@ const isMobile = useMediaQuery({maxWidth: 640})
                 )}>
                     {item.icon}
                     {!isCollapsed && <motion.span initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.3, ease: 'easeInOut'}}
-                    className="text-xl font-semibold tracking-wide">{item.title}</motion.span>}
+                    className="text-lg font-semibold tracking-wide">{item.title}</motion.span>}
                 </Link>
                 </TooltipTrigger>
                 {isCollapsed && (
