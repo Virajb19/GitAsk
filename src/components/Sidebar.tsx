@@ -8,6 +8,7 @@ import { useMediaQuery } from 'react-responsive';
 import Projects from './Projects';
 import { Button } from './ui/button';
 import Link from 'next/link';
+import { Project } from '@prisma/client';
 
 const items = [
     {title: 'Home', url: '/', icon: <Home className='size-6'/>},
@@ -17,7 +18,7 @@ const items = [
 ]
 
 
-export default function AppSidebar() {
+export default function AppSidebar({projects} : {projects: Project[]}) {
 
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
@@ -59,7 +60,14 @@ export default function AppSidebar() {
 
             <div className='flex flex-col p-1 gap-1'>
               {!isCollapsed && <span className='text-xl font-semibold tracking-wide text-center'>Projects</span>}
-                 <Projects />
+              <div className="flex flex-col gap-2 max-h-[45vh] border-4 border-green-900 overflow-y-scroll">
+               {projects.map((project,i) => {
+                return <Link key={i} href={'/create'} className="flex items-center gap-2 p-2 rounded-lg border-2 border-red-900">
+                      <span className="px-2 py-1 border rounded-sm">{project.name[0]}</span>
+                      <p className="truncate text-base">{project.name}</p>
+                  </Link>
+              })} 
+            </div>
             </div>
 
             {!isCollapsed && <Link href={'/create'}>
@@ -70,7 +78,7 @@ export default function AppSidebar() {
   </motion.nav>
 
     <motion.nav initial={{y: 100}} animate={{ y: 0}} transition={{ duration: 0.7, ease: 'easeInOut'}}
-     className='flex justify-around items-center p-3 lg:hidden fixed bottom-0 inset-x-0 z-[999] border-t border-primary/10'>
+     className='flex justify-around items-center backdrop-blur-md p-3 lg:hidden fixed bottom-0 inset-x-0 z-[999] border-t border-primary/10'>
         <SidebarItems items={items} isCollapsed={!isMediumToXL}/>
     </motion.nav>
   </>

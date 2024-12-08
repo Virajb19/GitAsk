@@ -26,15 +26,17 @@ export default function CreatePage() {
      try {
        const res = await axios.post('/api/createProject', data)
        toast.success('Successfully created the project', {position: 'bottom-right'})
+       form.setValue('name', '')
+       form.setValue('repoURL', '')
      } catch(error) {
          if(error instanceof AxiosError) {
-            toast.error('Something went wrong')
+            toast.error(error?.response?.data.msg || 'Something went wrong', {position: 'bottom-right'})
          }
      }
   }
 
-  return <div className="border-2 border-green-700 rounded-lg grow flex-center gap-3 overflow-y-scroll">
-        <Image src={'/github.svg'} alt="github" width={300} height={300}/>
+  return <div className="border-2 border-green-700 p-2 rounded-lg grow flex-center gap-3 overflow-y-scroll">
+        <Image src={'/github.svg'} alt="github" width={300} height={300} className="mb:hidden"/>
         <motion.div initial={{opacity: 0, scale: 0.8}} animate={{opacity: 1, scale: 1}} transition={{duration: 0.5, ease: 'easeInOut'}}>
             <Card>
                 <CardHeader>

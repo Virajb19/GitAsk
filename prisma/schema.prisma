@@ -39,11 +39,13 @@ model Project {
   updatedAt DateTime @updatedAt
 
   name String 
-  repoURL String
+  repoURL String 
   githubToken String?
 
   deletedAt DateTime? 
    
   userId Int
   user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId,repoURL])
 }

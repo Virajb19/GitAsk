@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { createProjectSchema } from "~/lib/zod";
 import { getServerAuthSession } from "~/server/auth";
@@ -10,19 +11,25 @@ try {
   if(!session?.user) return NextResponse.json({msg: 'Unauthorized'}, { status: 401})
   const userId = session.user.id
 
-  console.log(session)
-
     const parsedData = createProjectSchema.safeParse(await req.json())
     if(!parsedData.success) return NextResponse.json({msg: 'Invalid inputs', errors: parsedData.error.flatten().fieldErrors}, { status: 400})
     const { name, repoURL, githubToken } = parsedData.data
 
-    // const project = await db.project.create({data: {name,repoURL,githubToken,userId}})
-    await new Promise(res => setTimeout(res, 3000))
+    // await new Promise(res => setTimeout(res, 3000))
+    const existingProject = await db.project.findFirst({where: {repoURL,userId}})
+    if(existingProject) return NextResponse.json({msg: 'You already have a project with this repository URL'}, {status: 409})
 
-    return NextResponse.json({msg: 'Project created successfully', projectId: 10}, { status: 200})
+    const project = await db.project.create({data: {name,repoURL,githubToken,userId}})
 
-} catch(err) {
+    return NextResponse.json({msg: 'Project created successfully', projectId: project.id}, { status: 200})
+
+} catch(err: any) {
     console.error(err)
+    if(err instanceof Prisma.PrismaClientKnownRequestError) {
+      if(err.code === 'P2002') {
+        return NextResponse.json({msg: 'You already have a project with this repository URL'}, {status: 409})
+      }
+    }
     return NextResponse.json({msg: 'Error creating the project'}, { status: 500})    
   }
 }

@@ -100,7 +100,7 @@ export default function SignIn() {
                           Don&apos;t have an account yet?{' '}
                           <Link
                             href={'/signup'}
-                            className="text-muted-foreground font-semibold hover:underline"
+                            className="text-blue-500 font-semibold hover:underline"
                           >
                             Sign Up
                           </Link>

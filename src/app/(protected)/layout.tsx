@@ -9,12 +9,11 @@ export default async function SideBarLayout({children}: {children: ReactNode}) {
 
   const session = await getServerAuthSession()
   if(!session?.user) redirect('/signin')
-  console.log(session)
+
   const projects = await db.project.findMany({ where: { userId: session.user.id}})
-  console.log(projects)
     
   return <main className="w-full min-h-screen flex gap-3">
-          <AppSidebar />
+          <AppSidebar projects={projects}/>
           {/* <div className="flex flex-col gap-1 items-center border-sidebar-border border shadow rounded-md overflow-y-scroll scrollbar-none h-[calc(100vh-6rem)]">
              <Searchbar />
              {children}
