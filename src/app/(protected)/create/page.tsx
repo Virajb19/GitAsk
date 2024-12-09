@@ -12,6 +12,8 @@ import { Loader, ArrowRight } from 'lucide-react'
 import { twMerge } from "tailwind-merge"
 import axios, { AxiosError } from 'axios'
 import { toast } from "sonner"
+import { useRecoilState, useRecoilValue } from "recoil"
+import { projectsAtom } from "~/lib/atoms"
 
 type Input = z.infer<typeof createProjectSchema>
 
@@ -28,6 +30,9 @@ export default function CreatePage() {
        toast.success('Successfully created the project', {position: 'bottom-right'})
        form.setValue('name', '')
        form.setValue('repoURL', '')
+
+      const [project,setProjects] = useRecoilState(projectsAtom)
+      setProjects(prev => prev)
      } catch(error) {
          if(error instanceof AxiosError) {
             toast.error(error?.response?.data.msg || 'Something went wrong', {position: 'bottom-right'})
@@ -35,7 +40,7 @@ export default function CreatePage() {
      }
   }
 
-  return <div className="border-2 border-green-700 p-2 rounded-lg grow flex-center gap-3 overflow-y-scroll">
+  return <div className="grow flex-center gap-3">
         <Image src={'/github.svg'} alt="github" width={300} height={300} className="mb:hidden"/>
         <motion.div initial={{opacity: 0, scale: 0.8}} animate={{opacity: 1, scale: 1}} transition={{duration: 0.5, ease: 'easeInOut'}}>
             <Card>
@@ -102,5 +107,6 @@ export default function CreatePage() {
                   </CardContent>
             </Card>
         </motion.div>
+        <div className="h-[70vw] bg-pink-700">Hello</div>
   </div>
 }

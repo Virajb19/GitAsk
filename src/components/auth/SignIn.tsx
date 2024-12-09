@@ -79,9 +79,9 @@ export default function SignIn() {
                           )}
                         />
 
-                        <motion.button whileHover={form.formState.isSubmitting ? {} : {scale: 1.05}} whileTap={form.formState.isSubmitting ? {} : {scale: 0.9}}
-                          className={twMerge('mx-auto rounded-full font-semibold cursor-pointer flex items-center gap-2 w-fit px-5 py-1 text-lg bg-black text-white dark:bg-white dark:text-black ', 
-                          form.formState.isSubmitting && 'opacity-75 cursor-not-allowed')} 
+                        <motion.button whileHover={form.formState.isSubmitting ? {} : {opacity: 0.7}} whileTap={form.formState.isSubmitting ? {} : {scale: 0.9}}
+                          className={twMerge('rounded-full font-semibold cursor-pointer flex-center gap-2 w-full px-5 py-1 text-lg bg-black text-white dark:bg-white dark:text-black ', 
+                          form.formState.isSubmitting && 'opacity-50 cursor-not-allowed')} 
                           disabled={form.formState.isSubmitting} type='submit'> 
                          {form.formState.isSubmitting && <Loader2 className='animate-spin'/>} {form.formState.isSubmitting ? 'Please wait...' : 'Login'}
                         </motion.button>

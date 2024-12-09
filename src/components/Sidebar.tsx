@@ -5,10 +5,9 @@ import { motion } from 'framer-motion'
 import { useEffect, useState } from "react";
 import SidebarItems from "./Sidebar-items";
 import { useMediaQuery } from 'react-responsive';
-import Projects from './Projects';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { Project } from '@prisma/client';
+import Projects from './Projects';
 
 const items = [
     {title: 'Home', url: '/', icon: <Home className='size-6'/>},
@@ -17,8 +16,7 @@ const items = [
     {title: 'Billing', url: '/billing', icon: <CreditCard className='size-6'/>}
 ]
 
-
-export default function AppSidebar({projects} : {projects: Project[]}) {
+export default function AppSidebar() {
 
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
@@ -59,15 +57,8 @@ export default function AppSidebar({projects} : {projects: Project[]}) {
             </div>
 
             <div className='flex flex-col p-1 gap-1'>
-              {!isCollapsed && <span className='text-xl font-semibold tracking-wide text-center'>Projects</span>}
-              <div className="flex flex-col gap-2 max-h-[45vh] border-4 border-green-900 overflow-y-scroll">
-               {projects.map((project,i) => {
-                return <Link key={i} href={'/create'} className="flex items-center gap-2 p-2 rounded-lg border-2 border-red-900">
-                      <span className="px-2 py-1 border rounded-sm">{project.name[0]}</span>
-                      <p className="truncate text-base">{project.name}</p>
-                  </Link>
-              })} 
-            </div>
+              {!isCollapsed && <span className='text-2xl font-semibold tracking-wide text-center'>Projects</span>}
+            <Projects />
             </div>
 
             {!isCollapsed && <Link href={'/create'}>

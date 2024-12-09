@@ -15,9 +15,8 @@ try {
     if(!parsedData.success) return NextResponse.json({msg: 'Invalid inputs', errors: parsedData.error.flatten().fieldErrors}, { status: 400})
     const { name, repoURL, githubToken } = parsedData.data
 
-    // await new Promise(res => setTimeout(res, 3000))
     const existingProject = await db.project.findFirst({where: {repoURL,userId}})
-    if(existingProject) return NextResponse.json({msg: 'You already have a project with this repository URL'}, {status: 409})
+    if(existingProject) return NextResponse.json({msg: 'You already have a project with this repo URL'}, {status: 409})
 
     const project = await db.project.create({data: {name,repoURL,githubToken,userId}})
 
@@ -27,7 +26,7 @@ try {
     console.error(err)
     if(err instanceof Prisma.PrismaClientKnownRequestError) {
       if(err.code === 'P2002') {
-        return NextResponse.json({msg: 'You already have a project with this repository URL'}, {status: 409})
+        return NextResponse.json({msg: 'You already have a project with this repo URL'}, {status: 409})
       }
     }
     return NextResponse.json({msg: 'Error creating the project'}, { status: 500})    
