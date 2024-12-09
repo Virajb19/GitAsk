@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { pollCommits } from "~/lib/github";
 import { createProjectSchema } from "~/lib/zod";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
@@ -19,6 +20,8 @@ try {
     if(existingProject) return NextResponse.json({msg: 'You already have a project with this repo URL'}, {status: 409})
 
     const project = await db.project.create({data: {name,repoURL,githubToken,userId}})
+
+    await pollCommits(project.id)
 
     return NextResponse.json({msg: 'Project created successfully', projectId: project.id}, { status: 200})
 

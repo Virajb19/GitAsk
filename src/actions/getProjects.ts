@@ -1,8 +1,9 @@
 'use server'
+
+import { pollCommits } from "~/lib/github"
 import { getServerAuthSession } from "~/server/auth"
 import { db } from "~/server/db"
 
- 
 export async function getProjects() {
  try {
     const session = await getServerAuthSession()

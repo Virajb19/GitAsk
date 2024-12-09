@@ -47,5 +47,24 @@ model Project {
   userId Int
   user User @relation(fields: [userId], references: [id])
 
+  commits Commit[]
+
   @@unique([userId,repoURL])
+}
+
+model Commit {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  message String
+  hash String
+  authorName String
+  authorAvatar String
+  date DateTime
+
+  summary String
+
+  projectId String
+  project Project @relation(fields: [projectId], references: [id])
 }

@@ -12,8 +12,6 @@ import { Loader, ArrowRight } from 'lucide-react'
 import { twMerge } from "tailwind-merge"
 import axios, { AxiosError } from 'axios'
 import { toast } from "sonner"
-import { useRecoilState, useRecoilValue } from "recoil"
-import { projectsAtom } from "~/lib/atoms"
 
 type Input = z.infer<typeof createProjectSchema>
 
@@ -31,9 +29,7 @@ export default function CreatePage() {
        form.setValue('name', '')
        form.setValue('repoURL', '')
 
-      const [project,setProjects] = useRecoilState(projectsAtom)
-      setProjects(prev => prev)
-     } catch(error) {
+      } catch(error) {
          if(error instanceof AxiosError) {
             toast.error(error?.response?.data.msg || 'Something went wrong', {position: 'bottom-right'})
          }
