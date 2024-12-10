@@ -3,12 +3,13 @@
 import { useProject } from "~/hooks/useProject"
 import { ExternalLink, Github } from 'lucide-react'
 import Link from "next/link"
+import CommitLogComponent from "~/components/commit-log"
 
 export default function DashBoard() {
 
   const { project } = useProject()
 
-  return <div className="grow flex flex-col gap-1 p-3">
+  return <div className="w-full flex flex-col gap-1 p-3 mb:p-0">
     <div className="flex gap-1 p-1 items-center">
       <div className="flex justify-between gap-3 items-center bg-blue-700 rounded-sm px-5 py-3">
         <Github className="size-6" />
@@ -20,5 +21,7 @@ export default function DashBoard() {
         </p>
       </div>
     </div>
+
+       <CommitLogComponent />
   </div>
 }

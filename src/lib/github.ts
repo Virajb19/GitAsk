@@ -1,7 +1,7 @@
 import { Octokit } from 'octokit'
 import { summarizeCommit } from './gemini'
 import axios from 'axios'
-import { Prisma } from '@prisma/client'
+import { db } from '~/server/db'
 
  export const octokit = new Octokit({
     auth: process.env.GITHUB_ACCESS_TOKEN
@@ -24,7 +24,7 @@ export async function getCommits(githubURL: string): Promise<Response[]> {
 
     const sortedCommits = data.sort((a: any,b: any) => new Date(b.commit.author.date).getTime() - new Date(a.commit.author.date).getTime())
 
-       const commits = sortedCommits.slice(0,3).map(commit => ({
+       const commits = sortedCommits.slice(0,15).map(commit => ({
         message: commit.commit.message,
         hash: commit.sha,
         authorName: commit.commit.author?.name ?? '',
@@ -35,13 +35,13 @@ export async function getCommits(githubURL: string): Promise<Response[]> {
     return commits
  }
 
-export async function pollCommits(projectId: string, tx: Prisma.TransactionClient) {
-   const project = await tx.project.findUnique({ where: { id: projectId}, select:{ repoURL: true}})
+export async function pollCommits(projectId: string) {
+   const project = await db.project.findUnique({ where: { id: projectId}, select:{ repoURL: true}})
    if(!project?.repoURL) throw new Error('Project has no github URL')
 
    const commits = await getCommits(project.repoURL)
 
-   const processedCommits = await tx.commit.findMany({ where: { projectId}})  
+   const processedCommits = await db.commit.findMany({ where: { projectId}})  
 
    const unprocessedCommits = commits.filter(commit => !processedCommits.some((processedCommit) => processedCommit.hash === commit.hash))
 
@@ -62,7 +62,7 @@ export async function pollCommits(projectId: string, tx: Prisma.TransactionClien
        else return ""
    })
    
-  const Commits = await tx.commit.createMany({
+  const Commits = await db.commit.createMany({
       data: unprocessedCommits.map((commit, i) => ({
          message: commit.message,
          hash: commit.hash,

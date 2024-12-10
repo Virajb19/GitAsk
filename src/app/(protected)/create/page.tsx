@@ -14,6 +14,7 @@ import axios, { AxiosError } from 'axios'
 import { toast } from "sonner"
 import { useSetRecoilState } from "recoil"
 import { projectsAtom } from "~/lib/atoms"
+import { useQueryClient } from "@tanstack/react-query"
 
 type Input = z.infer<typeof createProjectSchema>
 
@@ -24,12 +25,16 @@ export default function CreatePage() {
     defaultValues: { name: 'Project', repoURL: 'https://github.com/owner/repo'}
   })
 
+  const queryClient = useQueryClient()
+
   async function onSubmit(data: Input) {
      try {
-       const { data: { project } } = await axios.post('/api/createProject', data)
+       const { data: { project } } = await axios.post('/api/project', data)
        toast.success('Successfully created the project', {position: 'bottom-right'})
        form.setValue('name', '')
        form.setValue('repoURL', '')
+
+       queryClient.invalidateQueries({queryKey: ['getProjects']})
 
        const setProjects = useSetRecoilState(projectsAtom)
        setProjects((prev) => [...prev, project])
