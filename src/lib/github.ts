@@ -1,7 +1,7 @@
 import { Octokit } from 'octokit'
-import { db } from '~/server/db'
 import { summarizeCommit } from './gemini'
 import axios from 'axios'
+import { Prisma } from '@prisma/client'
 
  export const octokit = new Octokit({
     auth: process.env.GITHUB_ACCESS_TOKEN
@@ -35,15 +35,17 @@ export async function getCommits(githubURL: string): Promise<Response[]> {
     return commits
  }
 
-export async function pollCommits(projectId: string) {
-   const project = await db.project.findUnique({ where: { id: projectId}, select:{ repoURL: true}})
+export async function pollCommits(projectId: string, tx: Prisma.TransactionClient) {
+   const project = await tx.project.findUnique({ where: { id: projectId}, select:{ repoURL: true}})
    if(!project?.repoURL) throw new Error('Project has no github URL')
 
    const commits = await getCommits(project.repoURL)
 
-   const processedCommits = await db.commit.findMany({ where: { projectId}})  
+   const processedCommits = await tx.commit.findMany({ where: { projectId}})  
 
    const unprocessedCommits = commits.filter(commit => !processedCommits.some((processedCommit) => processedCommit.hash === commit.hash))
+
+   if(unprocessedCommits.length === 0) return 0
 
    const responses = await Promise.allSettled(unprocessedCommits.map(async (commit) => {
       const { data } = await axios.get(`${project.repoURL}/commit/${commit?.hash}.diff`, {
@@ -60,7 +62,7 @@ export async function pollCommits(projectId: string) {
        else return ""
    })
    
-  const Commits = await db.commit.createMany({
+  const Commits = await tx.commit.createMany({
       data: unprocessedCommits.map((commit, i) => ({
          message: commit.message,
          hash: commit.hash,
@@ -71,6 +73,5 @@ export async function pollCommits(projectId: string) {
          projectId
       }))
    })
-
    return Commits.count
 }

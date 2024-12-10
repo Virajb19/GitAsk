@@ -59,12 +59,14 @@ export default function AppSidebar() {
 
             <div className='flex flex-col p-1 gap-1'>
               {!isCollapsed && <span className='text-2xl font-semibold tracking-wide text-center'>Projects</span>}
-            <Projects />
+            <Projects isCollapsed={isCollapsed}/>
             </div>
 
-            {!isCollapsed && <Link href={'/create'}>
-            <Button variant={'outline'} size={'icon'} className='flex items-center p-1 w-full gap-3 text-base'><Plus strokeWidth={3}/>Create Project</Button>
-            </Link>}
+            <Link href={'/create'}>
+            {isCollapsed ?  <Plus className='ml-3 size-7'/>
+             : <Button variant={'outline'} size={'icon'} className='flex items-center p-1 w-full gap-3 text-base'><Plus strokeWidth={3}/>Create Project</Button>
+             }
+            </Link>
 
           </div>
   </motion.nav>

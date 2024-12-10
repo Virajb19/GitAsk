@@ -8,7 +8,7 @@ export default function DashBoard() {
 
   const { project } = useProject()
 
-  return <div className="grow flex flex-col gap-1 p-3 border">
+  return <div className="grow flex flex-col gap-1 p-3">
     <div className="flex gap-1 p-1 items-center">
       <div className="flex justify-between gap-3 items-center bg-blue-700 rounded-sm px-5 py-3">
         <Github className="size-6" />

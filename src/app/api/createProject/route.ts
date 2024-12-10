@@ -19,11 +19,13 @@ try {
     const existingProject = await db.project.findFirst({where: {repoURL,userId}})
     if(existingProject) return NextResponse.json({msg: 'You already have a project with this repo URL'}, {status: 409})
 
-    const project = await db.project.create({data: {name,repoURL,githubToken,userId}})
+    const project = await db.$transaction(async tx => {
+      const project = await tx.project.create({data: {name,repoURL,githubToken,userId}})
+      await pollCommits(project.id, tx)
+      return project
+    })
 
-    await pollCommits(project.id)
-
-    return NextResponse.json({msg: 'Project created successfully', projectId: project.id}, { status: 200})
+    return NextResponse.json({msg: 'Project created successfully', project}, { status: 200})
 
 } catch(err: any) {
     console.error(err)

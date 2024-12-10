@@ -12,6 +12,8 @@ import { Loader, ArrowRight } from 'lucide-react'
 import { twMerge } from "tailwind-merge"
 import axios, { AxiosError } from 'axios'
 import { toast } from "sonner"
+import { useSetRecoilState } from "recoil"
+import { projectsAtom } from "~/lib/atoms"
 
 type Input = z.infer<typeof createProjectSchema>
 
@@ -24,10 +26,13 @@ export default function CreatePage() {
 
   async function onSubmit(data: Input) {
      try {
-       const res = await axios.post('/api/createProject', data)
+       const { data: { project } } = await axios.post('/api/createProject', data)
        toast.success('Successfully created the project', {position: 'bottom-right'})
        form.setValue('name', '')
        form.setValue('repoURL', '')
+
+       const setProjects = useSetRecoilState(projectsAtom)
+       setProjects((prev) => [...prev, project])
 
       } catch(error) {
          if(error instanceof AxiosError) {
@@ -103,6 +108,5 @@ export default function CreatePage() {
                   </CardContent>
             </Card>
         </motion.div>
-        <div className="h-[70vw] bg-pink-700">Hello</div>
   </div>
 }
