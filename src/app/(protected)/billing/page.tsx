@@ -1,5 +1,5 @@
 export default function page() {
-  return <main >
+  return <div className="">
              
-  </main>
+  </div>
 }

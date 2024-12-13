@@ -12,9 +12,10 @@ import { Loader, ArrowRight } from 'lucide-react'
 import { twMerge } from "tailwind-merge"
 import axios, { AxiosError } from 'axios'
 import { toast } from "sonner"
-import { useSetRecoilState } from "recoil"
-import { projectsAtom } from "~/lib/atoms"
 import { useQueryClient } from "@tanstack/react-query"
+import { useProject } from "~/hooks/useProject"
+import { useRouter } from "nextjs-toploader/app"
+
 
 type Input = z.infer<typeof createProjectSchema>
 
@@ -26,18 +27,20 @@ export default function CreatePage() {
   })
 
   const queryClient = useQueryClient()
+  const { setProjectId } = useProject()
+  const router = useRouter()
 
   async function onSubmit(data: Input) {
+
      try {
-       const { data: { project } } = await axios.post('/api/project', data)
+       const {data : { project }} = await axios.post('/api/project', data)
        toast.success('Successfully created the project', {position: 'bottom-right'})
-       form.setValue('name', '')
-       form.setValue('repoURL', '')
+      //  form.setValue('name', '')
+      //  form.setValue('repoURL', '')
 
-       queryClient.invalidateQueries({queryKey: ['getProjects']})
-
-       const setProjects = useSetRecoilState(projectsAtom)
-       setProjects((prev) => [...prev, project])
+        queryClient.refetchQueries({queryKey: ['getProjects']})
+      //  setProjectId(project.id)
+      //  router.push('/dashboard')
 
       } catch(error) {
          if(error instanceof AxiosError) {
@@ -101,7 +104,7 @@ export default function CreatePage() {
                         />
 
                        <button type="submit" disabled={form.formState.isSubmitting}
-                        className={twMerge("bg-blue-700  mx-auto group px-3 py-2 rounded-lg font-semibold text-white flex-center gap-3 cursor-pointer", form.formState.isSubmitting && "opacity-70 cursor-not-allowed")}>
+                        className="bg-blue-700  mx-auto group px-3 py-2 rounded-lg font-semibold text-white flex-center gap-3 cursor-pointer disabled:cursor-not-allowed disabled:opacity-75">
                           {form.formState.isSubmitting && <Loader className="animate-spin"/>}
                            {form.formState.isSubmitting ? 'Please wait...' : <>
                              Create project <ArrowRight className="group-hover:translate-x-2 duration-200"/>

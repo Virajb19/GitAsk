@@ -20,8 +20,11 @@ export default function CommitLogComponent() {
       setIsLoading(false)
   }, [projectId])
 
+  if(commits.length === 0 && !isLoading) return <div className="flex-center border text-3xl sm:text-7xl font-bold tracking-wide rounded-lg border-blue-700 grow">
+        Select a Project
+  </div>
 
-  return <ul className="flex flex-col grow gap-2 mt-3 p-1 rounded-lg overflow-y-scroll border-2 border-blue-700">
+  return <ul className="flex flex-col grow gap-2 mt-3 p-1 rounded-lg">
        {!isLoading ? (
         <>
         {commits.map(commit => {
@@ -36,9 +39,9 @@ export default function CommitLogComponent() {
                       <ExternalLink className="ml-1 size-4"/>
                     </Link>
                  <p className="break-words whitespace-normal font-bold text-lg">{commit.message}</p>
-                 <p className="flex flex-col gap-1 text-gray-500 dark:text-gray-400">
+                 <p className="flex flex-col gap-2 text-gray-500 dark:text-gray-400">
                   {commit.summary.split('*').filter(point => !(point.trim() === '')).map((point,i) => {
-                    return <p key={i}>*{point.trim()}</p>
+                    return <p key={i}>* {point.trim()}</p>
                   })}
                  </p> 
               </div>

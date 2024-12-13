@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { pollCommits } from "~/lib/github";
+import { indexGithubRepo } from "~/lib/github-loader";
 import { createProjectSchema } from "~/lib/zod";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
@@ -21,7 +22,8 @@ try {
 
     // const project = await db.$transaction(async tx => {
       const project = await db.project.create({data: {name,repoURL,githubToken,userId}})
-      // await pollCommits(project.id)
+      await pollCommits(project.id)
+      await indexGithubRepo(project.id,project.repoURL)
       // return project
     // })
 
@@ -34,6 +36,7 @@ try {
         return NextResponse.json({msg: 'You already have a project with this repo URL'}, {status: 409})
       }
     }
+    // delete the latest project but only if error is in poll commits or index
     return NextResponse.json({msg: 'Error creating the project'}, { status: 500})    
   }
 }

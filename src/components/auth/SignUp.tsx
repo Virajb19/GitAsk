@@ -14,7 +14,7 @@ import { DemarcationLine, OAuthButton } from './social-auth'
 import PasswordInput from './PasswordInput'
 import Link from 'next/link'
 import { toast } from 'sonner'
-import { signup } from '~/actions/signup'
+import { signup } from '~/server/actions'
 
 type SignUpData = z.infer<typeof SignUpSchema>
 
@@ -95,8 +95,7 @@ export default function SignUp() {
                         />
 
                         <motion.button whileHover={form.formState.isSubmitting ? {} : {scale: 1.05}} whileTap={form.formState.isSubmitting ? {} : {scale: 0.9}}
-                          className={twMerge('mx-auto rounded-full font-semibold cursor-pointer flex items-center gap-2 w-fit px-6 py-1 text-lg bg-black text-white dark:bg-white dark:text-black ', 
-                          form.formState.isSubmitting && 'opacity-75 cursor-not-allowed')} 
+                          className='mx-auto rounded-full font-semibold cursor-pointer flex items-center gap-2 w-fit px-6 py-1 text-lg bg-black text-white dark:bg-white dark:text-black disabled:cursor-not-allowed disabled:opacity-75'
                           disabled={form.formState.isSubmitting} type='submit'> 
                          {form.formState.isSubmitting && <Loader2 className='animate-spin'/>} {form.formState.isSubmitting ? 'Please wait...' : 'Sign up'}
                         </motion.button>

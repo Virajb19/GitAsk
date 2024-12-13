@@ -112,6 +112,7 @@ h3 {
 
 ::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -126,5 +127,9 @@ h3 {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent; 
 }
 
