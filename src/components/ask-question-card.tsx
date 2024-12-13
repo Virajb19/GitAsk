@@ -1,5 +1,7 @@
+'use client'
+
 import { useForm } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { askQuestionSchema } from "~/lib/zod";
 import { z } from "zod";
@@ -15,6 +17,7 @@ import { readStreamableValue } from "ai/rsc";
 import { toast } from "sonner";
 import MDEditor from '@uiw/react-md-editor'
 import FileReference from "./file-reference";
+import { useQueryClient } from "@tanstack/react-query"
 
 type Input = z.infer<typeof askQuestionSchema>
 
@@ -25,6 +28,8 @@ export default function AskQuestionCard() {
   const [fileReferences, setFileReferences] = useState<{filename: string, sourceCode: string, summary: string}[]>([])
   const [answer,setAnswer] = useState('')
   const [loading,setLoading] = useState(false)
+
+  const queryClient = useQueryClient()
 
   const form = useForm<Input>({
     resolver: zodResolver(askQuestionSchema),
@@ -51,12 +56,13 @@ export default function AskQuestionCard() {
       const question = form.getValues('question')
        
       setLoading(true)
-      const res = await saveQuestion(question,answer,projectId)
+      const res = await saveQuestion(question,answer,projectId,fileReferences)
       setLoading(false)
 
       if(res.success) {
          toast.success('Question saved!')
          setOpen(false)
+         queryClient.refetchQueries({queryKey: ['getQuestions']})
       }
       else toast.error(res.msg || 'Failed to save the answer. Try again!!!')
    }
@@ -78,10 +84,11 @@ export default function AskQuestionCard() {
                     <button onClick={() => setOpen(false)} className="bg-[#3760cf] rounded-sm py-2 text-lg font-bold hover:opacity-75 duration-100">Close</button>
               </DialogContent>
         </Dialog>
-    <div className="flex-center border-2 border-red-900 col-span-3">
+    <div className="flex-center col-span-3">
          <Card className="w-full relative">
             <CardHeader>
                 <CardTitle>Ask a Question</CardTitle>
+                <CardDescription>AI has the knowledge of the codebase</CardDescription>
             </CardHeader>
             <CardContent>
                <Form {...form}>
@@ -100,7 +107,7 @@ export default function AskQuestionCard() {
                           )}
                         />
 
-                     <button type="submit" className="flex-center gap-2 bg-blue-700 px-4 py-2 rounded-2xl mt-2 text-lg text-white disabled:cursor-not-allowed disabled:opacity-75" 
+                     <button type="submit" className="flex-center gap-2 bg-blue-700 px-4 py-2 rounded-2xl mt-7 text-lg text-white disabled:cursor-not-allowed disabled:opacity-75" 
                         disabled={form.formState.isSubmitting}>
                         {form.formState.isSubmitting ? <Loader2 className="animate-spin"/> : <Sparkles />} 
                         {form.formState.isSubmitting ? 'Asking...' : 'Ask AI!'}

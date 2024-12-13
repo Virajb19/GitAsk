@@ -100,7 +100,7 @@ export async function askQuestion(question: string, projectId: string) {
 }
 }
 
-export async function saveQuestion(question: string, answer: string, projectId: string) {
+export async function saveQuestion(question: string, answer: string, projectId: string, filesReferences: any) {
     try {
 
      const session = await getServerAuthSession()
@@ -110,7 +110,7 @@ export async function saveQuestion(question: string, answer: string, projectId: 
      const existingQuestion = await db.question.findFirst({where: {answer, projectId}})
      if(existingQuestion) return { success: false, msg: 'Question already saved'}
 
-     await db.question.create({data: {question, answer, projectId, userId}})
+     await db.question.create({data: {question, answer, projectId, userId, filesReferences}})
 
      return {success: true, msg: 'Question saved successfully'}
 

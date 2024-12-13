@@ -121,7 +121,7 @@ h3 {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a2e3a;
+  background: #555;
   border-radius: 15px;
 }
 
