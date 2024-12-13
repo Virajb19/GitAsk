@@ -119,3 +119,19 @@ export async function saveQuestion(question: string, answer: string, projectId: 
         return {success: false, error: 'Error saving question!'}
     }
 }
+
+export async function archiveProject(projectId: string) {
+    try {
+
+        const session = await getServerAuthSession()
+        if(!session?.user) return {success: false, msg: 'Unauthorized'}
+
+        await db.project.update({where: { id: projectId}, data: {deletedAt: new Date()}})
+
+        return { success: true }
+
+    } catch(err) {
+        console.error(err)
+        return {success: false, error: 'Error archiving the project'}
+    } 
+}

@@ -47,7 +47,7 @@ export async function GET() {
       if(!session?.user) return NextResponse.json({msg: 'Unauthorized'}, { status: 401})
       const userId = session.user.id
 
-      const projects = await db.project.findMany({ where: { userId}, orderBy: { createdAt: 'desc'}})
+      const projects = await db.project.findMany({ where: { userId, deletedAt: null}, orderBy: { createdAt: 'desc'}})
 
       return NextResponse.json({projects}, { status: 200})
   } catch(err) {
