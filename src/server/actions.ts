@@ -8,6 +8,7 @@ import { streamText } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { generateEmbedding } from "~/lib/gemini"
+import { getServerAuthSession } from "./auth"
 
 type formData = z.infer<typeof SignUpSchema>
 
@@ -54,7 +55,7 @@ export async function askQuestion(question: string, projectId: string) {
     let context = ''
 
     for(const doc of result) {
-         context += `source: ${doc.sourceCode}\ncode content: ${doc.sourceCode}\n summary of file: ${doc.summary}\n\n`
+         context += `source: ${doc.filename}\ncode content: ${doc.sourceCode}\n summary of file: ${doc.summary}\n\n`
     }
 
     (async () => {
@@ -97,4 +98,24 @@ export async function askQuestion(question: string, projectId: string) {
          output: stream.value,
          fileReferences: result
 }
+}
+
+export async function saveQuestion(question: string, answer: string, projectId: string) {
+    try {
+
+     const session = await getServerAuthSession()
+     if(!session?.user) return {success: false, msg: 'Unauthorized'}
+     const userId = session.user.id
+
+     const existingQuestion = await db.question.findFirst({where: {answer, projectId}})
+     if(existingQuestion) return { success: false, msg: 'Question already saved'}
+
+     await db.question.create({data: {question, answer, projectId, userId}})
+
+     return {success: true, msg: 'Question saved successfully'}
+
+    } catch(err) {
+        console.error('Error saving question',err)
+        return {success: false, error: 'Error saving question!'}
+    }
 }

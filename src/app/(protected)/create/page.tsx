@@ -9,7 +9,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { createProjectSchema } from "~/lib/zod"
 import { motion } from 'framer-motion'
 import { Loader, ArrowRight } from 'lucide-react'
-import { twMerge } from "tailwind-merge"
 import axios, { AxiosError } from 'axios'
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
@@ -104,7 +103,7 @@ export default function CreatePage() {
                         />
 
                        <button type="submit" disabled={form.formState.isSubmitting}
-                        className="bg-blue-700  mx-auto group px-3 py-2 rounded-lg font-semibold text-white flex-center gap-3 cursor-pointer disabled:cursor-not-allowed disabled:opacity-75">
+                        className="bg-blue-700 mx-auto group px-3 py-2 rounded-lg font-semibold text-white flex-center gap-3 cursor-pointer disabled:cursor-not-allowed disabled:opacity-75">
                           {form.formState.isSubmitting && <Loader className="animate-spin"/>}
                            {form.formState.isSubmitting ? 'Please wait...' : <>
                              Create project <ArrowRight className="group-hover:translate-x-2 duration-200"/>
