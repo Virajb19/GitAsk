@@ -8,12 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '~/components/ui/form'
 import { createProjectSchema } from "~/lib/zod"
 import { motion } from 'framer-motion'
-import { Loader, ArrowRight } from 'lucide-react'
+import { Loader, ArrowRight, Info } from 'lucide-react'
 import axios, { AxiosError } from 'axios'
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import { useProject } from "~/hooks/useProject"
 import { useRouter } from "nextjs-toploader/app"
+import { checkCredits } from "~/server/actions"
+import { useState } from "react"
 
 
 type Input = z.infer<typeof createProjectSchema>
@@ -25,28 +27,35 @@ export default function CreatePage() {
     defaultValues: { name: 'Project', repoURL: 'https://github.com/owner/repo'}
   })
 
+  const [creditInfo, setCreditInfo] = useState({ fileCount: 0, userCredits: 0})
+
   const queryClient = useQueryClient()
   const { setProjectId } = useProject()
   const router = useRouter()
 
   async function onSubmit(data: Input) {
+    
+        try {
+            const { fileCount, userCredits } = await checkCredits(data.repoURL, data.githubToken)
+            setCreditInfo({fileCount, userCredits})
 
-     try {
-       const {data : { project }} = await axios.post('/api/project', data)
-       toast.success('Successfully created the project', {position: 'bottom-right'})
-      //  form.setValue('name', '')
-      //  form.setValue('repoURL', '')
+              if(userCredits >= fileCount) {
+                    await new Promise(r => setTimeout(r, 5000))
+                    //  const {data : { project }} = await axios.post('/api/project', {...data, fileCount})
+                    toast.success('Successfully created the project', {position: 'bottom-right'})
+                    //  form.setValue('name', '')
+                    //  form.setValue('repoURL', '')
 
-        queryClient.refetchQueries({queryKey: ['getProjects']})
-      //  setProjectId(project.id)
-      //  router.push('/dashboard')
-
-      } catch(error) {
-         if(error instanceof AxiosError) {
-            toast.error(error?.response?.data.msg || 'Something went wrong', {position: 'bottom-right'})
-         }
-     }
-  }
+                      queryClient.refetchQueries({queryKey: ['getProjects']})
+                    //  setProjectId(project.id)
+                    //  router.push('/dashboard')
+              } else toast.error(`You need to buy ${fileCount - userCredits} more credits`, {position: 'bottom-right'})
+            } catch(error) {
+              if(error instanceof AxiosError) {
+                  toast.error(error?.response?.data.msg || 'Something went wrong', {position: 'bottom-right'})
+              } else toast.error('Something went wrong!!!')
+          }  
+   }
 
   return <div className="grow flex-center gap-3">
         <Image src={'/github.svg'} alt="github" width={300} height={300} className="mb:hidden"/>
@@ -101,6 +110,16 @@ export default function CreatePage() {
                              </FormItem>
                           )}
                         />
+
+                      {(creditInfo.fileCount > 0 || creditInfo.userCredits > 0) && (
+                          <div className="border p-3 rounded-md bg-orange-100 dark:bg-orange-300 border-yellow-500">
+                          <div className="flex gap-3 text-yellow-800">
+                             <Info />
+                             <p>You will be charged <strong>{creditInfo.fileCount}</strong> credits for this project</p>
+                          </div>
+                          <p className="text-blue-600 ml-9">You currently have <strong>{creditInfo.userCredits}</strong> in your account</p>
+                       </div>
+                      )}
 
                        <button type="submit" disabled={form.formState.isSubmitting}
                         className="bg-blue-700 mx-auto group px-3 py-2 rounded-lg font-semibold text-white flex-center gap-3 cursor-pointer disabled:cursor-not-allowed disabled:opacity-75">

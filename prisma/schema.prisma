@@ -33,6 +33,7 @@ model User {
 
   projects Project[]
   questionsAsked Question[]
+  stripeTransactions StripeTransaction[]
 }
 
 model Project {
@@ -103,4 +104,15 @@ model Question {
   user User @relation(fields: [userId], references: [id])
 
   @@unique([answer,projectId])
+}
+
+model StripeTransaction {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  credits Int 
+
+  userId Int
+  user User @relation(fields: [userId], references: [id])
 }

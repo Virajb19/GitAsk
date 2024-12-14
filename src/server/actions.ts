@@ -9,6 +9,9 @@ import { createStreamableValue } from 'ai/rsc'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { generateEmbedding } from "~/lib/gemini"
 import { getServerAuthSession } from "./auth"
+import Stripe from 'stripe'
+import { redirect } from "next/navigation"
+import { Octokit } from "octokit"
 
 type formData = z.infer<typeof SignUpSchema>
 
@@ -135,3 +138,81 @@ export async function archiveProject(projectId: string) {
         return {success: false, error: 'Error archiving the project'}
     } 
 }
+
+
+export async function createCheckoutSession(credits: number) {
+    const authSession = await getServerAuthSession()
+    if(!authSession?.user) throw new Error('Unauthorized')
+        const userId = authSession.user.id
+    
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {apiVersion: '2024-11-20.acacia'})
+    const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+            {
+                price_data: {
+                    currency: "usd",
+                    product_data: {
+                        name: `${credits} Gitchat credits`
+                    },
+                    unit_amount: Math.round((credits / 50) * 100),
+                }, 
+                quantity: 1
+            }
+        ],
+        customer_creation: 'always',
+        mode: 'payment',
+        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/create`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing`,
+        client_reference_id: userId.toString(),
+        metadata: { credits } 
+    })
+
+    return redirect(session.url!)
+}
+
+const octokit = new Octokit({auth: process.env.GITHUB_ACCESS_TOKEN})
+
+export async function checkCredits(githubURL: string, githubToken?: string) {
+
+    const session = await getServerAuthSession()
+    if(!session?.user) throw new Error('Unauthorized') 
+    const userId = session?.user.id
+
+    const [owner, repo] = githubURL.split('/').slice(-2)
+    if(!owner || !repo) throw new Error('Invalid github url')
+    const fileCount = await countFiles('', owner, repo)
+
+    const user = await db.user.findUnique({where: {id: userId}, select: {credits: true}})
+    
+    return { fileCount, userCredits: user?.credits || 0}
+}
+
+async function countFiles(path: string, owner: string, repo: string, acc: number = 0) {
+
+    const { data } = await octokit.rest.repos.getContent({owner, repo, path})
+
+    if(!Array.isArray(data) && data.type === 'file') acc++
+
+    if(Array.isArray(data)) {
+      let fileCount: number = 0
+      let directories: string[] = []
+
+        for (const item of data) {
+            if(item.type === 'dir') directories.push(item.path)
+            else if(item.type === 'file') fileCount++
+        }
+
+        if(directories.length > 0) {
+            const directoryCounts = await Promise.all(directories.map(async dir => {
+                return await countFiles(dir, owner, repo)
+            }))
+            fileCount += directoryCounts.reduce((acc,count) => acc + count, 0)
+        }
+        return fileCount + acc
+    }
+
+    return acc
+}
+
+

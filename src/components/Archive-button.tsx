@@ -15,11 +15,10 @@ export default function ArchiveButton() {
 
   async function handleClick() {
      setLoading(true)
-     await new Promise(r => setTimeout(r, 7000))
      const res = await archiveProject(projectId)
      if(res.success) {
         toast.success('Project archived')
-        queryClient.refetchQueries({queryKey: ['getProjects']})
+        queryClient.invalidateQueries({queryKey: ['getProjects']})
      }
      else toast.error('failed to archive project')
      setLoading(false)

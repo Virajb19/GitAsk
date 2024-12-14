@@ -27,6 +27,12 @@ try {
       // return project
     // })
 
+    // call checkCredits function security issue
+
+    const { fileCount } = await req.json()
+
+    await db.user.update({where: {id: userId}, data: {credits: {decrement: fileCount}}})
+
     return NextResponse.json({msg: 'Project created successfully', project}, { status: 200})
 
 } catch(err: any) {

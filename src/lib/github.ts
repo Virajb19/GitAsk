@@ -3,7 +3,7 @@ import { summarizeCommit } from './gemini'
 import axios from 'axios'
 import { db } from '~/server/db'
 
- export const octokit = new Octokit({
+const octokit = new Octokit({
     auth: process.env.GITHUB_ACCESS_TOKEN
  })
 
