@@ -7,8 +7,7 @@ import { SignUpSchema } from '~/lib/zod'
 import { z } from 'zod'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
-import { twMerge } from 'tailwind-merge'
-import { Loader2 } from 'lucide-react'
+import { Loader } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { DemarcationLine, OAuthButton } from './social-auth'
 import PasswordInput from './PasswordInput'
@@ -94,10 +93,10 @@ export default function SignUp() {
                           )}
                         />
 
-                        <motion.button whileHover={form.formState.isSubmitting ? {} : {scale: 1.05}} whileTap={form.formState.isSubmitting ? {} : {scale: 0.9}}
-                          className='mx-auto rounded-full font-semibold cursor-pointer flex items-center gap-2 w-fit px-6 py-1 text-lg bg-black text-white dark:bg-white dark:text-black disabled:cursor-not-allowed disabled:opacity-75'
+                        <motion.button whileHover={form.formState.isSubmitting ? {} : {opacity: 0.7}}
+                          className='mx-auto rounded-full font-semibold cursor-pointer flex items-center gap-2 w-full flex-center px-6 py-1 text-lg bg-black text-white dark:bg-white dark:text-black disabled:cursor-not-allowed disabled:opacity-75'
                           disabled={form.formState.isSubmitting} type='submit'> 
-                         {form.formState.isSubmitting && <Loader2 className='animate-spin'/>} {form.formState.isSubmitting ? 'Please wait...' : 'Sign up'}
+                         {form.formState.isSubmitting && <Loader className='animate-spin'/>} {form.formState.isSubmitting ? 'Please wait...' : 'Sign up'}
                         </motion.button>
 
                         <DemarcationLine />

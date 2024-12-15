@@ -22,9 +22,5 @@ export default function BuyCredits() {
                 toast.dismiss(id)
             }
         }} className="bg-blue-600 font-semibold text-lg px-4 py-2 rounded-md hover:opacity-80 duration-100">Buy {creditsToBuy} for ${price}</button>
-
-        <button onClick={async () => {
-            const fileCount = await checkCredits('https://github.com/code100x/cms')
-        }} className="absolute top-10 left-20 border">Click me</button>
   </div>
 }

@@ -7,8 +7,7 @@ import { SignInSchema } from '~/lib/zod'
 import { z } from 'zod'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
-import { twMerge } from 'tailwind-merge'
-import { Loader2 } from 'lucide-react'
+import { Loader } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { DemarcationLine, OAuthButton } from './social-auth'
 import PasswordInput from './PasswordInput'
@@ -79,10 +78,10 @@ export default function SignIn() {
                           )}
                         />
 
-                        <motion.button whileHover={form.formState.isSubmitting ? {} : {opacity: 0.7}} whileTap={form.formState.isSubmitting ? {} : {scale: 0.9}}
+                        <motion.button whileHover={form.formState.isSubmitting ? {} : {opacity: 0.8}} 
                           className='rounded-full font-semibold cursor-pointer flex-center gap-2 w-full px-5 py-1 text-lg bg-black text-white dark:bg-white dark:text-black disabled:opacity-50 disabled:cursor-not-allowed'
                           disabled={form.formState.isSubmitting} type='submit'> 
-                         {form.formState.isSubmitting && <Loader2 className='animate-spin'/>} {form.formState.isSubmitting ? 'Please wait...' : 'Login'}
+                         {form.formState.isSubmitting && <Loader className='animate-spin'/>} {form.formState.isSubmitting ? 'Please wait...' : 'Login'}
                         </motion.button>
 
                         <DemarcationLine />
