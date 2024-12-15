@@ -20,7 +20,15 @@ export async function loadGithubRepo(githubURL: string, githubToken?: string) {
 
 export async function indexGithubRepo(projectId: string, githubURL: string, githubToken?: string) {
    const docs = await loadGithubRepo(githubURL, githubToken)
- 
+  //  const docsWithoutSummary = await db.sourceCodeEmbedding.findMany({where: {projectId, summary: ''}, select: {filename: true}})
+  //  const docsToSummarize = docs.filter(doc => !docsWithoutSummary.some(docWithoutSummary => docWithoutSummary.filename === doc.metadata.source))
+   
+  
+  //  if(docsToSummarize.length === 0) {
+  //   console.log('No documents with missing summaries found.');
+  //   return
+  //  }
+
   // const embeddings = await Promise.all(docs.map(async (doc,i) => { 
   //     const summary = await summarizeCode(doc)
   //     const embedding = await generateEmbedding(summary)
@@ -33,20 +41,28 @@ export async function indexGithubRepo(projectId: string, githubURL: string, gith
   //     }
   // }))
 
-  let embeddings: any = [];
+  let summaries: string[] = []
   for(const doc of docs) {
-        const summary = await summarizeCode(doc)
-        const embedding = await generateEmbedding(summary)
+      const summary = await summarizeCode(doc)
+      if(summary === '') await new Promise(r => setTimeout(r, 10))
+      summaries.push(summary)
+  }
 
-        if(summary === '') await new Promise(r => setTimeout(r, 10 * 1000))
+  // let embeddings: any = [];
+  // for(const doc of docs) {
+  //       const summary = await summarizeCode(doc)
+  //       const embedding = await generateEmbedding(summary)
+
+  //       if(summary === '') await new Promise(r => setTimeout(r, 10 * 1000))
     
-        embeddings.push({
-             summaryEmbedding: embedding,
-             sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
-             filename: doc.metadata.source,
-             summary
-          })
-      }
+  //       embeddings.push({
+  //            summaryEmbedding: embedding,
+  //            sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
+  //            filename: doc.metadata.source,
+  //            summary
+  //         })
+  //     }
+      
 
   // const queue = new PQueue({concurrency: 15, interval: 60 * 1000, intervalCap: 15})
 
@@ -63,19 +79,21 @@ export async function indexGithubRepo(projectId: string, githubURL: string, gith
   //   else return ''
   // })
 
-  // const embeddings = await Promise.all(docs.map(async (doc,i) => {
-  //     const embedding = await generateEmbedding(summaries[i] ?? '')
 
-  //     return {
-  //        summaryEmbedding: embedding,
-  //        sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
-  //        filename: doc.metadata.source,
-  //        summary: summaries[i] ?? ''
-  //     }
-  // }))
+   // USE THEN CATCH
+  const embeddings = await Promise.all(docs.map(async (doc,i) => {
+      const embedding = await generateEmbedding(summaries[i] ?? '')
+
+      return {
+         summaryEmbedding: embedding,
+         sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
+         filename: doc.metadata.source,
+         summary: summaries[i] ?? ''
+      }
+  }))
 
   // NO RATE LIMITING IN EMBEDDING MODEL 
-  await Promise.allSettled(embeddings.map(async (embedding: any) => {
+  await Promise.allSettled(embeddings.map(async (embedding) => {
       const sourceCodeEmbedding =  await db.sourceCodeEmbedding.create({
         data: {
           sourceCode: embedding.sourceCode,

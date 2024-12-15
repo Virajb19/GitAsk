@@ -41,7 +41,7 @@ export async function pollCommits(projectId: string) {
 
    const commits = await getCommits(project.repoURL)
 
-   const processedCommits = await db.commit.findMany({ where: { projectId}})  
+   const processedCommits = await db.commit.findMany({ where: { projectId}, orderBy: { date: 'desc'}})  
 
    const unprocessedCommits = commits.filter(commit => !processedCommits.some((processedCommit) => processedCommit.hash === commit.hash))
 
@@ -61,6 +61,9 @@ export async function pollCommits(projectId: string) {
        if(response.status === 'fulfilled') return response.value
        else return ""
    })
+
+   const commitsToDelete = await db.commit.findMany({where: {projectId}, orderBy: {date: 'asc'}, select: { id: true}, take: unprocessedCommits.length})
+   await db.commit.deleteMany({where: {id: { in: commitsToDelete.map(commit => commit.id)}}})
    
   const Commits = await db.commit.createMany({
       data: unprocessedCommits.map((commit, i) => ({

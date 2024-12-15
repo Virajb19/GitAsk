@@ -1,15 +1,14 @@
 'use client'
 
-import { Question, User } from "@prisma/client";
+import { Question } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import MDEditor from "@uiw/react-md-editor";
 import axios from "axios";
 import Image from "next/image";
 import { Fragment, useState } from "react";
-import { toast } from "sonner";
 import AskQuestionCard from "~/components/ask-question-card";
 import FileReference from "~/components/file-reference";
-import { Sheet,SheetDescription,SheetContent,SheetHeader,SheetTitle,SheetTrigger} from "~/components/ui/sheet";
+import { Sheet,SheetContent,SheetHeader,SheetTitle,SheetTrigger} from "~/components/ui/sheet";
 import { useProject } from "~/hooks/useProject";
 
 type question = Question & { user: { ProfilePicture: string | null}}
@@ -20,7 +19,7 @@ export default function QApage() {
 
   const { projectId } = useProject()
 
-  const {data: questions,error} = useQuery<question[]>({
+  const {data: questions} = useQuery<question[]>({
     queryKey: ['getQuestions'],
     queryFn: async () => {
         if(!projectId) throw new Error('Project Id is required')
@@ -36,15 +35,11 @@ export default function QApage() {
 
   const question = questions?.[quesIdx]
 
-  if(!questions) return null
-
-  // if(questions && !(questions[0]?.createdAt instanceof Date)) { toast.error('Error')}
-
   return <div className="w-full flex flex-col gap-3 p-1">
           <AskQuestionCard />
          <Sheet>
               <h3 className="font-bold underline">Saved Questions</h3>
-               {(questions?.length > 0) ? (
+               {(questions && questions?.length > 0) ? (
                  <>
                      {questions?.map((question, i) => {
                         return <Fragment key={question.id}>
@@ -67,7 +62,7 @@ export default function QApage() {
                   <h2>Ask a Question</h2>
                )}
                 {question && (
-                    <SheetContent className="sm:max-w-[60vw]">
+                    <SheetContent className="sm:max-w-[60vw] w-full">
                     <SheetHeader>
                        <SheetTitle className="capitalize underline">Q.{question.question}</SheetTitle>
                        <MDEditor.Markdown source={question.answer} className="max-h-[40vh] overflow-scroll"/>

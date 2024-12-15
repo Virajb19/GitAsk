@@ -40,15 +40,14 @@ export default function CreatePage() {
             setCreditInfo({fileCount, userCredits})
 
               if(userCredits >= fileCount) {
-                    await new Promise(r => setTimeout(r, 5000))
-                    //  const {data : { project }} = await axios.post('/api/project', {...data, fileCount})
+                     const {data : { project }} = await axios.post('/api/project', {data, fileCount})
                     toast.success('Successfully created the project', {position: 'bottom-right'})
-                    //  form.setValue('name', '')
-                    //  form.setValue('repoURL', '')
+                     form.setValue('name', '')
+                     form.setValue('repoURL', '')
 
-                      queryClient.refetchQueries({queryKey: ['getProjects']})
-                    //  setProjectId(project.id)
-                    //  router.push('/dashboard')
+                     await queryClient.refetchQueries({type: 'active'})
+                     setProjectId(project.id)
+                     router.push('/dashboard')
               } else toast.error(`You need to buy ${fileCount - userCredits} more credits`, {position: 'bottom-right'})
             } catch(error) {
               if(error instanceof AxiosError) {
@@ -112,13 +111,14 @@ export default function CreatePage() {
                         />
 
                       {(creditInfo.fileCount > 0 || creditInfo.userCredits > 0) && (
-                          <div className="border p-3 rounded-md bg-orange-100 dark:bg-orange-300 border-yellow-500">
+                          <motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.4, ease: 'easeInOut'}}
+                          className="border p-3 rounded-md bg-orange-100 dark:bg-orange-400 border-yellow-500">
                           <div className="flex gap-3 text-yellow-800">
                              <Info />
                              <p>You will be charged <strong>{creditInfo.fileCount}</strong> credits for this project</p>
                           </div>
                           <p className="text-blue-600 ml-9">You currently have <strong>{creditInfo.userCredits}</strong> in your account</p>
-                       </div>
+                       </motion.div>
                       )}
 
                        <button type="submit" disabled={form.formState.isSubmitting}

@@ -49,7 +49,7 @@ export default function AskQuestionCard() {
       } catch (err) {
          setOpen(false)
          toast.error('Something went wrong. Try again!!!')
-    }
+    } finally { form.setValue('question', '')}
   }
 
   async function handleClick() {
@@ -87,7 +87,7 @@ export default function AskQuestionCard() {
     <div className="flex-center col-span-3">
          <Card className="w-full relative">
             <CardHeader>
-                <CardTitle>Ask a Question</CardTitle>
+                <CardTitle className="text-lg">Ask a Question</CardTitle>
                 <CardDescription>AI has the knowledge of the codebase</CardDescription>
             </CardHeader>
             <CardContent>
@@ -116,7 +116,6 @@ export default function AskQuestionCard() {
                </Form>
             </CardContent>
          </Card>
-               <button onClick={() => setOpen(true)} className="p-3 bg-blue-700 rounded-sm">See answer</button>
   </div>
   </>
 }

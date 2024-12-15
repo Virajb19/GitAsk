@@ -63,8 +63,7 @@ export async function summarizeCode(doc: Document) {
 
           return response.response.text()
   } catch(err) {
-     // console.error('Error generating summary of the code',err)
-      console.error('Error')
+     console.error('Error generating summary of the code',err)
      return ''
   }
 }
