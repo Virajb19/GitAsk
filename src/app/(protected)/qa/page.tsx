@@ -9,6 +9,7 @@ import { Fragment, useState } from "react";
 import AskQuestionCard from "~/components/ask-question-card";
 import FileReference from "~/components/file-reference";
 import { Sheet,SheetContent,SheetHeader,SheetTitle,SheetTrigger} from "~/components/ui/sheet";
+import { Skeleton } from "~/components/ui/skeleton";
 import { useProject } from "~/hooks/useProject";
 
 type question = Question & { user: { ProfilePicture: string | null}}
@@ -19,8 +20,8 @@ export default function QApage() {
 
   const { projectId } = useProject()
 
-  const {data: questions} = useQuery<question[]>({
-    queryKey: ['getQuestions'],
+  const {data: questions, isLoading} = useQuery<question[]>({
+    queryKey: ['getQuestions', projectId],
     queryFn: async () => {
         if(!projectId) throw new Error('Project Id is required')
         try {
@@ -32,6 +33,14 @@ export default function QApage() {
     },
     enabled: !!projectId,
   })
+
+  if(isLoading) return <div className="w-full flex flex-col gap-3 p-1">
+                <AskQuestionCard />
+                <h3 className="font-bold underline">Saved Questions</h3>
+                {Array.from({length: 5}).map((_,i) => {
+                    return <Skeleton key={i} className="h-[10vh]"/>
+                })}
+          </div>
 
   const question = questions?.[quesIdx]
 
