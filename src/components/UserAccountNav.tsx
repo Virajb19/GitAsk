@@ -32,7 +32,7 @@ export default function UserAccountNav() {
                     <DropdownMenuSeparator />
 
                     <DropdownMenuItem className='outline-none cursor-pointer' onClick={() => signOut({callbackUrl: '/'})}>
-                       <span className='flex items-center gap-2 text-base transition-all duration-300 hover:text-red-500'>Log out <LogOut className='size-4'/></span>
+                       <span className='flex items-center gap-2 text-base transition-all duration-300 hover:text-red-500'><LogOut className='size-4'/>Log out </span>
                        </DropdownMenuItem>
 
                     </DropdownMenuContent>

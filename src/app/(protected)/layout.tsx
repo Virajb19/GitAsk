@@ -15,7 +15,7 @@ export default async function SideBarLayout({children}: {children: ReactNode}) {
              <Searchbar />
              {children}
             </div>  */}
-            <div className="flex flex-col gap-3 p-2 grow">
+            <div className="flex flex-col gap-3 p-2 grow relative overflow-x-hidden">
                 <Searchbar />
                 <div className="grow overflow-y-scroll border-2 border-accent bg-gray-100 dark:bg-transparent mb:border-transparent rounded-lg p-1 flex max-h-[calc(90vh-2rem)]">
                  {children}
