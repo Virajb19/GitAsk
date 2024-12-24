@@ -129,13 +129,15 @@ export async function archiveProject(projectId: string) {
         const session = await getServerAuthSession()
         if(!session?.user) return {success: false, msg: 'Unauthorized'}
 
+        if(projectId === '') return {success: false, msg: 'No project to archive!!'}
+
         await db.project.update({where: { id: projectId}, data: {deletedAt: new Date()}})
 
         return { success: true }
 
     } catch(err) {
         console.error(err)
-        return {success: false, error: 'Error archiving the project'}
+        return {success: false, msg: 'Failed to archive the project'}
     } 
 }
 

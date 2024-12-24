@@ -16,6 +16,7 @@ import { useProject } from "~/hooks/useProject"
 import { useRouter } from "nextjs-toploader/app"
 import { checkCredits } from "~/server/actions"
 import { useState } from "react"
+import { useSession } from "next-auth/react"
 
 
 type Input = z.infer<typeof createProjectSchema>
@@ -33,6 +34,9 @@ export default function CreatePage() {
   const { setProjectId } = useProject()
   const router = useRouter()
 
+  const {data: session} = useSession()
+  const userId = session?.user.id
+
   async function onSubmit(data: Input) {
     
         try {
@@ -45,7 +49,7 @@ export default function CreatePage() {
                      form.setValue('name', '')
                      form.setValue('repoURL', '')
 
-                     await queryClient.refetchQueries({type: 'active'})
+                     await queryClient.refetchQueries({queryKey: ['getProjects', userId]})
                      setProjectId(project.id)
                      router.push('/dashboard')
               } else toast.error(`You need to buy ${fileCount - userCredits} more credits`, {position: 'bottom-right'})
@@ -128,7 +132,7 @@ export default function CreatePage() {
                              Create project <ArrowRight className="group-hover:translate-x-2 duration-200"/>
                            </>}                   
                        </button>
-
+                      
                      </form>
                      </Form>
                   </CardContent>

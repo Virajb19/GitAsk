@@ -5,12 +5,12 @@ import { Toaster as SonnerToaster} from 'sonner'
 import { Toaster} from "~/components/ui/toaster"
 import Providers from "./providers";
 import NextTopLoader from 'nextjs-toploader';
-import { Lexend } from 'next/font/google';
+import { Lexend, DM_Sans, Poppins } from 'next/font/google';
 import Navbar from "~/components/Navbar";
 
 export const metadata: Metadata = {
   title: "GitChat",
-  description: "Ask AI about a repo!",
+  description: "Ask AI about a Github repo!",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
@@ -19,12 +19,22 @@ const lexend = Lexend({
   weight: ['400', '700'], 
 });
 
+const sans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['500','800']
+})
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['500', '800']
+})
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <body className={lexend.className}>
+      <body className={sans.className}>
         <Providers>
          <SonnerToaster position="top-center" richColors theme="dark"/>
          <Toaster />

@@ -14,6 +14,12 @@ export const useProject = () => {
  const [projects,setProjects] = useState<Project[]>([])
  const [projectId, setProjectId] = useLocalStorage<string>('projectId', '')
 
+ const project = useMemo(() => {
+     return projects.find(project => project.id === projectId)
+  }, [projects, projectId])
+
+  // if(project) alert(JSON.stringify(project.repoURL))
+
  const {isLoading, isError} = useQuery({
   queryKey: ['getProjects', userId],
   queryFn: async () => {
@@ -24,11 +30,6 @@ export const useProject = () => {
  })
 
  if(isError) toast.error('Some error occured')
-
- const project = useMemo(() => {
-   return projects.find(project => project.id === projectId)
- }, [projects, projectId])
-
 
     return { projects, projectId, setProjectId, project, isLoading}
 }

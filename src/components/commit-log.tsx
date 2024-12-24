@@ -24,7 +24,7 @@ export default function CommitLogComponent() {
             setCommits(commits)
             return commits
          } catch(err) {
-             throw new Error('Error fetchning commits')
+             throw new Error('Error fetching commits')
          }
     },
     refetchInterval: 10 * 60 * 1000,
@@ -67,7 +67,7 @@ export default function CommitLogComponent() {
               <div className="relative flex flex-col gap-2 items-start w-[70vw] bg-accent dark:bg-card p-2 rounded-lg border border-accent">
                   <span className="absolute right-2 top-2">{formatDistanceToNow(new Date(commit.date), {addSuffix: true}).replace('about', '')}</span>
                    <Link href={`${project?.repoURL}/commits/${commit.hash}`} className="flex gap-3 items-center"> 
-                      <span className="font-semibold text-lg">{commit.authorName}</span>
+                      <span className="font-semibold text-lg underline">{commit.authorName}</span>
                       <span className="inline-flex items-center text-sm text-gray-500 hover:underline">committed</span>
                       <ExternalLink className="ml-1 size-4"/>
                     </Link>

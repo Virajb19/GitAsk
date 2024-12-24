@@ -30,15 +30,6 @@ h3 {
   @apply scrollbar-thin scrollbar-thumb-slate-700 hover:scrollbar-thumb-slate-600 scrollbar-corner-transparent scrollbar-track-transparent
 }
 
-@font-face {
-  font-family: sans;
-  src: url(/DMSans_24pt-Regular.ttf) format('truetype');
-}
-
-/* body {
-  font-family: sans;
-} */
-
 @layer base {
   :root {
     --background: 0 0% 100%;

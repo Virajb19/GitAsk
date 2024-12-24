@@ -8,7 +8,6 @@ import { useMediaQuery } from 'react-responsive';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import Projects from './Projects';
-import { getProjects } from '~/actions/getProjects';
 
 const items = [
     {title: 'Home', url: '/', icon: <Home className='size-6'/>},

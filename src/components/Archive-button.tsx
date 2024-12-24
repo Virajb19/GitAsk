@@ -18,9 +18,9 @@ export default function ArchiveButton() {
      const res = await archiveProject(projectId)
      if(res.success) {
         toast.success('Project archived')
-        queryClient.invalidateQueries({queryKey: ['getProjects']})
+        queryClient.refetchQueries({queryKey: ['getProjects']})
      }
-     else toast.error('failed to archive project')
+     else toast.error(res.msg || 'Failed to archive the project')
      setLoading(false)
   }
 
