@@ -4,7 +4,6 @@ import { Commit } from "@prisma/client"
 import { ExternalLink } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
 import { useProject } from "~/hooks/useProject"
 import { Skeleton } from "./ui/skeleton"
 import { formatDistanceToNow} from 'date-fns'
@@ -14,14 +13,12 @@ import axios from "axios"
 export default function CommitLogComponent() {
 
   const { projectId, project } = useProject()
-  const [commits, setCommits] = useState<Commit[]>([])
 
-  const { isLoading, isError } = useQuery({
+  const {data: commits, isLoading, isError } = useQuery<Commit[]>({
     queryKey: ['getCommits', projectId],
     queryFn: async () => {
          try {
             const { data : { commits }} = await axios.get(`/api/commits/${projectId}`) 
-            setCommits(commits)
             return commits
          } catch(err) {
              throw new Error('Error fetching commits')
@@ -35,20 +32,20 @@ export default function CommitLogComponent() {
   //    await getCommits(projectId).then({ setCommits(commits)})
   // }, [projectid])
 
-  // if(isLoading) return <div className="flex flex-col grow gap-2 mt-3 p-1">
-  //        {Array.from({ length: 15}).map((_,i) => {
-  //              return <div key={i} className="relative flex justify-end gap-3 p-2 m-5 grow">
-  //                      <Skeleton className="h-12 w-12 rounded-full absolute top-2 left-4" />
-  //                     <div className="space-y-2 w-[68vw] flex flex-col">
-  //                       <Skeleton className="h-4" />
-  //                       <Skeleton className="h-4" />
-  //                       <Skeleton className="h-[125px] rounded-xl" />
-  //                     </div>
-  //                </div>
-  //           })}
-  // </div>
+  if(isLoading) return <div className="flex flex-col grow gap-2 mt-3 p-1">
+         {Array.from({ length: 15}).map((_,i) => {
+               return <div key={i} className="relative flex justify-end gap-3 p-2 m-5 grow">
+                       <Skeleton className="h-12 w-12 rounded-full absolute top-2 left-4" />
+                      <div className="space-y-2 w-[68vw] flex flex-col">
+                        <Skeleton className="h-4" />
+                        <Skeleton className="h-4" />
+                        <Skeleton className="h-[125px] rounded-xl" />
+                      </div>
+                 </div>
+            })}
+  </div>
 
-  if(isError) return <div className="flex-center grow mt-3 p-1 text-2xl">
+  if(isError || commits === undefined) return <div className="flex-center grow mt-3 p-1 text-2xl">
       No commits found. Refresh!!!
   </div>
 
@@ -56,7 +53,7 @@ export default function CommitLogComponent() {
         Select a Project
   </div>
 
-  return <ul className="flex flex-col grow gap-2 mt-3 p-1 rounded-lg">
+  return <ul className="flex flex-col grow gap-2 mt-3 p-1">
        {!isLoading ? (
         <>
         {commits.map(commit => {

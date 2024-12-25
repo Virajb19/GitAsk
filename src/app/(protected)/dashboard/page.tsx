@@ -12,10 +12,8 @@ export default function DashBoard() {
 
   const { project } = useProject()
 
-  // alert(JSON.stringify(project?.repoURL))
-
   return <div className="w-full flex flex-col gap-1 p-3 mb:p-0">
-    <div className="flex gap-1 p-1 items-center justify-between">
+    <div className="flex flex-wrap gap-3 p-1 items-center justify-between">
       <div className="flex justify-between gap-3 items-center bg-blue-700 rounded-sm px-5 py-3">
         <LuGithub className="size-6" />
         <p className="flex flex-wrap items-center gap-2 font-semibold">This project is linked to

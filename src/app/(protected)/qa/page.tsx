@@ -68,7 +68,7 @@ export default function QApage() {
               })}
                  </>
                ) : (
-                  <h2>Ask a Question</h2>
+                  <h2 className="self-center">Ask a Question</h2>
                )}
                 {question && (
                     <SheetContent className="sm:max-w-[60vw] w-full">
