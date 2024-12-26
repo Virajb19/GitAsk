@@ -20,7 +20,7 @@ const router = useRouter()
 
 // console.log(isOpen)
 
-  return <motion.div initial={{y: -20, opacity: 0}} animate={{y: 0, opacity: 1}} transition={{duration: 0.5, ease: 'easeOut'}}  className="dark:bg-transparent dark:border-[3px] dark:border-gray-800 bg-muted flex px-2 py-1 items-center justify-between rounded-lg">
+  return <motion.div initial={{y: -20, opacity: 0}} animate={{y: 0, opacity: 1}} transition={{duration: 0.5, ease: 'easeOut'}}  className="dark:bg-transparent border-[3px] border-transparent dark:border-gray-800 bg-muted flex px-2 py-1 items-center justify-between rounded-lg">
        <div className="flex items-center gap-3">
           <Image src={'/favicon.ico'} alt='logo' width={40} height={40} />
           <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden text-foreground/60 hover:dark:bg-[#191919] hover:bg-gray-100 border p-2.5 rounded-2xl duration-200">

@@ -116,7 +116,7 @@ export default function CreatePage() {
 
                       {(creditInfo.fileCount > 0 || creditInfo.userCredits > 0) && (
                           <motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.4, ease: 'easeInOut'}}
-                          className="border p-3 rounded-md bg-orange-100 dark:bg-orange-400 border-yellow-500">
+                          className="border p-3 rounded-md bg-orange-100 dark:bg-orange-200/5 border-yellow-500">
                           <div className="flex gap-3 text-yellow-800">
                              <Info />
                              <p>You will be charged <strong>{creditInfo.fileCount}</strong> credits for this project</p>

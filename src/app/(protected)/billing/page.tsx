@@ -36,13 +36,13 @@ export default async function BillingPage() {
               {transactions.map(transaction => {
                 return <li key={transaction.id} className="flex items-center p-2 justify-between rounded-lg bg-white dark:bg-card">
                           <div className="flex gap-2 items-center">
-                              <span className="p-3 rounded-full bg-green-200 dark:bg-green-300 text-green-600"><CreditCard /></span>
+                              <span className="p-3 rounded-full bg-green-200 dark:bg-green-500/10 text-green-600"><CreditCard /></span>
                               <div className="flex flex-col gap-0 items-start">
                                   <span className="text-lg font-semibold">Credits Added</span>
                                   <span className="text-gray-500">{transaction.createdAt.toLocaleDateString()}</span>
                               </div>
                           </div>
-                          <span className="text-lg text-green-700 mr-3 flex-center gap-1 font-bold"><Plus className="size-4" strokeWidth={3}/>{transaction.credits} credits</span>
+                          <span className="text-lg text-green-500 mr-3 flex-center gap-1 font-bold"><Plus className="size-4" strokeWidth={3}/>{transaction.credits} credits</span>
                 </li>
               })}
           </ul>
