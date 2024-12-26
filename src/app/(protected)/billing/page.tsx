@@ -18,7 +18,7 @@ export default async function BillingPage() {
   return <div className="w-full flex flex-col p-3 gap-2">
         <h2 className="font-bold text-3xl">Billing</h2>   
          <p className="text-gray-500">You have <span className="text-blue-700 dark:text-white mx-1 font-semibold">{credits}</span> credits remaining</p>
-         <div className="bg-blue-50 dark:bg-blue-400 dark:font-semibold dark:border-transparent text-blue-700 border border-blue-200 px-4 py-2 rounded-md">
+         <div className="bg-blue-50 dark:bg-blue-500/20 dark:font-semibold dark:border-transparent text-blue-700 border border-blue-200 px-4 py-2 rounded-md">
             <div className="flex items-start gap-2">
               <Info />
               <p>Each credit allows you to index 1 file in the repo</p>
