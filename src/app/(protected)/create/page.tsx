@@ -49,6 +49,8 @@ export default function CreatePage() {
                      form.setValue('name', '')
                      form.setValue('repoURL', '')
 
+                    //  form.reset()
+
                      await queryClient.refetchQueries({queryKey: ['getProjects', userId]})
                      setProjectId(project.id)
                      router.push('/dashboard')

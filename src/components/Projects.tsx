@@ -13,7 +13,7 @@ export default function Projects({ isCollapsed }: { isCollapsed: boolean }) {
 
   useEffect(() => {
       if(projectRefs) {
-        const selectedProjectRef = projectRefs.current.find((ref,i) => projects[i]?.id === projectId)
+        const selectedProjectRef = projectRefs.current.find((ref,i) => projects && projects[i]?.id === projectId)
         if(selectedProjectRef) {
             selectedProjectRef.scrollIntoView({ behavior: 'smooth', block: 'center'})
         }
@@ -26,7 +26,7 @@ export default function Projects({ isCollapsed }: { isCollapsed: boolean }) {
     })}
   </div>
 
-  if(projects.length === 0 && !isCollapsed) return <div className="flex-center gap-2 p-2 max-h-[45vh] border-4 border-blue-600 rounded-xl">
+  if(projects?.length === 0 && !isCollapsed) return <div className="flex-center gap-2 p-2 max-h-[45vh] border-4 border-blue-600 rounded-xl">
         <span className="text-2xl font-bold">Create a project</span>
 </div>
 
@@ -34,7 +34,7 @@ export default function Projects({ isCollapsed }: { isCollapsed: boolean }) {
     {!isCollapsed ? (
       <>
         {projects?.map((project, i) => {
-          return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: i * 0.3, ease: 'easeOut' }} key={i} ref={el => {projectRefs.current[i] = el}}
+          return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, ease: 'easeOut', delay: i * 0.1 }} key={i} ref={el => {projectRefs.current[i] = el}}
             onClick={() => setProjectId(project.id)}
             className={twMerge("flex items-center gap-2 p-2 rounded-lg cursor-pointer border border-blue-900/2", project.id === projectId ? "bg-blue-600/15 border-blue-900" : "hover:bg-blue-600/15 duration-200")}>
             <span className={twMerge("px-3 py-1 border rounded-sm bg-accent", project.id === projectId && "bg-blue-500 transition-colors")}>{project.name[0]}</span>
@@ -44,7 +44,7 @@ export default function Projects({ isCollapsed }: { isCollapsed: boolean }) {
       </>
     ) : (
       <>
-        {projects.map((project, i) => {
+        {projects?.map((project, i) => {
           return <TooltipProvider key={i}>
             <Tooltip>
               <TooltipTrigger asChild>
