@@ -44,7 +44,7 @@ export async function pollCommits(projectId: string) {
    const processedCommits = await db.commit.findMany({ where: { projectId}, orderBy: { date: 'desc'}})  
 
    const unprocessedCommits = commits.filter(commit => !processedCommits.some((processedCommit) => processedCommit.hash === commit.hash))
-
+   
    if(unprocessedCommits.length === 0) return 0
 
    const responses = await Promise.allSettled(unprocessedCommits.map(async (commit) => {

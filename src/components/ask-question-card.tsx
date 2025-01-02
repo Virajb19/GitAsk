@@ -5,11 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { zodResolver } from "@hookform/resolvers/zod";
 import { askQuestionSchema } from "~/lib/zod";
 import { z } from "zod";
-import { Textarea } from "./ui/textarea";
 import { Loader2, Sparkles, Download } from 'lucide-react';
 import { Dialog, DialogHeader, DialogContent, DialogTitle } from "./ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form'
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { askQuestion, saveQuestion } from "~/server/actions";
 import { useProject } from "~/hooks/useProject";
@@ -49,7 +48,7 @@ export default function AskQuestionCard() {
       } catch (err) {
          setOpen(false)
          toast.error('Something went wrong. Try again!!!')
-    } finally { form.setValue('question', '')}
+    } 
   }
 
   async function handleClick() {
@@ -63,10 +62,25 @@ export default function AskQuestionCard() {
          toast.success('Question saved!')
          setOpen(false)
          queryClient.refetchQueries({queryKey: ['getQuestions']})
+         form.setValue('question', '')
       }
       else toast.error(res.msg || 'Failed to save the answer. Try again!!!')
    }
 
+   useEffect(() => {
+     const handleKeyDown = (e: KeyboardEvent) => {
+       if(e.ctrlKey && e.key === 'Enter') {
+          e.preventDefault()
+          buttonRef.current?.click()
+       }
+     }
+
+     document.addEventListener('keydown', handleKeyDown)
+
+     return () => document.removeEventListener('keydown', handleKeyDown)
+   }, [])
+
+   const buttonRef = useRef<HTMLButtonElement>(null)
   
   return <>
     <Dialog open={open} onOpenChange={setOpen}>
@@ -99,18 +113,18 @@ export default function AskQuestionCard() {
                           name='question'
                           render={({ field }) => (
                              <FormItem className='flex flex-col gap-1'>
-                              <FormMessage className="text-base"/>
+                              <FormMessage className="text-base text-red-500"/>
                               <FormControl>
-                                <Textarea {...field} placeholder="Which file should I edit to change the Homepage?"/>
+                                <textarea {...field} className="input-style resize-none min-h-20" placeholder="Which file should I edit to change the Homepage?"/>
                               </FormControl>
                              </FormItem>
                           )}
                         />
 
-                     <button type="submit" className="flex-center gap-2 bg-blue-700 px-4 py-2 rounded-2xl mt-7 text-lg text-white disabled:cursor-not-allowed disabled:opacity-75" 
+                     <button ref={buttonRef} type="submit" className="flex-center gap-2 bg-blue-700 hover:bg-blue-800 transition-colors duration-200 px-4 py-2 rounded-2xl mt-7 text-lg text-white disabled:cursor-not-allowed disabled:opacity-75" 
                         disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting ? <Loader2 className="animate-spin"/> : <Sparkles />} 
-                        {form.formState.isSubmitting ? 'Asking...' : 'Ask AI!'}
+                        {form.formState.isSubmitting ? <Loader2 className="animate-spin"/> : <Sparkles className="fill-amber-500 text-amber-500"/>} 
+                        {form.formState.isSubmitting ? 'Asking...' : 'Ask AI !'}
                      </button>
                  </form>
                </Form>
