@@ -12,7 +12,7 @@ export default function FileReference({files}: Props) {
  
     const [tab,setTab] = useState(files[0]?.filename)
 
-  return <div className='max-w-[67vw]'>
+  return <div className='max-w-[67vw] mb:max-w-[100vw]'>
            <Tabs value={tab} onValueChange={setTab}>
                 <div className='flex gap-2 bg-gray-800 overflow-scroll rounded-md p-2'>
                    {files.map((file,i) => {

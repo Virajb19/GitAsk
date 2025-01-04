@@ -7,15 +7,15 @@ import { toast } from "sonner"
 
 export default function BuyCredits() {
 
-    const [creditsToBuy, setCreditsToBuy] = useState<number[]>([100])
-    const price = (creditsToBuy[0]! / 50).toFixed(2)
+    const [creditsToBuy, setCreditsToBuy] = useState<number>(100)
+    const price = (creditsToBuy / 50).toFixed(2)
 
   return <div className="flex flex-col gap-5 mt-4 items-start">
-        <Slider className="" defaultValue={[100]} value={creditsToBuy} min={10} max={1000} step={10} onValueChange={value => setCreditsToBuy(value)}/>
+        <Slider className="" defaultValue={[100]} value={[creditsToBuy]} min={10} max={1000} step={10} onValueChange={value => setCreditsToBuy(value[0] ?? 100)}/>
         <button onClick={async () => {
             const id = toast.loading('Directing to Stripe page...')
             try {
-                await createCheckoutSession(creditsToBuy[0]!)
+                await createCheckoutSession(creditsToBuy)
             } catch(err) {
                  toast.error('Something went wrong!')
             } finally {

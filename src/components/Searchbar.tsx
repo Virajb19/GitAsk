@@ -5,7 +5,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import UserAccountNav from "./UserAccountNav";
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useProject } from "~/hooks/useProject";
 import { twMerge } from "tailwind-merge";
 import { Plus } from 'lucide-react'
@@ -17,8 +17,20 @@ const [isOpen, setIsOpen] = useState(false)
 const { projects , setProjectId, projectId} = useProject()
 
 const router = useRouter()
+const sidebarRef = useRef<HTMLDivElement>(null)
 
 // console.log(isOpen)
+
+useEffect(() => {
+  const handleClickOutside = (e: MouseEvent) => {
+    if(sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
+      setIsOpen(false)
+    }
+  }
+  document.addEventListener('mousedown', handleClickOutside)
+
+  return () => document.removeEventListener('mousedown', handleClickOutside)
+}, [])
 
   return <motion.div initial={{y: -20, opacity: 0}} animate={{y: 0, opacity: 1}} transition={{duration: 0.5, ease: 'easeOut'}}  className="dark:bg-transparent border-[3px] border-transparent dark:border-gray-800 bg-muted flex px-2 py-1 items-center justify-between rounded-lg">
        <div className="flex items-center gap-3">
@@ -33,7 +45,7 @@ const router = useRouter()
          <UserAccountNav />
       </div>
 
-      <motion.div initial={{x: '-100%'}} animate={{x: isOpen ? 0 : '-100%'}} transition={{duration: 0.4, ease: 'circInOut'}}
+      <motion.div ref={sidebarRef} initial={{x: '-100%'}} animate={{x: isOpen ? 0 : '-100%'}} transition={{duration: 0.4, ease: 'circInOut'}}
        className="lg:hidden absolute left-0 right-16 bottom-16 max-w-[500px] top-20 z-[99] rounded-tr-xl border-t-2 border-r-2 border-gray-700 bg-background flex flex-col gap-3 p-4">
               <button onClick={() => {
                   router.push('/create')

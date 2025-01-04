@@ -54,7 +54,7 @@ export default function QApage() {
                         return <Fragment key={question.id}>
                           <SheetTrigger onClick={() => setQuesIdx(i)}>
                               <div className="border flex items-center gap-3 p-3 rounded-lg bg-card text-left">
-                                  <Image src={question.user.ProfilePicture ?? ''} alt="user" width={50} height={50} className="rounded-full"/>
+                                  <Image src={question.user.ProfilePicture ?? ''} alt="user" width={50} height={50} className="rounded-full mb:hidden"/>
                                   <div className="flex flex-col gap-2">
                                     <div className="flex items-center gap-5">
                                     <p className="text-lg line-clamp-1 font-semibold">Q{i + 1}. {question.question}</p>
