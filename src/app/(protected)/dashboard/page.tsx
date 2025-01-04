@@ -14,7 +14,7 @@ export default function DashBoard() {
 
   return <div className="w-full flex flex-col gap-1 p-3 mb:p-0">
     <div className="flex flex-wrap gap-3 p-1 items-center justify-between">
-      <div className="flex justify-between gap-3 items-center bg-blue-700 rounded-sm px-5 py-3">
+      <div className="flex justify-between gap-3 items-center bg-blue-700 rounded-sm px-5 py-3 text-white/80">
         <LuGithub className="size-6" />
         <p className="flex flex-wrap items-center gap-2 font-semibold">This project is linked to
           <Link target="_blank" rel="noopener noreferrer" href={project?.repoURL ?? '#'} className="text-sm text-white/80 hover:underline inline-flex items-center font-light gap-1">

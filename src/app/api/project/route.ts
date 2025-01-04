@@ -35,7 +35,7 @@ try {
 
     await db.user.update({where: {id: userId}, data: {credits: {decrement: body.fileCount}}})
 
-    return NextResponse.json({msg: 'Project created successfully', project}, { status: 201})
+    return NextResponse.json({msg: 'Project created successfully', projectId: project.id}, { status: 201})
 
 } catch(err: any) {
     console.error(err)

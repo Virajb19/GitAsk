@@ -17,7 +17,7 @@ const githubRepoUrl = /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/
 const githubAccessToken = /^[a-zA-Z0-9_-]{40}$/
 
 export const createProjectSchema = z.object({
-    name: z.string().min(1, {message: 'Provide a project name'}).max(15, { message: 'Project name cannot exceed 15 letters'}).trim(),
+    name: z.string().min(1, {message: 'Provide a project name'}).max(25, { message: 'Project name cannot exceed 15 letters'}).trim(),
     repoURL: z.string().regex(githubRepoUrl, { message: 'Provide a valid repo URL'}).trim(),
     githubToken: z.string().regex(githubAccessToken, { message: 'Provide a valid access token'}).trim().optional()
 })

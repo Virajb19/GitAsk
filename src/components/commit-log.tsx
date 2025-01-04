@@ -9,6 +9,7 @@ import { Skeleton } from "./ui/skeleton"
 import { formatDistanceToNow} from 'date-fns'
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
+import { motion } from 'framer-motion'
 
 export default function CommitLogComponent() {
 
@@ -57,12 +58,13 @@ export default function CommitLogComponent() {
   return <ul className="flex flex-col grow gap-2 mt-3 p-1">
        {!isLoading ? (
         <>
-        {commits.map(commit => {
-          return <li key={commit.id} className="relative flex p-1 justify-end">
+        {commits.map((commit, i) => {
+          return <motion.li initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.3, ease: 'easeInOut', delay: i * 0.1}}
+          key={commit.id} className="relative flex p-1 justify-end">
               <div className="flex-center absolute top-3 left-1">
                 <Image src={commit.authorAvatar} alt="userAvatar" width={50} height={50} className="rounded-full"/>     
               </div>
-              <div className="relative flex flex-col gap-2 items-start w-[70vw] bg-accent dark:bg-card p-2 rounded-lg border border-accent">
+              <div className="relative flex flex-col gap-2 items-start w-[70vw] bg-white dark:bg-card p-2 rounded-lg border border-accent">
                   <span className="absolute right-2 top-2">{formatDistanceToNow(new Date(commit.date), {addSuffix: true}).replace('about', '')}</span>
                    <Link target="_blank"  rel="noopener noreferrer" href={`${project?.repoURL}/commits/${commit.hash}`} className="flex gap-3 items-center"> 
                       <span className="font-semibold text-lg underline">{commit.authorName}</span>
@@ -76,7 +78,7 @@ export default function CommitLogComponent() {
                   })}
                  </p> 
               </div>
-          </li>
+          </motion.li>
         })}
        </>
        ) : (

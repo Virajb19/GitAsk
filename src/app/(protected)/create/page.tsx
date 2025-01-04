@@ -17,7 +17,7 @@ import { useRouter } from "nextjs-toploader/app"
 import { checkCredits } from "~/server/actions"
 import { useState } from "react"
 import { useSession } from "next-auth/react"
-
+import { useMutation } from "@tanstack/react-query"
 
 type Input = z.infer<typeof createProjectSchema>
 
@@ -37,29 +37,40 @@ export default function CreatePage() {
   const {data: session} = useSession()
   const userId = session?.user.id
 
+  const {mutateAsync: createProject} = useMutation({
+    mutationFn: async ({data, fileCount}: {data: Input, fileCount: number}) => {
+      const {data : { projectId }} = await axios.post('/api/project', {data, fileCount})
+      return projectId
+    },
+    onSuccess: async (projectId: string) => {
+      toast.success('Successfully created the project', {position: 'bottom-right'})
+      form.setValue('name', '')
+      form.setValue('repoURL', '')
+
+     //  form.reset()
+
+     await queryClient.refetchQueries({queryKey: ['getProjects', userId]})
+     setProjectId(projectId)
+     router.push('/dashboard')
+    },
+
+    onError: (err) => {
+       console.error(err)
+       if(err instanceof AxiosError) {
+        toast.error(err.response?.data.msg || 'Something went wrong', {position: 'bottom-right'})
+       } else toast.error('Something went wrong!!!')
+    }
+  })
+
   async function onSubmit(data: Input) {
     
-        try {
-            const { fileCount, userCredits } = await checkCredits(data.repoURL, data.githubToken)
-            setCreditInfo({fileCount, userCredits})
+       const { fileCount, userCredits } = await checkCredits(data.repoURL, data.githubToken)
+       setCreditInfo({fileCount, userCredits}) 
 
-              if(userCredits >= fileCount) {
-                     const {data : { project }} = await axios.post('/api/project', {data, fileCount})
-                    toast.success('Successfully created the project', {position: 'bottom-right'})
-                     form.setValue('name', '')
-                     form.setValue('repoURL', '')
-
-                    //  form.reset()
-
-                     await queryClient.refetchQueries({queryKey: ['getProjects', userId]})
-                     setProjectId(project.id)
-                     router.push('/dashboard')
-              } else toast.error(`You need to buy ${fileCount - userCredits} more credits`, {position: 'bottom-right'})
-            } catch(error) {
-              if(error instanceof AxiosError) {
-                  toast.error(error?.response?.data.msg || 'Something went wrong', {position: 'bottom-right'})
-              } else toast.error('Something went wrong!!!')
-          }  
+       if(userCredits > fileCount) {
+         await createProject({data, fileCount})
+        //  queryClient.refetchQueries({ queryKey: ['getProjects']})
+       } else toast.error(`You need to buy ${fileCount - userCredits} more credits`, {position: 'bottom-right'})
    }
 
   return <div className="grow flex-center gap-3">
