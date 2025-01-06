@@ -11,6 +11,8 @@ import FileReference from "~/components/file-reference";
 import { Sheet,SheetContent,SheetHeader,SheetTitle,SheetTrigger} from "~/components/ui/sheet";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useProject } from "~/hooks/useProject";
+import { motion } from 'framer-motion'
+
 
 type question = Question & { user: { ProfilePicture: string | null}}
 
@@ -53,7 +55,8 @@ export default function QApage() {
                      {questions?.map((question, i) => {
                         return <Fragment key={question.id}>
                           <SheetTrigger onClick={() => setQuesIdx(i)}>
-                              <div className="border flex items-center gap-3 p-3 rounded-lg bg-card text-left">
+                              <motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.3, ease: 'easeInOut', delay: i * 0.1}}
+                              className="border flex items-center gap-3 p-3 rounded-lg bg-card text-left">
                                   <Image src={question.user.ProfilePicture ?? ''} alt="user" width={50} height={50} className="rounded-full mb:hidden"/>
                                   <div className="flex flex-col gap-2">
                                     <div className="flex items-center gap-5">
@@ -62,7 +65,7 @@ export default function QApage() {
                                     </div>
                                     <p className="text-sm line-clamp-5 overflow-hidden sm:line-clamp-2 text-gray-400 w-[70vw]">{question.answer}</p>
                                   </div>
-                              </div>
+                              </motion.div>
                           </SheetTrigger>
                       </Fragment>
               })}

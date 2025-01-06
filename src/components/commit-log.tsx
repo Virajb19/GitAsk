@@ -15,6 +15,7 @@ export default function CommitLogComponent() {
 
   const { projectId, project } = useProject()
 
+   // ISFETCHING STATE
   const {data: commits, isLoading, isError } = useQuery<Commit[]>({
     queryKey: ['getCommits', projectId],
     queryFn: async () => {

@@ -33,11 +33,11 @@ export default function HomePage() {
                       </h1>
                 </CardTitle>
                  <CardDescription className='text-center'>
-                     <h3 className='flex-center gap-2 text-2xl mb:text-sm'><Sparkles className='size-7 text-yellow-600'/>Ask AI anything about your repo</h3>
+                     <h3 className='flex-center gap-2 text-2xl mb:text-sm'><Sparkles className='size-7 text-yellow-600 fill-yellow-600'/>Ask AI anything about your repo</h3>
                  </CardDescription>
                   <CardContent>
                       {status === 'loading' ? <Skeleton className='w-full h-10'/> : (
-                         <Link href={isAuth ? '/dashboard' : '/signup'} className='flex-center gap-3 text-xl mb:text-lg text-white font-semibold mt-5 hover:opacity-75 duration-200 group mx-auto px-4 py-2 rounded-lg bg-blue-700'>{isAuth ? 'Go to Dashboard' : 'Sign up to get started'}<ArrowRight strokeWidth={3} className='group-hover:translate-x-3 duration-200'/></Link>
+                         <Link href={isAuth ? '/dashboard' : '/signup'} className='flex-center gap-3 text-xl mb:text-base text-white font-semibold mt-5 hover:opacity-75 duration-200 group mx-auto px-4 py-2 rounded-lg bg-blue-700'>{isAuth ? 'Go to Dashboard' : 'Sign up to get started'}<ArrowRight strokeWidth={3} className='group-hover:translate-x-3 duration-200'/></Link>
                       )}
                   </CardContent>
            </CardHeader>
