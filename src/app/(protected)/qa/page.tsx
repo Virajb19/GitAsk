@@ -12,6 +12,7 @@ import { Sheet,SheetContent,SheetHeader,SheetTitle,SheetTrigger} from "~/compone
 import { Skeleton } from "~/components/ui/skeleton";
 import { useProject } from "~/hooks/useProject";
 import { motion } from 'framer-motion'
+import { User } from "lucide-react";
 
 
 type question = Question & { user: { ProfilePicture: string | null}}
@@ -34,6 +35,8 @@ export default function QApage() {
          }
     },
     enabled: !!projectId,
+    refetchIntervalInBackground: true,
+    refetchInterval: 5 * 60 * 1000
   })
 
   if(isLoading) return <div className="w-full flex flex-col gap-3 p-1">
@@ -53,11 +56,20 @@ export default function QApage() {
                {(questions && questions?.length > 0) ? (
                  <>
                      {questions?.map((question, i) => {
+
+                       const ProfilePicture = question.user.ProfilePicture
+
                         return <Fragment key={question.id}>
                           <SheetTrigger onClick={() => setQuesIdx(i)}>
                               <motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.3, ease: 'easeInOut', delay: i * 0.1}}
                               className="border flex items-center gap-3 p-3 rounded-lg bg-card text-left">
+                                {ProfilePicture ? (
                                   <Image src={question.user.ProfilePicture ?? ''} alt="user" width={50} height={50} className="rounded-full mb:hidden"/>
+                                ) : (
+                                    <div className="p-3 flex-center size-12 rounded-full bg-gradient-to-b from-blue-400 to-blue-700">
+                                      <User className="size-6" />
+                                </div>
+                                )}
                                   <div className="flex flex-col gap-2">
                                     <div className="flex items-center gap-5">
                                     <p className="text-lg line-clamp-1 font-semibold">Q{i + 1}. {question.question}</p>
@@ -74,7 +86,7 @@ export default function QApage() {
                   <h2 className="self-center">Ask a Question</h2>
                )}
                 {question && (
-                    <SheetContent className="sm:max-w-[60vw] w-full">
+                    <SheetContent className="sm:max-w-[60vw] w-full z-[1000]">
                     <SheetHeader>
                        <SheetTitle className="capitalize underline">Q.{question.question}</SheetTitle>
                        <MDEditor.Markdown source={question.answer} className="max-h-[40vh] overflow-scroll"/>

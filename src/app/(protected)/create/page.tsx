@@ -63,6 +63,8 @@ export default function CreatePage() {
   })
 
   async function onSubmit(data: Input) {
+
+       toast.info('Project creation might take some time due to Gemini rate limits.Consider trying with a small codebase.', {duration: 6000})
     
        const { fileCount, userCredits } = await checkCredits(data.repoURL, data.githubToken)
        setCreditInfo({fileCount, userCredits}) 

@@ -84,7 +84,7 @@ export default function AskQuestionCard() {
   
   return <>
     <Dialog open={open} onOpenChange={setOpen}>
-              <DialogContent className="sm:max-w-[70vw]">
+              <DialogContent className="sm:max-w-[70vw] z-[1000] my-1">
                    <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                        <Image src={'/favicon.ico'} alt='logo' width={40} height={40} />
@@ -93,7 +93,7 @@ export default function AskQuestionCard() {
                         </button>
                       </DialogTitle>
                    </DialogHeader>
-                     <MDEditor.Markdown source={answer} className="max-h-[30vh] max-w-[70vw] overflow-scroll"/>
+                     <MDEditor.Markdown source={answer} className="max-h-[30vh] max-w-[70vw] mb:max-w-[90vw] overflow-scroll"/>
                     <FileReference files={fileReferences}/>
                     <button onClick={() => setOpen(false)} className="bg-[#3760cf] rounded-sm py-2 text-lg font-bold hover:opacity-75 duration-100">Close</button>
               </DialogContent>

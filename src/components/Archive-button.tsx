@@ -11,7 +11,7 @@ export default function ArchiveButton() {
     const { projectId } = useProject()
     const [loading, setLoading] = useState(false)
 
-    const queryClient =  useQueryClient()
+    const queryClient = useQueryClient()
 
   async function handleClick() {
      setLoading(true)
@@ -24,6 +24,14 @@ export default function ArchiveButton() {
      else toast.error(res.msg || 'Failed to archive the project')
      setLoading(false)
   }
+
+//   useEffect(() => {
+//    const interval = setInterval(async () => {
+//        await indexGithubRepo(projectId, project?.repoURL ?? '')
+//    }, 1000)
+//    toast.success('interval')
+//    return () => clearInterval(interval)
+//  },[projectId,project])
 
   return <Button disabled={loading} onClick={() => {
      const confirm = window.confirm('Are you sure you want to archive this project?')

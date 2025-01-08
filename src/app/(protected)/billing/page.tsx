@@ -20,15 +20,15 @@ export default async function BillingPage() {
          <p className="text-gray-500">You have <span className="text-blue-700 dark:text-white mx-1 font-semibold">{credits}</span> credits remaining</p>
          <div className="bg-blue-50 mb:text-left dark:bg-blue-500/20 dark:font-semibold dark:border-transparent text-blue-700 border border-blue-200 px-4 py-2 rounded-md">
             <div className="flex items-start gap-2">
-              <Info className="mb:hidden"/>
+              <Info />
               <p>Each credit allows you to index 1 file in the repo</p>
             </div>
-            <p>Eg. If your project has 100 files you will need files to index it</p>
+            <p className="mb:ml-7">Eg. If your project has 100 files you will need files to index it</p>
          </div>
          <BuyCredits />
          <h3 className="font-bold mt-4 mb:text-2xl">Transaction History</h3>
          {transactions.length === 0 ? (
-          <div className="border grow flex-center text-lg sm:text-4xl">
+          <div className="border rounded-md grow flex-center text-lg sm:text-4xl">
              Make a transaction!
           </div>
          ): (
@@ -38,7 +38,7 @@ export default async function BillingPage() {
                           <div className="flex gap-2 items-center">
                               <span className="p-3 rounded-full bg-green-200 dark:bg-green-500/10 text-green-600"><CreditCard className="mb:size-5"/></span>
                               <div className="flex flex-col gap-0 items-start">
-                                  <span className="text-lg mb:text-sm font-semibold">Credits Added</span>
+                                  <span className="text-lg font-semibold">Credits Added</span>
                                   <span className="text-gray-500 mb:text-sm">{transaction.createdAt.toLocaleDateString()}</span>
                               </div>
                           </div>

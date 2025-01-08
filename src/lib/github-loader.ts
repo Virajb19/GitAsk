@@ -1,14 +1,13 @@
 import { GithubRepoLoader } from '@langchain/community/document_loaders/web/github'
 import { generateEmbedding, summarizeCode } from './gemini'
 import { db } from '~/server/db'
-import PQueue from 'p-queue';
 
 export async function loadGithubRepo(githubURL: string, githubToken?: string) {
 
   const loader = new GithubRepoLoader(githubURL, {
     accessToken: githubToken ?? process.env.GITHUB_ACCESS_TOKEN,
     branch: 'main',
-    ignoreFiles: ['pnpm-lock.yaml', 'package-lock.json'],
+    ignoreFiles: ['pnpm-lock.yaml','package-lock.json','migration.sql'],
     recursive: true,
     unknown: 'warn',
     maxConcurrency: 5
@@ -20,69 +19,67 @@ export async function loadGithubRepo(githubURL: string, githubToken?: string) {
 
 export async function indexGithubRepo(projectId: string, githubURL: string, githubToken?: string) {
    const docs = await loadGithubRepo(githubURL, githubToken)
-  //  const docsWithoutSummary = await db.sourceCodeEmbedding.findMany({where: {projectId, summary: ''}, select: {filename: true}})
-  //  const docsToSummarize = docs.filter(doc => !docsWithoutSummary.some(docWithoutSummary => docWithoutSummary.filename === doc.metadata.source))
-   
-  
-  //  if(docsToSummarize.length === 0) {
-  //   console.log('No documents with missing summaries found.');
-  //   return
-  //  }
+   const docsWithoutSummary = await db.sourceCodeEmbedding.findMany({where: {projectId, summary: ''}, select: {filename: true}})
+   const docsToSummarize = docs.filter(doc => !docsWithoutSummary.some(docWithoutSummary => docWithoutSummary.filename.toLowerCase() == doc.metadata.source.toLowerCase()))
 
-  // const embeddings = await Promise.all(docs.map(async (doc,i) => { 
-  //     const summary = await summarizeCode(doc)
-  //     const embedding = await generateEmbedding(summary)
+  //  console.log('Docs to summarize',docsToSummarize.length)
+  //  return
+   if(docsToSummarize.length === 0) return
 
-  //     return {
-  //        summaryEmbedding: embedding,
-  //        sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
-  //        filename: doc.metadata.source,
-  //        summary
+  //  const batchSize = 13
+  //  const summaries: string[] = []
+
+  //  for(let i=0 ; i < docsToSummarize.length; i += batchSize) {
+  //    const batch = docsToSummarize.slice(i, i + batchSize)
+  //    const responses = await Promise.allSettled(batch.map(async doc => {
+  //       const summary = await summarizeCode(doc).catch(err => {
+  //         console.error('Error summarizing code', err)
+  //         return ''
+  //       })
+  //       return summary
+  //    }))
+
+  //    const batchSummaries = responses.map(response => response.status === 'fulfilled' ? response.value : '')
+  //    summaries.push(...batchSummaries)
+
+  //     console.log('waiting...')
+  //     if(docsToSummarize.length > batchSize) {
+  //       await new Promise(resolve => setTimeout(resolve, 1000 * 20))
   //     }
-  // }))
-
+  //  }
+   
   let summaries: string[] = []
-  for(const doc of docs) {
-      const summary = await summarizeCode(doc)
-      if(summary === '') await new Promise(r => setTimeout(r, 10))
-      summaries.push(summary)
+  if(docsToSummarize.length < 13) {
+        const responses = await Promise.allSettled(docsToSummarize.map(async doc => {
+        const summary = await summarizeCode(doc).catch(err => {
+          console.error('Error summarizing code', err)
+          return ''
+        })
+        return summary
+        }))
+      summaries = responses.map(response => response.status === 'fulfilled' ? response.value : '')
+  } else {
+      for (const doc of docsToSummarize) {
+        const summary = await summarizeCode(doc).catch(err => {
+          console.error('Error crearing summary', err)
+          return ''
+        })
+
+        summaries.push(summary)
+
+        if(summary === '') {
+          console.log('waiting...')
+          await new Promise(r => setTimeout(r, 12 * 1000))
+        }
+      }
   }
 
-  // let embeddings: any = [];
-  // for(const doc of docs) {
-  //       const summary = await summarizeCode(doc)
-  //       const embedding = await generateEmbedding(summary)
-
-  //       if(summary === '') await new Promise(r => setTimeout(r, 10 * 1000))
-    
-  //       embeddings.push({
-  //            summaryEmbedding: embedding,
-  //            sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
-  //            filename: doc.metadata.source,
-  //            summary
-  //         })
-  //     }
-      
-
-  // const queue = new PQueue({concurrency: 15, interval: 60 * 1000, intervalCap: 15})
-
-  // const responses = await Promise.allSettled(docs.map(async doc => {
-  //      const summary = await queue.add(async () => {
-  //         const summary = await summarizeCode(doc)
-  //         return summary 
-  //      })
-  //      return summary as string
-  // }))
-
-  // const summaries = responses.map(response => {
-  //   if(response.status === 'fulfilled') return response.value
-  //   else return ''
-  // })
-
-
    // USE THEN CATCH
-  const embeddings = await Promise.all(docs.map(async (doc,i) => {
-      const embedding = await generateEmbedding(summaries[i] ?? '')
+  const embeddings = await Promise.all(docsToSummarize.map(async (doc,i) => {
+      const embedding = await generateEmbedding(summaries[i] ?? '').catch(err => {
+         console.error(err)
+         return []
+      })
 
       return {
          summaryEmbedding: embedding,
@@ -94,8 +91,10 @@ export async function indexGithubRepo(projectId: string, githubURL: string, gith
 
   // NO RATE LIMITING IN EMBEDDING MODEL 
   await Promise.allSettled(embeddings.map(async (embedding) => {
-      const sourceCodeEmbedding =  await db.sourceCodeEmbedding.create({
-        data: {
+      const sourceCodeEmbedding = await db.sourceCodeEmbedding.upsert({
+        where: { filename_projectId: {filename: embedding.filename, projectId}},
+        update: { summary: embedding.summary},
+        create: {
           sourceCode: embedding.sourceCode,
           filename: embedding.filename,
           summary: embedding.summary,

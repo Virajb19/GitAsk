@@ -21,5 +21,6 @@ export default async function SideBarLayout({children}: {children: ReactNode}) {
                  {children}
                 </div>
             </div>
+
     </main>
 }

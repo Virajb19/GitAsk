@@ -129,10 +129,11 @@ export async function archiveProject(projectId: string) {
         const session = await getServerAuthSession()
         if(!session?.user) return {success: false, msg: 'Unauthorized'}
 
-        if(projectId === '') return {success: false, msg: 'No project to archive!!'}
+        const project = await db.project.findUnique({ where: {id: projectId}, select: { id: true}})
+        if(!project) return { success: false, msg: 'Project not found!!'}
 
-        // await db.project.update({where: { id: projectId}, data: {deletedAt: new Date()}})
-        await db.project.delete({where: {id: projectId}})
+        await db.project.update({where: { id: projectId}, data: {deletedAt: new Date()}})
+        // await db.project.delete({where: {id: projectId}})
 
         return { success: true }
 
@@ -216,6 +217,11 @@ async function countFiles(path: string, owner: string, repo: string, acc: number
     }
 
     return acc
+}
+
+export async function getEmbeddings(projectId: string) {
+    const embeddings = await db.sourceCodeEmbedding.count({ where: {projectId: projectId, summary: ''}})
+    return embeddings
 }
 
 

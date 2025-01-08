@@ -29,5 +29,5 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({msg: 'Credits added successfully'}, { status: 200})
     }
-
+    return NextResponse.json({msg: 'Internal server error'}, { status: 500})
   }
