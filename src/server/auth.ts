@@ -28,7 +28,7 @@ import {
     callbacks: {
       jwt: async ({user,token}) => {
         if(user) {
-          const existingUser = await db.user.findFirst({where: { OR: [{OauthId: user.id}, { id: parseInt(user.id)}]}})
+          const existingUser = await db.user.findFirst({where: { OR: [{OauthId: user.id}, { id: parseInt(user.id)}]}, select: {id: true}})
           if(existingUser) token.id = existingUser.id
         }
          return token
@@ -47,7 +47,7 @@ import {
   
           const provider = account.provider === 'github' ? 'GITHUB' : 'GOOGLE'
            
-           const existingUser = await db.user.findFirst({where: { OR: [{email: user.email!}, {OauthId: user.id}]}})
+           const existingUser = await db.user.findFirst({where: { OR: [{email: user.email!}, {OauthId: user.id}]}, select: {id: true}})
            if(existingUser) {
              await db.user.update({
               where: {id: existingUser.id},
