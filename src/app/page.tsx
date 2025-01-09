@@ -1,12 +1,12 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import FloatingShape from '~/components/Floating-shape'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import {ArrowRight, Sparkles} from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { Skeleton } from '~/components/ui/skeleton'
 import Link from 'next/link'
+import FloatingShapes from '~/components/Floating-shapes'
 
 export default function HomePage() {
 
@@ -14,12 +14,11 @@ export default function HomePage() {
    const isAuth = !!session
 
   return <main className="relative w-full min-h-screen flex-center bg-opacity-60 overflow-hidden">
-        <FloatingShape xValues={['0%', '100%']} yValues={['0%', '-100%']}  size='size-20' top='bottom-10' left='left-32'/>
-        <FloatingShape xValues={['0%','100%']} yValues={['0%', '100%']} size='size-40' top='top-16' left='left-20'/>
-        <FloatingShape  xValues={['0%', '-100%']} yValues={['0%', '100%']} size='size-72' top='top-20' left='right-12'/>
+
+    <FloatingShapes />
 
     <motion.div initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{duration: 0.7,type: 'spring', damping: '10', bounce: 0.24}} 
-    className='w-[90%] sm:w-1/3 max-w-3xl'>
+    className='w-[90%] sm:w-1/3 max-w-3xl z-30'>
 
         <Card className='shadow-lg shadow-blue-500'>
            <CardHeader>
