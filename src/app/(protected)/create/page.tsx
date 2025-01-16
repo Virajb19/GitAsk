@@ -69,7 +69,7 @@ export default function CreatePage() {
        const { fileCount, userCredits } = await checkCredits(data.repoURL, data.githubToken)
        setCreditInfo({fileCount, userCredits}) 
 
-       if(userCredits > fileCount) {
+       if(userCredits > fileCount) { 
          await createProject({data, fileCount})
         //  queryClient.refetchQueries({ queryKey: ['getProjects']})
        } else toast.error(`You need to buy ${fileCount - userCredits} more credits`, {position: 'bottom-right'})
