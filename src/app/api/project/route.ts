@@ -7,7 +7,7 @@ import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { z } from 'zod'
 
-const bodyParser = createProjectSchema.extend({
+const bodySchema = createProjectSchema.extend({
   fileCount: z.number()
 })
 
@@ -23,7 +23,7 @@ try {
     const user = await db.user.findUnique({ where: { id: userId}, select: { credits: true}})
     if(!user) return NextResponse.json({msg: 'user not found'}, { status: 404})
     
-    const parsedData = bodyParser.safeParse(body)
+    const parsedData = bodySchema.safeParse(body)
     if(!parsedData.success) return NextResponse.json({msg: 'Invalid inputs', errors: parsedData.error.flatten().fieldErrors}, { status: 400})
     const { name, repoURL, githubToken, fileCount } = parsedData.data
 

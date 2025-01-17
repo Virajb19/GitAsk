@@ -13,14 +13,16 @@ import {
   declare module "next-auth" {
     interface Session extends DefaultSession {
       user: {
-        id: number
+        id: number,
+        credits: number
       } & DefaultSession["user"];
     }
   }
   
   declare module 'next-auth/jwt' {
     interface JWT {
-        id: number 
+        id: number,
+        credits: number
     }
   }
   
@@ -28,8 +30,11 @@ import {
     callbacks: {
       jwt: async ({user,token}) => {
         if(user) {
-          const existingUser = await db.user.findFirst({where: { OR: [{OauthId: user.id}, { id: parseInt(user.id)}]}, select: {id: true}})
-          if(existingUser) token.id = existingUser.id
+          const existingUser = await db.user.findFirst({where: { OR: [{OauthId: user.id}, { id: parseInt(user.id)}]}, select: {id: true, credits: true}})
+          if(existingUser) {
+            token.id = existingUser.id
+            token.credits = existingUser.credits
+          }
         }
          return token
       },
@@ -37,6 +42,7 @@ import {
         if(token && session && session.user) {
           session.user.name = token.name
           session.user.id = token.id 
+          session.user.credits = token.credits
         }
         return session
       },
