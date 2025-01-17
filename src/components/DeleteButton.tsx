@@ -29,7 +29,7 @@ export default function DeleteButton({questionId}: {questionId: string}) {
              deleteQuestion(questionId)
           }} disabled={isPending} className="p-1.5 rounded-lg lg:opacity-0 lg:group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-500 duration-200 disabled:cursor-not-allowed disabled:opacity-100 disabled:hover:bg-transparent">
             {isPending ? (
-                <div className="size-5 border-2 border-red-500/30 rounded-full animate-spin border-t-red-500"/>
+                <div className="size-5 border-[3px] border-red-500/30 rounded-full animate-spin border-t-red-500"/>
             ) : (
                 <Trash2 className="size-5"/>
             )}

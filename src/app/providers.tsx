@@ -3,10 +3,11 @@
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 import { type ThemeProviderProps } from "next-themes"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from 'sonner'
+import { getQueryClient } from "~/lib/queryClient";
 
-const query = new QueryClient()
+const query = getQueryClient()
 
 function ThemedToaster() {
   const { theme } = useTheme()
