@@ -8,14 +8,11 @@ import { useSession } from 'next-auth/react'
 import UserAccountNav from './UserAccountNav'
 import Link from 'next/link'
 import { Loader2, LogIn} from 'lucide-react'
-import { useMediaQuery } from 'react-responsive'
 
 export default function Navbar() {
 
   const pathname = usePathname()
   if (!['/', '/signin', '/signup'].includes(pathname)) return null
-
-  const isMobile = useMediaQuery({maxWidth: 640})
 
   const { data: session, status } = useSession()
   const isAuth = !!session 
@@ -31,7 +28,7 @@ export default function Navbar() {
 
     <div className='flex items-center gap-3 p-1 sm:mr-10'>
       <ThemeToggle />
-      {status === 'loading' ? <Loader2 className='animate-spin size-10'/> : isAuth ? <UserAccountNav /> : !isMobile && <Link className='flex items-center gap-2 p-2 rounded-lg font-semibold bg-blue-700 text-xl text-white group' href={'/signin'}>Sign in<LogIn className='group-hover:translate-x-1 duration-200'/></Link>}
+      {status === 'loading' ? <Loader2 className='animate-spin size-10'/> : isAuth ? <UserAccountNav /> : <Link className='flex items-center font-medium mb:hidden gap-2 p-2 rounded-lg bg-blue-700 text-xl text-white group' href={'/signin'}>Sign in<LogIn className='group-hover:translate-x-1 duration-200'/></Link>}
     </div>
   </motion.nav>
 }

@@ -37,7 +37,14 @@ export default function ArchiveButton() {
      const confirm = window.confirm('Are you sure you want to archive this project?')
      if(confirm) handleClick()
   }} variant={'destructive'} className="flex items-center gap-2 text-lg font-semibold">
-        {loading ? <Loader strokeWidth={3} className="animate-spin"/> : <Trash strokeWidth={3}/>} 
-        {loading ? 'Archiving...' : 'Archive project'}
+      {loading ? (
+         <>
+          <Loader strokeWidth={3} className="animate-spin"/> Archiving...
+         </>
+      ) : (
+         <>
+            <Trash strokeWidth={3} /> Archive project
+         </>
+      )}
   </Button>
 }
