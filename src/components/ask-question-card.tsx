@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { zodResolver } from "@hookform/resolvers/zod";
 import { askQuestionSchema } from "~/lib/zod";
 import { z } from "zod";
-import { Loader2, Sparkles, Download } from 'lucide-react';
+import { Loader2, Sparkles, Download, RefreshCw } from 'lucide-react';
 import { Dialog, DialogHeader, DialogContent, DialogTitle } from "./ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form'
 import { useEffect, useRef, useState } from "react";
@@ -123,8 +123,15 @@ export default function AskQuestionCard() {
 
                      <button ref={buttonRef} type="submit" className="flex-center gap-2 bg-blue-700 hover:bg-blue-800 transition-colors duration-200 px-4 py-2 rounded-2xl mt-7 text-lg text-white disabled:cursor-not-allowed disabled:opacity-75" 
                         disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting ? <Loader2 className="animate-spin"/> : <Sparkles className="fill-amber-500 text-amber-500"/>} 
-                        {form.formState.isSubmitting ? 'Asking...' : 'Ask AI !'}
+                        {form.formState.isSubmitting ? (
+                           <>
+                              <RefreshCw className="animate-spin"/> Asking...
+                           </>
+                        ) : (
+                           <>
+                             <Sparkles className="fill-amber-500 text-amber-500"/> Ask AI !
+                           </>
+                        )}
                      </button>
                  </form>
                </Form>

@@ -220,7 +220,7 @@ async function countFiles(path: string, owner: string, repo: string, acc: number
 }
 
 export async function getEmbeddings(projectId: string) {
-    const embeddings = await db.sourceCodeEmbedding.count({ where: {projectId: projectId, summary: ''}})
+    const embeddings = await db.sourceCodeEmbedding.count({ where: {projectId, summary: ''}})
     return embeddings
 }
 

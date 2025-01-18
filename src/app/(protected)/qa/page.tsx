@@ -36,7 +36,8 @@ export default function QApage() {
     },
     enabled: !!projectId,
     refetchIntervalInBackground: true,
-    refetchInterval: 5 * 60 * 1000
+    refetchInterval: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000
   })
 
   if(isLoading) return <div className="w-full flex flex-col gap-3 p-1">

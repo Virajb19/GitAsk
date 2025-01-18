@@ -7,7 +7,7 @@ export const getQueryClient = (): QueryClient => {
         queryClient = new QueryClient({
           defaultOptions: {
             queries: {
-              retry: 2
+              retry: 2,
             }
           }
         })

@@ -1,50 +1,46 @@
-import { useState } from "react";
-import { Button } from "./ui/button";
-import { Trash, Loader } from 'lucide-react'
+import { Trash, Loader2 } from 'lucide-react'
 import { useProject } from "~/hooks/useProject";
-import { archiveProject } from "~/server/actions";
-import { toast } from "sonner";
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import axios, { AxiosError } from "axios";
+import { toast } from 'sonner';
 
 export default function ArchiveButton() {
 
     const { projectId } = useProject()
-    const [loading, setLoading] = useState(false)
+
+   const {mutate: archiveProject, isPending} = useMutation({
+      mutationFn: async (projectId: string) => {
+         const res = await axios.delete(`/api/project/${projectId}`)
+         return res.data
+      },
+      onSuccess: () => toast.success('Archived'),
+      onError: (err) => {
+         console.error(err)
+         if(err instanceof AxiosError) {
+            toast.error(err.response?.data.msg || 'Something went wrong!')
+         }
+      },
+      onSettled: () => {
+         queryClient.refetchQueries({queryKey: ['getProjects']})
+         queryClient.refetchQueries({queryKey: ['getCommits']})
+      }
+   })
 
     const queryClient = useQueryClient()
 
-  async function handleClick() {
-     setLoading(true)
-     const res = await archiveProject(projectId)
-     if(res.success) {
-        toast.success('Project archived')
-        queryClient.refetchQueries({queryKey: ['getProjects']})
-        queryClient.refetchQueries({queryKey: ['getCommits']})
-     }
-     else toast.error(res.msg || 'Failed to archive the project')
-     setLoading(false)
-  }
-
-//   useEffect(() => {
-//    const interval = setInterval(async () => {
-//        await indexGithubRepo(projectId, project?.repoURL ?? '')
-//    }, 1000)
-//    toast.success('interval')
-//    return () => clearInterval(interval)
-//  },[projectId,project])
-
-  return <Button disabled={loading} onClick={() => {
-     const confirm = window.confirm('Are you sure you want to archive this project?')
-     if(confirm) handleClick()
-  }} variant={'destructive'} className="flex items-center gap-2 text-lg font-semibold">
-      {loading ? (
+  return <button onClick={() => {
+              const confirm = window.confirm('Are you sure you want to archive this project?')
+              if(confirm) archiveProject(projectId)
+          }} 
+          disabled={isPending} className="bg-red-800 px-3 py-2 flex items-center gap-2 text-base text-gray-300 hover:text-gray-100 duration-300 font-semibold rounded-lg disabled:cursor-not-allowed disabled:opacity-70">
+        {isPending ? (
          <>
-          <Loader strokeWidth={3} className="animate-spin"/> Archiving...
+          <Loader2 strokeWidth={3} className="animate-spin size-5"/> Archiving...
          </>
       ) : (
          <>
-            <Trash strokeWidth={3} /> Archive project
+            <Trash strokeWidth={3} className="size-5"/> Archive project
          </>
       )}
-  </Button>
+  </button>
 }
