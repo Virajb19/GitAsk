@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Loader2, Sparkles, Download, RefreshCw } from 'lucide-react';
 import { Dialog, DialogHeader, DialogContent, DialogTitle } from "./ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form'
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { askQuestion, saveQuestion } from "~/server/actions";
 import { useProject } from "~/hooks/useProject";
@@ -51,7 +51,8 @@ export default function AskQuestionCard() {
     } 
   }
 
-  async function handleClick() {
+   const handleClick = useCallback(async () => {
+
       const question = form.getValues('question')
        
       setLoading(true)
@@ -59,13 +60,13 @@ export default function AskQuestionCard() {
       setLoading(false)
 
       if(res.success) {
-         toast.success('Question saved!')
+         toast.success('Question saved!', { position: 'bottom-left'})
          setOpen(false)
          queryClient.refetchQueries({queryKey: ['getQuestions']})
          form.setValue('question', '')
       }
-      else toast.error(res.msg || 'Failed to save the answer. Try again!!!')
-   }
+      else toast.error(res.msg || 'Failed to save the answer. Try again!!!', { position: 'bottom-left'})
+ }, [answer,fileReferences,form,projectId,queryClient]) 
 
    useEffect(() => {
      const handleKeyDown = (e: KeyboardEvent) => {
@@ -80,8 +81,15 @@ export default function AskQuestionCard() {
      return () => document.removeEventListener('keydown', handleKeyDown)
    }, [])
 
+   useEffect(() => {
+     const editor = document.getElementById('editor')
+     if(editor) {
+        editor.scrollIntoView({ behavior: 'smooth', block: 'end'})
+     }
+   }, [])
+
    const buttonRef = useRef<HTMLButtonElement>(null)
-  
+
   return <>
     <Dialog open={open} onOpenChange={setOpen}>
               <DialogContent className="sm:max-w-[70vw] z-[1000] my-1">
@@ -94,7 +102,7 @@ export default function AskQuestionCard() {
                       </DialogTitle>
                    </DialogHeader>
                      <MDEditor.Markdown source={answer} className="max-h-[30vh] max-w-[70vw] mb:max-w-[90vw] overflow-scroll"/>
-                    <FileReference files={fileReferences}/>
+                     <FileReference files={fileReferences}/>
                     <button onClick={() => setOpen(false)} className="bg-[#3760cf] rounded-sm py-2 text-lg font-bold hover:opacity-75 duration-100">Close</button>
               </DialogContent>
         </Dialog>

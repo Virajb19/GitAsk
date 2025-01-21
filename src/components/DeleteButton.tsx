@@ -13,7 +13,7 @@ export default function DeleteButton({questionId}: {questionId: string}) {
             return res.data
         },
         onSuccess: () => {
-             toast.success('Deleted')
+             toast.success('Deleted', { position: 'bottom-left'})
         },
         onError: (err) => {
            console.error(err)

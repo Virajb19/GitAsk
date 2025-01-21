@@ -26,7 +26,7 @@ export default function Projects({ isCollapsed }: { isCollapsed: boolean }) {
     })}
   </div>
 
-  if(projects?.length === 0 && !isCollapsed) return <div className="flex-center gap-2 p-2 max-h-[45vh] border-4 border-blue-600 rounded-xl">
+  if(projects?.length === 0 && !isCollapsed) return <div className="flex-center gap-2 p-2 h-40 border-4 border-blue-600 rounded-xl">
         <span className="text-2xl font-bold">Create a project</span>
 </div>
 
