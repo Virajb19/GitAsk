@@ -39,7 +39,7 @@ export default function CreatePage() {
 
   const {mutateAsync: createProject} = useMutation({
     mutationFn: async ({data, fileCount}: {data: Input, fileCount: number}) => {
-      const {data : { projectId }} = await axios.post('/api/project', {data, fileCount})
+      const {data : { projectId }} = await axios.post('/api/project', {...data, fileCount})
       return projectId
     },
     onSuccess: async (projectId: string) => {

@@ -4,7 +4,7 @@ import { SignUpSchema } from "~/lib/zod"
 import bcrypt from 'bcrypt'
 import { db } from "~/server/db"
 import { z } from 'zod'
-import { streamText } from 'ai'
+import { embed, streamText } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { generateEmbedding } from "~/lib/gemini"
@@ -222,6 +222,12 @@ async function countFiles(path: string, owner: string, repo: string, acc: number
 export async function getEmbeddings(projectId: string) {
     const embeddings = await db.sourceCodeEmbedding.count({ where: {projectId, summary: ''}})
     return embeddings
+    // const embeddings = await db.sourceCodeEmbedding.findMany({ where: { projectId}, select: { summary: true}})
+    // const largestSummary = embeddings.reduce((prev, curr) => {
+    //     return curr.summary.length > prev?.length ? curr.summary : prev
+    // }, embeddings[0]?.summary)
+
+    // return largestSummary
 }
 
 
