@@ -19,6 +19,7 @@ export const useProject = () => {
       const { data: { projects }} = await axios.get('/api/project')
       return projects
   },
+  enabled: !!userId
  })
 
  // USE DATA DIRECTLY FROM THE QUERY DON'T CREATE A LOCAL STATE FOR THE DATA FETCHED OR CREATE A GLOBAL STATE INSTEAD

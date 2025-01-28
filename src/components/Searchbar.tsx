@@ -4,12 +4,14 @@ import Image from "next/image";
 import { ThemeToggle } from "./ThemeToggle";
 import UserAccountNav from "./UserAccountNav";
 import { AnimatePresence, motion } from 'framer-motion'
-import { Menu, X } from 'lucide-react'
+import { Menu, X ,Plus, Search } from 'lucide-react'
 import { useEffect, useRef, useState } from "react";
 import { useProject } from "~/hooks/useProject";
 import { twMerge } from "tailwind-merge";
-import { Plus } from 'lucide-react'
 import { useRouter } from 'nextjs-toploader/app';
+import { useMediaQuery } from 'usehooks-ts'
+import SearchInput from "./SearchInput";
+import SearchInputMobile from "./auth/SearchInputMobile";
 
 export default function Searchbar() {
 
@@ -18,6 +20,9 @@ const { projects , setProjectId, projectId} = useProject()
 
 const router = useRouter()
 const sidebarRef = useRef<HTMLDivElement>(null)
+
+const [showModal, setShowModal] = useState(false)
+const isLargeScreen = useMediaQuery('(min-width: 640px)')
 
 useEffect(() => {
   const handleClickOutside = (e: MouseEvent) => {
@@ -36,6 +41,10 @@ useEffect(() => {
           <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden text-foreground/60 hover:dark:bg-[#191919] hover:bg-gray-100 border p-2.5 rounded-2xl duration-200">
             {isOpen ? <X /> : <Menu />}
           </button>
+
+           {isLargeScreen && <SearchInput />}
+          <Search onClick={() => setShowModal(true)} className="sm:hidden cursor-pointer"/>
+              
        </div>
 
       <div className="flex items-center gap-3 sm:mr-4">
@@ -46,7 +55,7 @@ useEffect(() => {
     <AnimatePresence>
         {isOpen && (
              <motion.div ref={sidebarRef} initial={{x: '-100%'}} animate={{x: 0}} exit={{x: '-100%'}} transition={{duration: 0.4, ease: 'circInOut'}}
-             className="lg:hidden absolute left-0 right-16 bottom-16 max-w-[500px] top-20 z-[199] rounded-tr-xl border-t-2 border-r-2 border-gray-700 bg-background flex flex-col gap-3 p-4">
+             className="lg:hidden absolute left-0 right-16 bottom-16 max-w-[500px] top-20 z-[99] rounded-tr-xl border-t-2 border-r-2 border-gray-700 bg-background flex flex-col gap-3 p-4">
                     <button onClick={() => {
                         router.push('/create')
                         setIsOpen(false)
@@ -67,6 +76,10 @@ useEffect(() => {
                       {/* <div className="bg-red-900 h-[900px] shrink-0"></div> */}
                 </div>
             </motion.div>
+        )}
+
+        {showModal && (
+           <SearchInputMobile onClose={() => setShowModal(false)}/>
         )}
       </AnimatePresence>
 

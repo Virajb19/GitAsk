@@ -23,7 +23,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <body className={sans.className}>
+      <body className={sans.className} suppressHydrationWarning={true}>
         <Providers>
          <Toaster />
          <NextTopLoader height={5} color="#38bdf8" showSpinner={false} easing="ease"/>

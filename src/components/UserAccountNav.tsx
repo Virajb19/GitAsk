@@ -23,7 +23,7 @@ export default function UserAccountNav() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className='m-2 min-w-44 z-[99999] rounded-md bg-neutral-100 dark:bg-neutral-900' align='center'> 
                      <DropdownMenuItem>
-                        <div className='flex flex-col'>
+                        <div className='flex flex-col font-semibold'>
                             {user?.name && <p className='text-lg'>{user.name}</p>}
                             {user?.email && <p className='text-sm text-zinc-500 truncate'>{user.email}</p>}
                         </div>
@@ -32,7 +32,7 @@ export default function UserAccountNav() {
                     <DropdownMenuSeparator />
 
                     <DropdownMenuItem className='outline-none cursor-pointer' onClick={() => signOut({callbackUrl: '/'})}>
-                       <span className='flex items-center gap-2 text-base transition-all duration-300 hover:text-red-500'><LogOut className='size-4'/>Log out </span>
+                       <span className='flex items-center gap-2 text-base font-bold transition-all duration-300 hover:text-red-500'><LogOut className='size-4' strokeWidth={3}/>Log out </span>
                        </DropdownMenuItem>
 
                     </DropdownMenuContent>

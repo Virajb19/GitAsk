@@ -5,15 +5,16 @@ import { useQuery } from "@tanstack/react-query";
 import MDEditor from "@uiw/react-md-editor";
 import axios from "axios";
 import Image from "next/image";
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import AskQuestionCard from "~/components/ask-question-card";
 import FileReference from "~/components/file-reference";
 import { Sheet,SheetContent,SheetHeader,SheetTitle,SheetTrigger} from "~/components/ui/sheet";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useProject } from "~/hooks/useProject";
 import { motion } from 'framer-motion'
-import { User, Trash2 } from "lucide-react";
+import { User } from "lucide-react";
 import DeleteButton from "~/components/DeleteButton";
+import { useSearchQuery } from "~/lib/store";
 
 type question = Question & { user: { ProfilePicture: string | null}}
 
@@ -22,6 +23,7 @@ export default function QApage() {
   const [quesIdx, setQuesIdx] = useState(0)
 
   const { projectId } = useProject()
+  const { query } = useSearchQuery()
 
   const {data: questions, isLoading} = useQuery<question[]>({
     queryKey: ['getQuestions', projectId],
@@ -40,7 +42,12 @@ export default function QApage() {
     staleTime: 5 * 60 * 1000
   })
 
-  if(isLoading) return <div className="w-full flex flex-col gap-3 p-1">
+    const filteredQuestions = useMemo(() => {
+      const words = query.toLowerCase().split(' ')
+      return questions?.filter(question => words.every(word => question.question.toLowerCase().includes(word))) ?? []
+  }, [questions, query])
+
+  if(isLoading || questions === undefined) return <div className="w-full flex flex-col gap-3 p-1">
                 <AskQuestionCard />
                 <h3 className="font-bold underline">Saved Questions</h3>
                 {Array.from({length: 5}).map((_,i) => {
@@ -48,7 +55,7 @@ export default function QApage() {
                 })}
           </div>
 
-  const question = questions?.[quesIdx]
+  const question = filteredQuestions?.[quesIdx]
 
   return <div className="w-full flex flex-col gap-3 p-1">
           <AskQuestionCard />
@@ -56,7 +63,7 @@ export default function QApage() {
               <h3 className="font-bold underline">Saved Questions</h3>
                {(questions && questions?.length > 0) ? (
                  <>
-                     {questions?.map((question, i) => {
+                     {filteredQuestions.map((question, i) => {
 
                        const ProfilePicture = question.user.ProfilePicture
 
@@ -74,7 +81,7 @@ export default function QApage() {
                                   <div className="flex flex-col gap-2">
                                     <div className="flex items-center gap-5">
                                     <p className="text-lg line-clamp-1 font-semibold">Q{i + 1}. {question.question}</p>
-                                    <span className="whitespace-nowrap text-sm text-gray-500">{new Date(question.createdAt).toLocaleDateString()}</span>
+                                    <span className="whitespace-nowrap text-base font-semibold text-gray-500">{new Date(question.createdAt).toLocaleDateString()}</span>
                                     </div>
                                     <p className="text-sm line-clamp-5 overflow-hidden sm:line-clamp-2 text-gray-400 w-[70vw]">{question.answer}</p>
                                   </div>
@@ -87,7 +94,7 @@ export default function QApage() {
               })}
                  </>
                ) : (
-                  <h2 className="self-center">Ask a Question</h2>
+                  <h2 className="self-center my-auto">Ask a Question</h2>
                )}
                 {question && (
                     <SheetContent className="sm:max-w-[60vw] w-full z-[1000]">
