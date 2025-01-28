@@ -23,5 +23,5 @@ export const createProjectSchema = z.object({
 })
 
 export const askQuestionSchema = z.object({
-    question: z.string().trim().min(1, { message: 'Ask a question !'}).max(500)
+    question: z.string().trim().min(1, { message: 'Ask a question !'}).max(500).or(z.literal(''))
 })

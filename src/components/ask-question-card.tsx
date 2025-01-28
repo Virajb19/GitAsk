@@ -86,9 +86,12 @@ export default function AskQuestionCard() {
    useEffect(() => {
      const editor = document.getElementById('editor')
      if(editor) {
-        editor.scrollIntoView({ behavior: 'smooth', block: 'end'})
+        editor.scrollTo({
+          top: editor.scrollHeight,
+          behavior: 'smooth'
+        })
      }
-   }, [])
+   }, [answer])
 
    const buttonRef = useRef<HTMLButtonElement>(null)
 
@@ -103,7 +106,9 @@ export default function AskQuestionCard() {
                         </button>
                       </DialogTitle>
                    </DialogHeader>
-                     <MDEditor.Markdown source={answer} className="max-h-[30vh] max-w-[70vw] mb:max-w-[90vw] overflow-scroll"/>
+                     <div id="editor" className="max-h-[30vh] max-w-[70vw] mb:max-w-[90vw] overflow-scroll">
+                       <MDEditor.Markdown source={answer}/>
+                     </div>
                      <FileReference files={fileReferences}/>
                     <button onClick={() => setOpen(false)} className="bg-[#3760cf] rounded-sm py-2 text-lg font-bold hover:opacity-75 duration-100">Close</button>
               </DialogContent>

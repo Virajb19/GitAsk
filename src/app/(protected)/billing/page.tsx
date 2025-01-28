@@ -34,7 +34,7 @@ export default async function BillingPage() {
          ): (
               <ul className="grow flex flex-col p-1 mb:p-0 gap-5 overflow-y-scroll">
               {transactions.map(transaction => {
-                return <li key={transaction.id} className="flex items-center p-2 mb:p-1.5 justify-between rounded-lg bg-white dark:bg-card">
+                return <li key={transaction.id} className="flex items-center p-2 mb:p-1.5 justify-between rounded-lg bg-white dark:bg-card border">
                           <div className="flex gap-2 items-center">
                               <span className="p-3 rounded-full bg-green-200 dark:bg-green-500/10 text-green-600"><CreditCard className="mb:size-5"/></span>
                               <div className="flex flex-col gap-0 items-start">

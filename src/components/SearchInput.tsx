@@ -1,5 +1,5 @@
 import { Search, X } from 'lucide-react'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useDebounceCallback } from 'usehooks-ts'
 import { useSearchQuery } from "~/lib/store";
 import { motion } from 'framer-motion'
@@ -10,6 +10,10 @@ export default function SearchInput() {
 
  const { query, setQuery} = useSearchQuery()
  const debounced = useDebounceCallback(setQuery, 300)
+
+ useEffect(() => {
+     if(searchRef.current) searchRef.current.value = query
+ }, [])
 
   return  <div className="flex items-center gap-2">
                <div className="flex items-center bg-white dark:bg-[#2B2A33] rounded-lg px-2">

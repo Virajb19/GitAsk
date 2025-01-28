@@ -4,7 +4,7 @@ import { SignUpSchema } from "~/lib/zod"
 import bcrypt from 'bcrypt'
 import { db } from "~/server/db"
 import { z } from 'zod'
-import { embed, streamText } from 'ai'
+import { streamText } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { generateEmbedding } from "~/lib/gemini"
@@ -87,7 +87,7 @@ export async function askQuestion(question: string, projectId: string) {
             MOST IMPORTANT 
             Give answers in points and new point should start from next line.
             Every point should have a serial number at the start 
-            `
+            `,
          })
 
          for await (const text of textStream) {
