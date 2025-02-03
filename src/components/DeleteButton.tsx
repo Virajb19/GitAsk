@@ -2,22 +2,34 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import axios from "axios"
 import { Trash2 } from "lucide-react"
 import { toast } from "sonner"
+import { useProject } from "~/hooks/useProject"
+import { question } from '~/app/(protected)/qa/page'
 
 export default function DeleteButton({questionId}: {questionId: string}) {
 
     const queryClient = useQueryClient()
+    const { projectId } = useProject()
 
    const {mutate: deleteQuestion, isPending} = useMutation({
         mutationFn: async (questionId: string) => {
             const res = await axios.delete(`/api/question/${questionId}`)
             return res.data
         },
+        onMutate: (questionId: string) => {
+           queryClient.cancelQueries({ queryKey: ['getQuestions']})
+           const prevQuestions = queryClient.getQueryData<question[]>(['getQuestions', projectId])
+           queryClient.setQueryData(['getQuestions',projectId], (oldQuestions: question[]) => {
+              return oldQuestions.filter(question => question.id !== questionId)
+           })
+           return { prevQuestions }
+        },
         onSuccess: () => {
              toast.success('Deleted', { position: 'bottom-left'})
         },
-        onError: (err) => {
+        onError: (err,questionId,context) => {
            console.error(err)
            toast.error('Something went wrong!')
+           queryClient.setQueryData(['getQuestions', projectId], context?.prevQuestions)
         },
         onSettled: () => {
             queryClient.refetchQueries({ queryKey: ['getQuestions']})

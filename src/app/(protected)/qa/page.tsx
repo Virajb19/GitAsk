@@ -16,7 +16,7 @@ import { User } from "lucide-react";
 import DeleteButton from "~/components/DeleteButton";
 import { useSearchQuery } from "~/lib/store";
 
-type question = Question & { user: { ProfilePicture: string | null}}
+export type question = Question & { user: { ProfilePicture: string | null}}
 
 export default function QApage() {
 

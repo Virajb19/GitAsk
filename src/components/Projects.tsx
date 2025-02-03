@@ -20,6 +20,11 @@ export default function Projects({ isCollapsed }: { isCollapsed: boolean }) {
       }
   }, [projects, projectId])
 
+  // useEffect(() => {
+  //    const selectedProject = document.querySelector('.projects.bg-blue-500')
+  //    if(selectedProject) selectedProject.scrollIntoView({ behavior: 'smooth', block: 'center'})
+  // }, [projectId])
+
   if (isLoading) return <div className="flex flex-col gap-2 p-2 max-h-[45vh] border-4 border-blue-600 rounded-xl">
     {Array.from({ length: 3 }).map((_, i) => {
       return <Skeleton key={i} className="w-full h-12" />
@@ -36,7 +41,7 @@ export default function Projects({ isCollapsed }: { isCollapsed: boolean }) {
         {projects?.map((project, i) => {
           return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1}} transition={{ duration: 0.3, ease: 'easeOut', delay: i * 0.1 }} key={i} ref={el => {projectRefs.current[i] = el}}
             onClick={() => setProjectId(project.id)}
-            className={twMerge("flex items-center gap-2 p-2 rounded-lg cursor-pointer border border-blue-900/2", project.id === projectId ? "bg-blue-600/15 border-blue-900" : "hover:bg-blue-600/15 duration-200")}>
+            className={twMerge("projects flex items-center gap-2 p-2 rounded-lg cursor-pointer border border-blue-900/2", project.id === projectId ? "bg-blue-600/15 border-blue-900" : "hover:bg-blue-600/15 duration-200")}>
             <span className={twMerge("px-3 py-1 border rounded-sm bg-accent", project.id === projectId && "bg-blue-500 transition-colors")}>{project.name[0]}</span>
             <p className={twMerge("truncate text-base", project.id === projectId && "text-blue-600")}>{project.name}</p>
           </motion.div>

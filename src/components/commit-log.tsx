@@ -26,9 +26,9 @@ export default function CommitLogComponent() {
              throw new Error('Error fetching commits')
          }
     },
-    refetchInterval: 10 * 60 * 1000,
+    refetchInterval: 15 * 60 * 1000,
     refetchOnWindowFocus: true,
-    staleTime: 10 * 60 * 1000
+    staleTime: 15 * 60 * 1000
   })
 
   // toast.success(isFetching ? '1' : '0')

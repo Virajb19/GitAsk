@@ -37,7 +37,7 @@ export default function CreatePage() {
   const {data: session} = useSession()
   const userId = session?.user.id
 
-  const {mutateAsync: createProject} = useMutation({
+  const {mutateAsync: createProject, isPending, isError} = useMutation({
     mutationFn: async ({data, fileCount}: {data: Input, fileCount: number}) => {
       const {data : { projectId }} = await axios.post('/api/project', {...data, fileCount})
       return projectId

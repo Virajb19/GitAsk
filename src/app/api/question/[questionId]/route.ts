@@ -8,6 +8,8 @@ export async function DELETE(req: NextRequest, { params } : { params: { question
         const session = await getServerAuthSession()
         if(!session?.user) return NextResponse.json({msg: 'Unauthorized'}, { status: 401})
 
+        await new Promise(r => setTimeout(r, 7000))
+
         const { questionId } = params
         const question = await db.question.findUnique({ where: { id: questionId}, select: { id: true}})
         if(!question) return NextResponse.json({ msg: 'question not found'}, { status: 404})
