@@ -8,7 +8,7 @@ export const getQueryClient = (): QueryClient => {
           defaultOptions: {
             queries: {
               retry: 2,
-              staleTime: 10 * 60 * 1000
+              staleTime: 30 * 60 * 1000
             }
           }
         })

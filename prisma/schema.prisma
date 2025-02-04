@@ -1,39 +1,44 @@
 generator client {
-    provider = "prisma-client-js"
-    previewFeatures = ["postgresqlExtensions"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
-    extensions = [vector]
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
 }
-
 
 enum OauthProvider {
   GOOGLE
   GITHUB
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  email     String   @unique
-  password  String? 
+enum Status {
+  PROCESSING
+  PROCESSED
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  lastLogin DateTime @default(now())
-  ProfilePicture String? @default("")
+model User {
+  id       Int     @id @default(autoincrement())
+  username String  @unique
+  email    String  @unique
+  password String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  lastLogin      DateTime @default(now())
+  ProfilePicture String?  @default("")
 
   OauthProvider OauthProvider?
-  OauthId String?
+  OauthId       String?
 
   credits Int @default(100)
 
-  projects Project[]
-  questionsAsked Question[]
+  projects           Project[]
+  questionsAsked     Question[]
   stripeTransactions StripeTransaction[]
+  meetings           Meeting[]
 }
 
 model Project {
@@ -42,79 +47,96 @@ model Project {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name String 
-  repoURL String 
+  name        String
+  repoURL     String
   githubToken String?
 
-  deletedAt DateTime? 
-   
+  deletedAt DateTime?
+
   userId Int
-  user User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
 
-  commits Commit[]
+  commits    Commit[]
   embeddings SourceCodeEmbedding[]
-  questions Question[]
+  questions  Question[]
+  meetings   Meeting[]
 
-  @@unique([userId,repoURL])
+  @@unique([userId, repoURL])
 }
 
 model Commit {
-  id String @id @default(cuid())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  message String
-  hash String
-  authorName String
+  message      String
+  hash         String
+  authorName   String
   authorAvatar String
-  date DateTime
+  date         DateTime
 
   summary String
 
   projectId String
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model SourceCodeEmbedding {
-   id String @id @default(cuid())
+  id String @id @default(cuid())
 
-   summaryEmbedding Unsupported("vector(768)")?
-   sourceCode String
-   filename String
-   summary String
+  summaryEmbedding Unsupported("vector(768)")?
+  sourceCode       String
+  filename         String
+  summary          String
 
-   projectId String
-   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-   @@unique([filename, projectId])
+  @@unique([filename, projectId])
 }
 
 model Question {
-  id String @id @default(cuid())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   question String
-  answer String
+  answer   String
 
   filesReferences Json?
 
   projectId String
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   userId Int
-  user User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
 
-  @@unique([answer,projectId])
+  @@unique([answer, projectId])
+}
+
+model Meeting {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name   String
+  url    String
+  status Status
+
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
 }
 
 model StripeTransaction {
-  id String @id @default(cuid())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   credits Int
 
   userId Int
-  user User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
 }
