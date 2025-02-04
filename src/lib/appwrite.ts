@@ -17,6 +17,7 @@ export async function uploadFile(file: File | undefined, setProgress: (progress:
     // toast.success(progress.progress)
     const res = await storage.createFile('67a1c05b0038ea6a4986', fileId, file, [] , ({ progress }) => setProgress(progress))
 
-    return { fileName: res.name, fileKey}
+    const fileUrl = storage.getFilePreview('67a1c05b0038ea6a4986', fileId)
+    return fileUrl
 }
 

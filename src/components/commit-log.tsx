@@ -48,7 +48,7 @@ export default function CommitLogComponent() {
             })}
   </div>
 
-  if(isError || commits === undefined) return <div className="flex-center grow mt-3 p-1 text-2xl">
+  if(isError || !commits) return <div className="flex-center grow mt-3 p-1 text-2xl">
       No commits found. Refresh!!!
   </div>
 

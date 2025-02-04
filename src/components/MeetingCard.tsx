@@ -4,11 +4,43 @@ import { useDropzone } from "react-dropzone"
 import { toast } from 'sonner'
 import { uploadFile } from '~/lib/appwrite'
 import { AnimatedCircularProgressBar } from "~/components/ui/animated-circular-progress-bar";
+import { useRouter } from 'nextjs-toploader/app'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
+import { useProject } from '~/hooks/useProject'
+import { usePathname } from 'next/navigation'
+import { z } from 'zod'
+import { createMeetingSchema } from '~/lib/zod'
 
 export default function MeetingCard() {
 
     const [uploading, setUploading] = useState(false)
     const [progress, setProgress] = useState(0)
+    const { projectId } = useProject()
+
+    const pathname = usePathname()
+    const queryClient = useQueryClient()
+
+    const router = useRouter()
+
+    const {mutateAsync: uploadMeeting, isPending} = useMutation({
+       mutationFn: async (data: z.infer<typeof createMeetingSchema>) => {
+         // await new Promise(r => setTimeout(r, 7000))
+         const res = await axios.post(`/api/meetings/${projectId}`, data)
+         return res.data
+      },
+      onSuccess: () => {
+         toast.success('Uploaded')
+         if(pathname === '/dashboard') router.push('/meetings')
+      },
+      onError: (err) => {
+        console.error(err)
+        toast.error('Error creating file')
+      },
+      onSettled: () => {
+        queryClient.refetchQueries({ queryKey: ['getMeetings', projectId]})
+      }
+    })
 
     const { getRootProps, getInputProps} = useDropzone({
        accept: {
@@ -20,13 +52,16 @@ export default function MeetingCard() {
        onDrop: async (files: File[]) => {
             try {
                const file = files[0]
+
+               if(!file) return
+
                if(file && file.size > 50 * 1024 * 1024) {
                   toast.error('Please upload a file less than 50MB')
                   return
                }
                setUploading(true)
-               const data = await uploadFile(file, setProgress)
-               toast.success('Uploaded')
+               const fileUrl = await uploadFile(file, setProgress)
+               await uploadMeeting({name: file.name, url: fileUrl})
             } catch(err) {
                 console.error(err)
                 toast.error('File upload failed. Try again!!')

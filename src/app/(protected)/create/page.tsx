@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '~/components/ui/form'
 import { createProjectSchema } from "~/lib/zod"
 import { motion } from 'framer-motion'
-import { Loader, ArrowRight, Info } from 'lucide-react'
+import { Loader, ArrowRight, Info, FileText, Key } from 'lucide-react'
+import { LuGithub } from "react-icons/lu";
 import axios, { AxiosError } from 'axios'
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
@@ -94,7 +95,10 @@ export default function CreatePage() {
                              <FormItem className='flex flex-col gap-1'>
                               <FormLabel>Project name</FormLabel>
                               <FormControl>
-                                <input className='input-style' placeholder='Enter your project name' {...field}/>
+                                   <div className="flex items-center gap-2 p-2 rounded-xl border focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-transparent duration-200">
+                                      <FileText />
+                                      <input className='outline-none bg-transparent grow' placeholder='Enter your project name' {...field}/>                                      
+                                   </div>
                               </FormControl>
                               <FormMessage />
                              </FormItem>
@@ -108,7 +112,10 @@ export default function CreatePage() {
                              <FormItem className='flex flex-col gap-1'>
                               <FormLabel>Repo URL</FormLabel>
                               <FormControl>
-                                <input className='input-style' placeholder='Enter your repo URL' {...field}/>
+                                <div className="flex items-center gap-2 p-2 rounded-xl border focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-transparent duration-200">
+                                   <LuGithub className="size-5"/>
+                                   <input className='outline-none bg-transparent grow' placeholder='Enter your repo URL' {...field}/>
+                                </div>
                               </FormControl>
                               <FormMessage />
                              </FormItem>
@@ -122,7 +129,10 @@ export default function CreatePage() {
                              <FormItem className='flex flex-col gap-1'>
                               <FormLabel>Github Token</FormLabel>
                               <FormControl>
-                                <input className='input-style' placeholder='optional (for private repositories)' {...field}/>
+                                <div className="flex items-center gap-2 p-2 rounded-xl border focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-transparent duration-200">
+                                  <Key />
+                                  <input className='outline-none bg-transparent grow' placeholder='optional (for private repositories)' {...field}/>
+                                </div>
                               </FormControl>
                               <FormMessage />
                              </FormItem>
