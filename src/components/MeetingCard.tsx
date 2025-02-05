@@ -28,6 +28,7 @@ export default function MeetingCard() {
     const router = useRouter()
 
     const processMeeting = useMutation({
+      mutationKey: ['processMeeting'],
       mutationFn: async ({ meetingId, fileKey }: { meetingId: string, fileKey: string }) => {
           const res = await axios.post( `/api/meeting/${meetingId}`, { fileKey, projectId })
           return res.data

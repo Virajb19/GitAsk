@@ -47,7 +47,7 @@ export default function QApage() {
       return questions?.filter(question => words.every(word => question.question.toLowerCase().includes(word))) ?? []
   }, [questions, query])
 
-  if(isLoading || questions === undefined) return <div className="w-full flex flex-col gap-3 p-1">
+  if(isLoading || !questions) return <div className="w-full flex flex-col gap-3 p-1">
                 <AskQuestionCard />
                 <h3 className="font-bold underline">Saved Questions</h3>
                 {Array.from({length: 5}).map((_,i) => {

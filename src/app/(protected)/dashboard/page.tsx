@@ -1,7 +1,7 @@
 'use client'
 
 import { useProject } from "~/hooks/useProject"
-import { ExternalLink} from 'lucide-react'
+import { ExternalLink, ArrowUp} from 'lucide-react'
 import Link from "next/link"
 import CommitLogComponent from "~/components/commit-log"
 import AskQuestionCard from "~/components/ask-question-card"
@@ -14,7 +14,7 @@ export default function DashBoard() {
 
   const { project } = useProject()
 
-  return <div className="w-full flex flex-col gap-1 p-3 mb:p-0">
+  return <div id="dashboard" className="w-full flex flex-col gap-1 p-3 mb:p-0">
     <div className="flex flex-wrap gap-3 p-1 items-center justify-between">
       <div className="flex justify-between gap-3 items-center bg-blue-700 rounded-sm px-5 py-3 text-white/80">
         <LuGithub className="size-6" />
@@ -38,5 +38,12 @@ export default function DashBoard() {
       </div>
 
        <CommitLogComponent />
+       
+       {/* <button onClick={() => {
+          const dashboard = document.getElementById('dashboard')
+          if(dashboard) dashboard.scrollTo({ behavior: 'smooth', top: 0})
+       }} className="flex items-center gap-2 group p-2 rounded-md mx-auto bg-blue-600 font-bold">
+           <ArrowUp className="group-hover:-translate-y-1 duration-200"/> Return to top
+       </button> */}
   </div>
 }

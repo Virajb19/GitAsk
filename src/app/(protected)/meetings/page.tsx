@@ -40,7 +40,8 @@ export default function MeetingPage() {
      return meetings?.filter(meeting => meeting.name.includes(query)) ?? []
   }, [meetings,query])
 
-  if(isLoading) return <div className="flex flex-col gap-2 grow p-2">
+  // when isLoading is true data is undefined
+  if(isLoading || !meetings) return <div className="flex flex-col gap-2 grow p-2">
       <MeetingCard />
       <h3 className="font-bold underline text-3xl">All meetings</h3>
          {Array.from({length: 5}).map((_,i) => {
@@ -48,7 +49,7 @@ export default function MeetingPage() {
       })}          
   </div>
 
-  if(isError || !meetings || meetings?.length === 0) return <div className="flex flex-col grow mt-3 p-1">
+  if(isError || meetings?.length === 0) return <div className="flex flex-col grow mt-3 p-1">
        <MeetingCard />
       <span className="self-center my-auto text-2xl">No meetings found. Refresh!!!</span> 
   </div>
@@ -63,7 +64,7 @@ export default function MeetingPage() {
                        <div className="flex flex-col gap-1">
                            <div className="flex items-center gap-3">
                              <h4 className="text-lg text-wrap font-bold truncate">{meeting.name}</h4>
-                               <span className={twMerge("flex items-center px-2 py-1 rounded-full text-white gap-2 text-sm font-semibold", meeting.status === 'PROCESSING' ? 'bg-amber-500' : 'bg-green-700')}>
+                               <span className={twMerge("flex items-center px-2 py-1 rounded-full text-white gap-1 text-sm font-semibold", meeting.status === 'PROCESSING' ? 'bg-amber-500' : 'bg-green-700')}>
                                    {meeting.status === 'PROCESSING' ? (
                                      <>
                                          <Loader2 className="animate-spin size-5"/> Processing...
@@ -82,7 +83,7 @@ export default function MeetingPage() {
                                 </p>
                            </div>
                        </div>
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center justify-between gap-2 mb:w-full">
                           <Link href={`/meetings/${meeting.id}`} className="font-bold p-2 rounded-md bg-blue-800 text-white">
                               View meeting
                           </Link>

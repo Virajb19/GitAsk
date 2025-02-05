@@ -35,7 +35,7 @@ export default function CommitLogComponent() {
 
   const showSkeletons = isLoading || isRefetching
 
-  if(showSkeletons) return <div className="flex flex-col grow gap-2 mt-3 p-1">
+  if(showSkeletons || !commits) return <div className="flex flex-col grow gap-2 mt-3 p-1">
          {Array.from({ length: 15}).map((_,i) => {
                return <div key={i} className="flex gap-7 p-2 m-1 grow">
                        <Skeleton className="h-12 w-12 rounded-full" />

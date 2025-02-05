@@ -1,6 +1,6 @@
 'use client'
 
-import { Bot, CreditCard, LayoutDashboard, SidebarOpen, SidebarClose, Plus, Home } from 'lucide-react'
+import { Bot, CreditCard, LayoutDashboard, SidebarOpen, SidebarClose, Plus, Presentation } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from "react";
 import SidebarItems from "./Sidebar-items";
@@ -10,8 +10,8 @@ import Link from 'next/link';
 import Projects from './Projects';
 
 const items = [
-    {title: 'Home', url: '/', icon: <Home className='size-6'/>},
     {title: 'Dashboard', url: '/dashboard', icon: <LayoutDashboard className="size-6"/>},
+    {title: 'Meetings', url: '/meetings', icon: <Presentation className='size-6'/>},
     {title: 'Q&A', url: '/qa', icon: <Bot className='size-6'/>},
     {title: 'Billing', url: '/billing', icon: <CreditCard className='size-6'/>}
 ]
