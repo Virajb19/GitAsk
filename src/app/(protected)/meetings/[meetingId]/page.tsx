@@ -3,6 +3,7 @@ import { db } from "~/server/db"
 import { VideoIcon } from 'lucide-react'
 import IssueCard from "~/components/IssueCard"
 import CopyButton from "~/components/CopyButton"
+import IssueList from "~/components/IssueList"
 
 export default async function MeetingDetailsPage({ params: { meetingId } }: { params: { meetingId: string}}) {
 
@@ -22,10 +23,6 @@ export default async function MeetingDetailsPage({ params: { meetingId } }: { pa
            </div>
             <CopyButton />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 grow p-3 lg:w-[75vw]">
-            {issues.map(issue => {
-                return <IssueCard key={issue.id} issue={issue}/>
-            })}
-        </div>
+         <IssueList issues={issues}/>
   </div>
 }

@@ -37,7 +37,7 @@ export default function MeetingPage() {
   })
 
   const filteredMeetings = useMemo(() => {
-     return meetings?.filter(meeting => meeting.name.includes(query)) ?? []
+     return meetings?.filter(meeting => meeting.name.toLowerCase().includes(query)) ?? []
   }, [meetings,query])
 
   // when isLoading is true data is undefined
@@ -79,7 +79,7 @@ export default function MeetingPage() {
                            <div className="flex items-center text-gray-500 gap-2">
                                <span className="whitespace-nowrap font-semibold">{new Date(meeting.createdAt).toLocaleDateString()}</span>
                                <p className="font-semibold">
-                                 <span className="text-gray-300">{meeting.issues.length}</span> issues
+                                 <span className="text-blue-500">{meeting.issues.length}</span> issues
                                 </p>
                            </div>
                        </div>

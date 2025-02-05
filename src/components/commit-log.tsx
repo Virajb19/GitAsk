@@ -11,10 +11,14 @@ import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import { motion } from 'framer-motion'
 import { toast } from "sonner"
+import { useMemo } from "react"
+import { useSearchQuery } from "~/lib/store"
 
 export default function CommitLogComponent() {
 
   const { projectId, project } = useProject()
+
+  let { query } = useSearchQuery()
 
   const {data: commits, isLoading, isError, isRefetching, isFetching } = useQuery<Commit[]>({
     queryKey: ['getCommits', projectId],
@@ -32,6 +36,16 @@ export default function CommitLogComponent() {
   })
 
   // toast.success(isFetching ? '1' : '0')
+
+  const filteredCommits = useMemo(() => {
+      query = query.toLowerCase().trim()
+      const words = query.split(' ')
+      return commits?.filter(commit => {
+          const matchesMessage = words.every(word => commit.message.toLowerCase().includes(word))
+          const matchesAuthorName = commit.authorName.toLowerCase().includes(query)
+          return matchesMessage || matchesAuthorName
+      }) ?? []
+  }, [commits,query])
 
   const showSkeletons = isLoading || isRefetching
 
@@ -57,7 +71,7 @@ export default function CommitLogComponent() {
   </div>
 
   return <ul className="flex flex-col grow gap-2 mt-3 p-1">
-        {commits.map((commit, i) => {
+        {filteredCommits.map((commit, i) => {
           return <motion.li initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.3, ease: 'easeInOut', delay: i * 0.1}}
                 key={commit.id} className="flex items-start gap-4 p-1 justify-between">
                     <div className="flex items-start ml-2 mt-1">
