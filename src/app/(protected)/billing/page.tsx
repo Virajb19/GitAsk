@@ -23,7 +23,7 @@ export default async function BillingPage() {
               <Info />
               <p>Each credit allows you to index 1 file in the repo</p>
             </div>
-            <p className="mb:ml-7">Eg. If your project has 100 files you will need files to index it</p>
+            <p className="mb:ml-7">Eg. If your project has 100 files you will need 100 credits to index it</p>
          </div>
          <BuyCredits />
          <h3 className="font-bold mt-4 mb:text-2xl">Transaction History</h3>

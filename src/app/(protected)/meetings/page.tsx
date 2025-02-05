@@ -1,6 +1,6 @@
 'use client'
 
-import { Meeting } from "@prisma/client";
+import { Issue, Meeting } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import MeetingCard from "~/components/MeetingCard";
@@ -10,12 +10,17 @@ import { Check, Loader2} from 'lucide-react'
 import { twMerge } from "tailwind-merge";
 import Link from "next/link";
 import { Skeleton } from "~/components/ui/skeleton";
+import { useSearchQuery } from "~/lib/store";
+import { useMemo } from "react";
+
+type meeting = ( Meeting & { issues: Pick<Issue, "id"> []})
 
 export default function MeetingPage() {
 
   const { projectId } = useProject()
+  const { query } = useSearchQuery()
 
-  const { data: meetings, isLoading, isError} = useQuery<Meeting[]>({
+  const { data: meetings, isLoading, isError} = useQuery<meeting[]>({
     queryKey: ['getMeetings', projectId],
     queryFn: async () => {
        try {
@@ -30,7 +35,11 @@ export default function MeetingPage() {
     refetchInterval: 4000
   })
 
-  if(isLoading) return <div className="flex flex-col gap-2 grow">
+  const filteredMeetings = useMemo(() => {
+     return meetings?.filter(meeting => meeting.name.includes(query)) ?? []
+  }, [meetings,query])
+
+  if(isLoading) return <div className="flex flex-col gap-2 grow p-2">
       <MeetingCard />
       <h3 className="font-bold underline text-3xl">All meetings</h3>
          {Array.from({length: 5}).map((_,i) => {
@@ -38,21 +47,21 @@ export default function MeetingPage() {
       })}          
   </div>
 
-  if(isError || !meetings || meetings?.length === 0) return <div className="flex flex-col grow mt-3 p-1 text-2xl">
+  if(isError || !meetings || meetings?.length === 0) return <div className="flex flex-col grow mt-3 p-1">
        <MeetingCard />
-      <span className="self-center my-auto">No meetings found. Refresh!!!</span> 
+      <span className="self-center my-auto text-2xl">No meetings found. Refresh!!!</span> 
   </div>
 
   return <div className="w-full flex flex-col p-3 gap-2 mb:p-0">
           <MeetingCard />
           <h3 className="text-3xl underline font-bold">All Meetings</h3>
             <ul className="flex flex-col gap-2 p-1 grow">
-               {meetings.map((meeting, i) => {
+               {filteredMeetings.map((meeting, i) => {
                   return <motion.li key={meeting.id} initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.3, ease: 'easeInOut', delay: i * 0.1}}
-                    className="flex items-center justify-between p-2 rounded-lg border bg-white dark:bg-card">
+                    className="flex mb:flex-col mb:items-start items-center justify-between gap-2 p-2 rounded-lg border bg-white dark:bg-card">
                        <div className="flex flex-col gap-1">
                            <div className="flex items-center gap-3">
-                             <h4 className="text-lg font-bold truncate">{meeting.name}</h4>
+                             <h4 className="text-lg text-wrap font-bold truncate">{meeting.name}</h4>
                                <span className={twMerge("flex items-center px-2 py-1 rounded-full text-white gap-2 text-sm font-semibold", meeting.status === 'PROCESSING' ? 'bg-amber-500' : 'bg-green-700')}>
                                    {meeting.status === 'PROCESSING' ? (
                                      <>
@@ -66,12 +75,14 @@ export default function MeetingPage() {
                                </span>
                            </div>
                            <div className="flex items-center text-gray-500 gap-2">
-                               <span className="whitespace-nowrap text-sm font-semibold">{new Date(meeting.createdAt).toLocaleDateString()}</span>
-                               <p className="font-semibold">{} issues</p>
+                               <span className="whitespace-nowrap font-semibold">{new Date(meeting.createdAt).toLocaleDateString()}</span>
+                               <p className="font-semibold">
+                                 <span className="text-gray-300">{meeting.issues.length}</span> issues
+                                </p>
                            </div>
                        </div>
 
-                       <Link href={`/meetings/${meeting.id}`} className="font-bold p-2 rounded-md bg-blue-800">
+                       <Link href={`/meetings/${meeting.id}`} className="font-bold p-2 rounded-md bg-blue-800 text-white">
                           View meeting
                        </Link>
                   </motion.li>

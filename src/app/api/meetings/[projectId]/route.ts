@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params } : { params: { projectId: 
         const project = await db.project.findUnique({ where: { id: projectId}, select: { id: true}})
         if(!project) return NextResponse.json({msg: 'project not found'}, { status: 404})
       
-        const meetings = await db.meeting.findMany({ where: { projectId: project.id}, orderBy: { createdAt: 'desc'}})
+        const meetings = await db.meeting.findMany({ where: { projectId: project.id}, orderBy: { createdAt: 'desc'}, include: { issues: { select: { id: true}}}})
     
         return NextResponse.json({meetings}, { status: 200})
     } catch(err) {
@@ -27,6 +27,8 @@ export async function POST(req: NextRequest, { params } : { params: { projectId:
         if(!session?.user) return NextResponse.json({msg: 'Unauthorized'}, { status: 401})
         const userId = session.user.id
 
+        if(session.user.credits < 50) return NextResponse.json({msg: 'Insufficients credits'}, { status: 403})
+
         const { projectId } = params
         const project = await db.project.findUnique({ where: { id: projectId}, select: { id: true}})
         if(!project) return NextResponse.json({msg: 'project not found'}, { status: 404})
@@ -37,7 +39,7 @@ export async function POST(req: NextRequest, { params } : { params: { projectId:
             
         const meeting = await db.meeting.create({ data: {name, url, status: 'PROCESSING', projectId, userId}, select: { id: true}})
 
-        return NextResponse.json({msg: 'meeting created successfully', meetingId: meeting.id}, { status: 200})
+        return NextResponse.json({meetingId: meeting.id}, { status: 200})
         
     } catch(err) {
         console.error(err)

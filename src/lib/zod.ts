@@ -30,3 +30,8 @@ export const createMeetingSchema = z.object({
     name: z.string().max(500),
     url: z.string().url()
 })
+
+export const processMeetingSchema = z.object({
+    fileKey: z.string(),
+    projectId: z.string(),
+})

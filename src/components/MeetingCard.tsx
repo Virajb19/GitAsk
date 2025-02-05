@@ -11,6 +11,7 @@ import { useProject } from '~/hooks/useProject'
 import { usePathname } from 'next/navigation'
 import { z } from 'zod'
 import { createMeetingSchema } from '~/lib/zod'
+import { useSession } from 'next-auth/react'
 
 export default function MeetingCard() {
 
@@ -18,20 +19,30 @@ export default function MeetingCard() {
     const [progress, setProgress] = useState(0)
     const { projectId } = useProject()
 
+    const {data: session, status} = useSession()
+    const credits = session?.user.credits
+
     const pathname = usePathname()
     const queryClient = useQueryClient()
 
     const router = useRouter()
 
-    const {mutateAsync: uploadMeeting, isPending} = useMutation({
-       mutationFn: async (data: z.infer<typeof createMeetingSchema>) => {
-         // await new Promise(r => setTimeout(r, 7000))
-         const res = await axios.post(`/api/meetings/${projectId}`, data)
-         return res.data
+    const processMeeting = useMutation({
+      mutationFn: async ({ meetingId, fileKey }: { meetingId: string, fileKey: string }) => {
+          const res = await axios.post( `/api/meeting/${meetingId}`, { fileKey, projectId })
+          return res.data
       },
-      onSuccess: () => {
-         toast.success('Uploaded')
-         if(pathname === '/dashboard') router.push('/meetings')
+      onError: (err) => {
+         console.error(err)
+         toast.error('Error processing meeting')
+      },
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getMeetings', projectId]})
+    })
+
+    const {mutateAsync: createMeeting, isPending} = useMutation({
+       mutationFn: async (data: z.infer<typeof createMeetingSchema>) => {
+         const res = await axios.post(`/api/meetings/${projectId}`, data)
+         return res.data.meetingId
       },
       onError: (err) => {
         console.error(err)
@@ -59,9 +70,23 @@ export default function MeetingCard() {
                   toast.error('Please upload a file less than 50MB')
                   return
                }
+
+               if(credits && credits < 50) {
+                  toast.error('Insufficient credits!')
+                  return
+               }
+
+               toast.info('You will be charged 50 credits per meeting', { position: 'bottom-right'})
+
                setUploading(true)
-               const fileUrl = await uploadFile(file, setProgress)
-               await uploadMeeting({name: file.name, url: fileUrl})
+               const { fileKey, fileUrl} = await uploadFile(file, setProgress)
+               await createMeeting({name: file.name, url: fileUrl}, {
+                  onSuccess: (meetingId: string) => {
+                     toast.success('Uploaded')
+                     if(pathname === '/dashboard') router.push('/meetings')
+                     processMeeting.mutate({meetingId, fileKey})
+                  },
+               })
             } catch(err) {
                 console.error(err)
                 toast.error('File upload failed. Try again!!')
