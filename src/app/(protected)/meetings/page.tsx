@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useSearchQuery } from "~/lib/store";
 import { useMemo } from "react";
+import MeetingDeleteButton from "~/components/MeetingDeleteButton";
 
 type meeting = ( Meeting & { issues: Pick<Issue, "id"> []})
 
@@ -81,10 +82,12 @@ export default function MeetingPage() {
                                 </p>
                            </div>
                        </div>
-
-                       <Link href={`/meetings/${meeting.id}`} className="font-bold p-2 rounded-md bg-blue-800 text-white">
-                          View meeting
-                       </Link>
+                      <div className="flex items-center justify-between gap-2">
+                          <Link href={`/meetings/${meeting.id}`} className="font-bold p-2 rounded-md bg-blue-800 text-white">
+                              View meeting
+                          </Link>
+                          <MeetingDeleteButton meetingId={meeting.id}/>
+                      </div>
                   </motion.li>
                })}
             </ul>

@@ -32,8 +32,8 @@ export default function DeleteButton({questionId}: {questionId: string}) {
            queryClient.setQueryData(['getQuestions', projectId], context?.prevQuestions)
         },
         onSettled: () => {
-            queryClient.refetchQueries({ queryKey: ['getQuestions']})
-            // queryClient.invalidateQueries({ queryKey: ['getQuestions']})
+            // queryClient.refetchQueries({ queryKey: ['getQuestions']})
+            queryClient.invalidateQueries({ queryKey: ['getQuestions', projectId]})
         }
       })
     
