@@ -22,6 +22,10 @@ export async function indexGithubRepo(projectId: string, githubURL: string, gith
    const docsWithoutSummary = await db.sourceCodeEmbedding.findMany({where: {projectId, summary: ''}, select: {filename: true}})
    const docsToSummarize = docs.filter(doc => !docsWithoutSummary.some(docWithoutSummary => docWithoutSummary.filename.toLowerCase() == doc.metadata.source.toLowerCase()))
 
+   //filename is filePath which is unique 
+   const existingFilepaths = new Set(docsWithoutSummary.map(d => d.filename))
+   const docstoSummarize = docs.filter(doc => existingFilepaths.has(doc.metadata.source))
+
   //  console.log('Docs to summarize',docsToSummarize.length)
   //  return
    if(docsToSummarize.length === 0) return

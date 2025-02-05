@@ -1,5 +1,5 @@
 import { Octokit } from 'octokit'
-import { summarizeCommit } from './gemini'
+import { summarizeCode, summarizeCommit } from './gemini'
 import axios from 'axios'
 import { db } from '~/server/db'
 
@@ -36,13 +36,18 @@ export async function getCommits(githubURL: string): Promise<Response[]> {
  }
 
 export async function pollCommits(projectId: string) {
-   const project = await db.project.findUnique({ where: { id: projectId}, select:{ repoURL: true}})
+   const project = await db.project.findUnique({ where: { id: projectId}, select: { repoURL: true, id: true}})
    if(!project?.repoURL) throw new Error('Project has no github URL')
 
    const commits = await getCommits(project.repoURL)
 
+   // existingCommits
    const processedCommits = await db.commit.findMany({ where: { projectId}, orderBy: { date: 'desc'}})  
 
+   const existingHashes = new Set(processedCommits.map(c => c.hash))
+   const newCommits = commits.filter(commit => !existingHashes.has(commit.hash))
+
+   // newCommits
    const unprocessedCommits = commits.filter(commit => !processedCommits.some((processedCommit) => processedCommit.hash === commit.hash))
    
    if(unprocessedCommits.length === 0) return 0
@@ -64,7 +69,9 @@ export async function pollCommits(projectId: string) {
 
    const commitsToDelete = await db.commit.findMany({where: {projectId}, orderBy: {date: 'asc'}, select: { id: true}, take: unprocessedCommits.length})
    await db.commit.deleteMany({where: {id: { in: commitsToDelete.map(commit => commit.id)}}})
-   
+
+   await updateFiles(newCommits, project.repoURL, project.id)
+
   const Commits = await db.commit.createMany({
       data: unprocessedCommits.map((commit, i) => ({
          message: commit.message,
@@ -77,4 +84,35 @@ export async function pollCommits(projectId: string) {
       }))
    })
    return Commits.count
+}
+
+async function updateFiles(newCommits: Response[], repoURL: string, projectId: string) {
+    const responses = await Promise.allSettled(newCommits.map(async commit => {
+      const { data: diff } = await axios.get(`${repoURL}/commit/${commit?.hash}.diff`, {
+         headers: {
+            Accept: 'application/vnd.github.v3.diff'
+         }
+        })
+        return diff as string
+    }))
+
+    const commitDiffs = responses.filter(res => res.status === 'fulfilled').map(res => res.value)
+
+    await Promise.all(commitDiffs.map(async diff => {
+         const changedFiles = diff.split('\n').filter(line => line.startsWith('+++ b/')).map(line => line.replace('+++ b/', ''))
+
+         await Promise.all(changedFiles.map(async filename => {
+             const { data: fileContent } = await axios.get(`${repoURL}/contents/${filename}`, {
+                headers: { Accept: 'application/vnd.github.v3.raw'}
+             })
+             const summary = await summarizeCode({ pageContent: fileContent as string, metadata: { source: filename}})
+
+             db.sourceCodeEmbedding.upsert({ 
+               where: { filename_projectId: { filename, projectId}}, 
+               update: { sourceCode: fileContent as string, summary}, 
+               create: { filename, sourceCode: fileContent as string, summary, projectId}
+            })
+         }))
+
+    }))
 }
