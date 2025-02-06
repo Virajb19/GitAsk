@@ -22,7 +22,7 @@ export const useProject = () => {
   enabled: !!userId
  })
 
- // USE DATA DIRECTLY FROM THE QUERY DON'T CREATE A LOCAL STATE FOR THE DATA FETCHED OR CREATE A GLOBAL STATE INSTEAD
+ // USE DATA DIRECTLY FROM THE QUERY DON'T CREATE A LOCAL STATE FOR THE DATA FETCHED
 
  const project = useMemo(() => {
     return projects?.find(project => project.id === projectId)

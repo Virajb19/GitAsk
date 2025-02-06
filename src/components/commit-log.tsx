@@ -47,6 +47,10 @@ export default function CommitLogComponent() {
       }) ?? []
   }, [commits,query])
 
+  if(isError) return <div className="flex-center grow mt-3 p-1 text-2xl">
+          No commits found. Refresh!!!
+    </div>
+
   const showSkeletons = isLoading || isRefetching
 
   if(showSkeletons || !commits) return <div className="flex flex-col grow gap-2 mt-3 p-1">
@@ -60,10 +64,6 @@ export default function CommitLogComponent() {
                       </div>
                  </div>
             })}
-  </div>
-
-  if(isError || !commits) return <div className="flex-center grow mt-3 p-1 text-2xl">
-      No commits found. Refresh!!!
   </div>
 
   if(commits.length === 0) return <div className="flex-center border text-3xl sm:text-7xl font-bold tracking-wide rounded-lg border-blue-700 grow">

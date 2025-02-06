@@ -6,14 +6,21 @@ import { toast } from 'sonner';
 
 export default function ArchiveButton() {
 
-    const { projectId } = useProject()
+    const { projectId, setProjectId, projects } = useProject()
 
    const {mutate: archiveProject, isPending} = useMutation({
       mutationFn: async (projectId: string) => {
          const res = await axios.delete(`/api/project/${projectId}`)
          return res.data
       },
-      onSuccess: () => toast.success('Archived'),
+      onSuccess: () => {
+         toast.success('Archived')
+         // const projects = queryClient.getQueryData<Project>(['getProjects'])
+         const nextProject = projects?.find(p => p.id !== projectId)
+         if(projects?.length) {
+            setProjectId(nextProject?.id ?? '')
+         }
+      },
       onError: (err) => {
          console.error(err)
          if(err instanceof AxiosError) {
