@@ -41,7 +41,7 @@ export default function MeetingPage() {
        }
     },
     staleTime: 30 * 60 * 1000,
-    refetchInterval: 4000
+    refetchInterval: 5 * 60 * 1000
   })
 
   const filteredMeetings = useMemo(() => {

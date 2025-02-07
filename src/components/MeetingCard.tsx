@@ -39,7 +39,7 @@ export default function MeetingCard() {
          console.error(err)
          toast.error('Error processing meeting')
       },
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getMeetings', projectId]}),
+      onSettled: () => queryClient.refetchQueries({ queryKey: ['getMeetings', projectId]}),
     })
 
     const {mutateAsync: createMeeting, isPending} = useMutation({
