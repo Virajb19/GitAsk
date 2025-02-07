@@ -28,14 +28,24 @@ import {
   
   export const authOptions: NextAuthOptions = {
     callbacks: {
-      jwt: async ({user,token}) => {
-        if(user) {
-          const existingUser = await db.user.findFirst({where: { OR: [{OauthId: user.id}, { id: parseInt(user.id)}]}, select: {id: true, credits: true}})
+      jwt: async ({user, token, trigger}) => {
+        // if(user) {
+        //   const existingUser = await db.user.findFirst({where: { OR: [{OauthId: user.id}, { id: parseInt(user.id)}]}, select: {id: true, credits: true}})
+        //   if(existingUser) {
+        //     token.id = existingUser.id
+        //     token.credits = existingUser.credits
+        //   }
+        // } else {
+        //   const db_User = await db.user.findUnique({ where: { id: token.id}, select: { credits: true}})
+        //   if(db_User) token.credits = db_User.credits
+        // }
+         if(token && token.sub) {
+          const existingUser = await db.user.findFirst({where: { OR: [{OauthId: token.sub}, { id: parseInt(token.sub)}]}, select: {id: true, credits: true}})
           if(existingUser) {
             token.id = existingUser.id
             token.credits = existingUser.credits
           }
-        }
+         }
          return token
       },
       session: async ({session, token}) => {

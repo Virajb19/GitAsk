@@ -11,6 +11,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string}
         if(!session?.user) return NextResponse.json({msg: 'Unauthorized'}, { status: 401})
         const userId = session.user.id
 
+        if(session.user.credits < 50) return NextResponse.json({msg: 'Insufficients credits'}, { status: 403})
+
         const { id } = params
         const meeting = await db.meeting.findUnique({ where: { id }, select: { id: true}})
         if(!meeting) return NextResponse.json({ msg: 'meeting not found'}, { status: 404})

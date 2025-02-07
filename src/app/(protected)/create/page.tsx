@@ -37,6 +37,7 @@ export default function CreatePage() {
 
   const {data: session} = useSession()
   const userId = session?.user.id
+  const credits = session?.user.credits
 
   const {mutateAsync: createProject, isPending, isError} = useMutation({
     mutationFn: async ({data, fileCount}: {data: Input, fileCount: number}) => {
@@ -67,6 +68,8 @@ export default function CreatePage() {
 
        toast.info('Project creation might take some time due to Gemini rate limits.Consider trying with a small codebase.', {duration: 6000})
     
+       // use credits from session object checkCredits does not need to return credits
+       // there is some bug when you fetch credits server side it gives the updated value but when you fetch client side it does not 
        const { fileCount, userCredits } = await checkCredits(data.repoURL, data.githubToken)
        setCreditInfo({fileCount, userCredits}) 
 
@@ -139,6 +142,7 @@ export default function CreatePage() {
                           )}
                         />
 
+                       {/* use credits from session object don't use state for it */}
                       {(creditInfo.fileCount > 0 || creditInfo.userCredits > 0) && (
                           <motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.4, ease: 'easeInOut'}}
                           className="border p-3 rounded-md bg-orange-100 dark:bg-orange-200/5 border-yellow-500">

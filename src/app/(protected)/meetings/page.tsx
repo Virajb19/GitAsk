@@ -1,7 +1,7 @@
 'use client'
 
 import { Issue, Meeting } from "@prisma/client";
-import { useQuery } from "@tanstack/react-query";
+import { useIsMutating, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import MeetingCard from "~/components/MeetingCard";
 import { useProject } from "~/hooks/useProject";
@@ -11,7 +11,7 @@ import { twMerge } from "tailwind-merge";
 import Link from "next/link";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useSearchQuery } from "~/lib/store";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import MeetingDeleteButton from "~/components/MeetingDeleteButton";
 
 type meeting = ( Meeting & { issues: Pick<Issue, "id"> []})
@@ -20,6 +20,14 @@ export default function MeetingPage() {
 
   const { projectId } = useProject()
   const { query } = useSearchQuery()
+
+  const isMutating = useIsMutating({ mutationKey: ['deleteMeeting']})
+
+  const [isDeleting, setIsDeleting] = useState<Record<string, boolean>>({})
+
+  const handlePendingChange = useCallback((meetingId: string, isPending: boolean) => {
+        setIsDeleting(prev => ({...prev, [meetingId]: isPending}))
+  }, [setIsDeleting])
 
   const { data: meetings, isLoading, isError} = useQuery<meeting[]>({
     queryKey: ['getMeetings', projectId],
@@ -39,6 +47,12 @@ export default function MeetingPage() {
   const filteredMeetings = useMemo(() => {
      return meetings?.filter(meeting => meeting.name.toLowerCase().includes(query)) ?? []
   }, [meetings,query])
+
+  if(isError) return <div className="flex flex-col grow mt-3 p-1">
+     <MeetingCard />
+     <span className="self-center my-auto text-2xl">No meetings found. Refresh!!!</span> 
+</div>
+
 
   // when isLoading is true data is undefined
   if(isLoading || !meetings) return <div className="flex flex-col gap-2 grow p-2">
@@ -84,10 +98,12 @@ export default function MeetingPage() {
                            </div>
                        </div>
                       <div className="flex items-center justify-between gap-2 mb:w-full">
-                          <Link href={`/meetings/${meeting.id}`} className="font-bold p-2 rounded-md bg-blue-800 text-white">
-                              View meeting
-                          </Link>
-                          <MeetingDeleteButton meetingId={meeting.id}/>
+                         {meeting.status === 'PROCESSED' && !isDeleting[meeting.id] && (
+                             <Link href={`/meetings/${meeting.id}`} className="font-bold p-2 rounded-md bg-blue-800 text-white">
+                               View meeting
+                           </Link>
+                         )}
+                          <MeetingDeleteButton meetingId={meeting.id} onPendingChange={handlePendingChange}/>
                       </div>
                   </motion.li>
                })}

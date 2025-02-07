@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion'
 import { signIn } from 'next-auth/react';
 import { toast } from 'sonner';
-import { twMerge } from 'tailwind-merge';
 import { FaGithub} from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from 'react';
@@ -21,10 +20,10 @@ export function OAuthButton({label, provider}: {label: string, provider: string}
     
   return (
     <motion.button
-      onClick={() => {
+      onClick={async () => {
         try {
           setLoading(true)
-          signIn(provider, { callbackUrl: "/" });
+          await signIn(provider, { callbackUrl: "/" });
           toast.success("Signed in successfully");
         } catch (error) {
           toast.error("Something went wrong !!!");

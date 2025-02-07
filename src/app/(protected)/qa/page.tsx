@@ -15,6 +15,7 @@ import { motion } from 'framer-motion'
 import { User } from "lucide-react";
 import DeleteButton from "~/components/DeleteButton";
 import { useSearchQuery } from "~/lib/store";
+import { toast } from "sonner";
 
 export type question = Question & { user: { ProfilePicture: string | null}}
 
@@ -25,10 +26,9 @@ export default function QApage() {
   const { projectId } = useProject()
   const { query } = useSearchQuery()
 
-  const {data: questions, isLoading} = useQuery<question[]>({
+  const {data: questions, isLoading, isError} = useQuery<question[]>({
     queryKey: ['getQuestions', projectId],
     queryFn: async () => {
-        if(!projectId) throw new Error('Project Id is required')
         try {
             const { data : { questions } } = await axios.get(`/api/questions/${projectId}`)
             return questions
@@ -36,7 +36,6 @@ export default function QApage() {
              throw new Error('Some error occurred. Refresh')
          }
     },
-    enabled: !!projectId,
     refetchIntervalInBackground: true,
     refetchInterval: 5 * 60 * 1000,
     staleTime: 5 * 60 * 1000
@@ -46,6 +45,12 @@ export default function QApage() {
       const words = query.toLowerCase().split(' ')
       return questions?.filter(question => words.every(word => question.question.toLowerCase().includes(word))) ?? []
   }, [questions, query])
+
+  if(isError) return <div className="flex flex-col grow mt-3 p-1">
+     <AskQuestionCard />
+     <span className="self-center my-auto text-2xl">No questions found. Refresh!!!</span> 
+</div>
+
 
   if(isLoading || !questions) return <div className="w-full flex flex-col gap-3 p-1">
                 <AskQuestionCard />

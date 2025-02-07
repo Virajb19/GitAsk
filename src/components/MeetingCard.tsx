@@ -6,7 +6,7 @@ import { uploadFile } from '~/lib/appwrite'
 import { AnimatedCircularProgressBar } from "~/components/ui/animated-circular-progress-bar";
 import { useRouter } from 'nextjs-toploader/app'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { useProject } from '~/hooks/useProject'
 import { usePathname } from 'next/navigation'
 import { z } from 'zod'
@@ -19,8 +19,10 @@ export default function MeetingCard() {
     const [progress, setProgress] = useState(0)
     const { projectId } = useProject()
 
-    const {data: session, status} = useSession()
+    const {data: session, status, update} = useSession()
     const credits = session?.user.credits
+
+   //  toast.success(credits)
 
     const pathname = usePathname()
     const queryClient = useQueryClient()
@@ -28,7 +30,7 @@ export default function MeetingCard() {
     const router = useRouter()
 
     const processMeeting = useMutation({
-      mutationKey: ['processMeeting'],
+      mutationKey:  ['processMeeting'],
       mutationFn: async ({ meetingId, fileKey }: { meetingId: string, fileKey: string }) => {
           const res = await axios.post( `/api/meeting/${meetingId}`, { fileKey, projectId })
           return res.data
@@ -37,7 +39,7 @@ export default function MeetingCard() {
          console.error(err)
          toast.error('Error processing meeting')
       },
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getMeetings', projectId]})
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getMeetings', projectId]}),
     })
 
     const {mutateAsync: createMeeting, isPending} = useMutation({
@@ -47,7 +49,7 @@ export default function MeetingCard() {
       },
       onError: (err) => {
         console.error(err)
-        toast.error('Error creating file')
+        if(err instanceof AxiosError) toast.error(err.response?.data.msg || 'Error creating meeting')
       },
       onSettled: () => {
         queryClient.refetchQueries({ queryKey: ['getMeetings', projectId]})
@@ -71,9 +73,9 @@ export default function MeetingCard() {
                   toast.error('Please upload a file less than 50MB')
                   return
                }
-
+               
                if(credits && credits < 50) {
-                  toast.error('Insufficient credits!')
+                  toast.error('Insufficient credits!. You need 50 credits to create a meeting')
                   return
                }
 

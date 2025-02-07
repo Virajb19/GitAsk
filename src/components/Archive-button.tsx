@@ -15,7 +15,7 @@ export default function ArchiveButton() {
       },
       onSuccess: () => {
          toast.success('Archived')
-         // const projects = queryClient.getQueryData<Project>(['getProjects'])
+         // const projects = queryClient.getQueryData<Project[]>(['getProjects'])
          const nextProject = projects?.find(p => p.id !== projectId)
          if(projects?.length) {
             setProjectId(nextProject?.id ?? '')
