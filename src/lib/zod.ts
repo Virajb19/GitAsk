@@ -32,6 +32,6 @@ export const createMeetingSchema = z.object({
 })
 
 export const processMeetingSchema = z.object({
-    fileKey: z.string(),
+    fileUrl: z.string(),
     projectId: z.string(),
 })

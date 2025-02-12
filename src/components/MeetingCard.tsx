@@ -31,8 +31,8 @@ export default function MeetingCard() {
 
     const processMeeting = useMutation({
       mutationKey:  ['processMeeting'],
-      mutationFn: async ({ meetingId, fileKey }: { meetingId: string, fileKey: string }) => {
-          const res = await axios.post( `/api/meeting/${meetingId}`, { fileKey, projectId })
+      mutationFn: async ({ meetingId, fileUrl }: { meetingId: string, fileUrl: string }) => {
+          const res = await axios.post( `/api/meeting/${meetingId}`, { fileUrl, projectId })
           return res.data
       },
       onError: (err) => {
@@ -87,7 +87,7 @@ export default function MeetingCard() {
                   onSuccess: (meetingId: string) => {
                      toast.success('Uploaded')
                      if(pathname === '/dashboard') router.push('/meetings')
-                     processMeeting.mutate({meetingId, fileKey})
+                     processMeeting.mutate({meetingId, fileUrl})
                   },
                })
             } catch(err) {

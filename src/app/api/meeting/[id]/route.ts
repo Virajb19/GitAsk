@@ -4,6 +4,9 @@ import { processMeetingSchema } from "~/lib/zod"
 import { getServerAuthSession } from "~/server/auth"
 import { db } from "~/server/db"
 import { downloadFile } from '~/lib/appwrite-server'
+import { z } from 'zod'
+
+// const bodySchema = z.object({ projectId: z.string()})
 
 export async function POST(req: NextRequest, { params }: { params: { id: string}}) {
     try {
@@ -14,16 +17,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string}
         if(session.user.credits < 50) return NextResponse.json({msg: 'Insufficients credits'}, { status: 403})
 
         const { id } = params
-        const meeting = await db.meeting.findUnique({ where: { id }, select: { id: true}})
+        const meeting = await db.meeting.findUnique({ where: { id }, select: { id: true, url: true}})
         if(!meeting) return NextResponse.json({ msg: 'meeting not found'}, { status: 404})
+
+        // const projectId = await db.meeting.findUnique({ where: { id: meeting.id}, include: { project: { select: { id: true}}})
 
         const parsedData = processMeetingSchema.safeParse(await req.json())
         if(!parsedData.success) return NextResponse.json({msg: 'Invalid inputs', errors: parsedData.error.flatten().fieldErrors}, { status: 400})
-        const { fileKey, projectId } = parsedData.data
+        const { fileUrl, projectId } = parsedData.data
 
-        const filePath = await downloadFile(fileKey)
+        // const filePath = await downloadFile(fileKey)
 
-        const { summaries } = await processMeeting(filePath) 
+        // USE MEETING.URL
+        const { summaries } = await processMeeting(meeting.url) 
             
         await db.issue.createMany({ data: summaries.map(summary => {
             return {

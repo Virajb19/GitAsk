@@ -103,7 +103,7 @@ export default function MeetingPage() {
                                View meeting
                            </Link>
                          )}
-                          <MeetingDeleteButton meetingId={meeting.id} onPendingChange={handlePendingChange}/>
+                         {meeting.status === 'PROCESSED' && <MeetingDeleteButton meetingId={meeting.id} onPendingChange={handlePendingChange}/>}
                       </div>
                   </motion.li>
                })}

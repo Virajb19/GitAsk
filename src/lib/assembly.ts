@@ -10,13 +10,13 @@ function msToTime(ms: number) {
    return `${minutes.toString().padStart(2,'0')}:${remainingSeconds.toString().padStart(2,'0')}`
 }
 
-export async function processMeeting(filePath: string) {
+export async function processMeeting(fileUrl: string) {
 
-    const fileData = await fs.readFile(filePath)
-    const fileurl = await client.files.upload(fileData)
+    // const fileData = await fs.readFile(filePath)
+    // const fileurl = await client.files.upload(fileData)
 
     const transcript = await client.transcripts.transcribe({
-        audio_url: fileurl,
+        audio_url: fileUrl,
         auto_chapters: true
     })
 
@@ -30,7 +30,7 @@ export async function processMeeting(filePath: string) {
 
     if(!transcript.text) throw new Error('No transcript found ')
 
-    await fs.unlink(filePath)
+    // await fs.unlink(filePath)
 
     return { summaries }
 }
