@@ -14,12 +14,19 @@ import PasswordInput from './PasswordInput'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
 import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
+import { useLoadingState } from '~/lib/store'
 
 type SignInData = z.infer<typeof SignInSchema>
 
 export default function SignIn() {
 
   const router = useRouter()
+
+  const { loading } = useLoadingState()
+
+  const queryClient = useQueryClient()
 
   const form = useForm<SignInData>({
     resolver: zodResolver(SignInSchema),
@@ -35,6 +42,15 @@ export default function SignIn() {
     }
     router.push('/')
     toast.success('Login successfull!. Welcome back!')
+
+    const projectId = localStorage.getItem('projectId')
+    queryClient.prefetchQuery({ 
+      queryKey: ['getCommits', projectId],
+      queryFn: async () => {
+         const { data : { commits }} = await axios.get(`/api/commits/${projectId}`)
+         return commits
+      }
+    })
   }
 
   return <div className="w-full min-h-screen flex-center text-lg">
@@ -80,7 +96,7 @@ export default function SignIn() {
 
                         <motion.button whileHover={form.formState.isSubmitting ? {opacity: 0.5} : {opacity: 0.8}} 
                           className='rounded-full font-bold cursor-pointer flex-center gap-2 w-full px-5 py-1 text-lg bg-black text-white dark:bg-white dark:text-black disabled:opacity-50 disabled:cursor-not-allowed'
-                          disabled={form.formState.isSubmitting} type='submit'> 
+                          disabled={form.formState.isSubmitting || loading} type='submit'> 
                          {form.formState.isSubmitting && <Loader className='animate-spin'/>} {form.formState.isSubmitting ? 'Please wait...' : 'Login'}
                         </motion.button>
 

@@ -11,7 +11,7 @@ import { twMerge } from "tailwind-merge";
 import { useRouter } from 'nextjs-toploader/app';
 import { useMediaQuery } from 'usehooks-ts'
 import SearchInput from "./SearchInput";
-import SearchInputMobile from "./auth/SearchInputMobile";
+import SearchInputMobile from "./SearchInputMobile";
 
 export default function Searchbar() {
 

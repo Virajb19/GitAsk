@@ -1,4 +1,4 @@
-import SearchInput from "../SearchInput";
+import SearchInput from "./SearchInput";
 import { motion } from 'framer-motion'
 import { X } from "lucide-react";
 import { useEffect, useRef } from "react";

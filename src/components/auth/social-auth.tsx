@@ -6,6 +6,9 @@ import { toast } from 'sonner';
 import { FaGithub} from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+import { useLoadingState } from '~/lib/store';
 
 export const DemarcationLine = () => (
     <div className="flex items-center my-4">
@@ -16,7 +19,10 @@ export const DemarcationLine = () => (
   )
 
 export function OAuthButton({label, provider}: {label: string, provider: string}) {
-    const [loading,setLoading] = useState(false)
+
+    // const [loading,setLoading] = useState(false)
+    const { loading, setLoading } = useLoadingState()
+    const queryClient = useQueryClient()
     
   return (
     <motion.button
@@ -24,8 +30,19 @@ export function OAuthButton({label, provider}: {label: string, provider: string}
         try {
           setLoading(true)
           await signIn(provider, { callbackUrl: "/" });
-          toast.success("Signed in successfully");
+          // toast.success("Signed in successfully");
+
+          // const projectId = localStorage.getItem('projectId')
+          // queryClient.prefetchQuery({ 
+          //   queryKey: ['getCommits', projectId],
+          //   queryFn: async () => {
+          //      const { data : { commits }} = await axios.get(`/api/commits/${projectId}`)
+          //      return commits
+          //   }
+          // })
+          
         } catch (error) {
+          console.error(error)
           toast.error("Something went wrong !!!");
           setLoading(false)
         }

@@ -26,7 +26,7 @@ export default function HomePage() {
                   <h1 className='text-5xl text-center mb:text-4xl text-wrap mb:flex mb:flex-col'>Welcome to 
                     <span className="mb:text-4xl ml-3 mb:ml-0 bg-gradient-to-r from-blue-400 to-blue-700 bg-clip-text font-black tracking-tighter text-transparent">
                       {"GitChat".split('').map((char,i) => {
-                        return <motion.span className='inline-block' key={i} initial={{y: 20, opacity: 0, scale: 0.7}} animate={{y: 0, opacity: 1, scale: 1}} transition={{duration: 0.5, ease: 'easeInOut', delay: i * 0.1}}>{char}</motion.span>
+                        return <motion.span className='inline-block' key={i} initial={{y: 20, opacity: 0, scale: 0.7, filter: 'blur(5px)'}} animate={{y: 0, opacity: 1, scale: 1, filter: 'blur(0px)'}} transition={{duration: 0.5, ease: 'easeInOut', delay: i * 0.1}}>{char}</motion.span>
                       })}
                       </span>
                       </h1>
