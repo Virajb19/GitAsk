@@ -26,10 +26,11 @@ export default function QApage() {
   const { projectId } = useProject()
   const { query } = useSearchQuery()
 
-  const {data: questions, isLoading, isError} = useQuery<question[]>({
+  const {data: questions, isLoading, isError, isRefetching, isFetching} = useQuery<question[]>({
     queryKey: ['getQuestions', projectId],
     queryFn: async () => {
         try {
+            // await new Promise(r => setTimeout(r, 7000))
             const { data : { questions } } = await axios.get(`/api/questions/${projectId}`)
             return questions
          } catch(err) {
@@ -51,7 +52,7 @@ export default function QApage() {
      <span className="self-center my-auto text-2xl">No questions found. Refresh!!!</span> 
 </div>
 
-
+  // || use isFetching
   if(isLoading || !questions) return <div className="w-full flex flex-col gap-3 p-1">
                 <AskQuestionCard />
                 <h3 className="font-bold underline">Saved Questions</h3>

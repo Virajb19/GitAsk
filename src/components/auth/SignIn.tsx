@@ -40,6 +40,7 @@ export default function SignIn() {
        const error = ['User not found. Please check your email !', 'Incorrect password. Try again !!!'].includes(res?.error ?? '') ? res?.error : 'Something went wrong!!!'
        return toast.error(error)
     }
+    form.reset()
     router.push('/')
     toast.success('Login successfull!. Welcome back!')
 

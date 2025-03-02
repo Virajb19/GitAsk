@@ -30,6 +30,7 @@ export default function SignUp() {
   
     const res = await signup(data)
     if(res.success) {
+      form.reset()
       toast.success(res.msg)
       router.push('/signin')
     } else toast.error(res.msg)
