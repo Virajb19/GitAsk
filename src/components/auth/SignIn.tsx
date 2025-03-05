@@ -37,7 +37,7 @@ export default function SignIn() {
     
     const res = await signIn('credentials',{...data, redirect: false})
     if(!res?.ok) {
-       const error = ['User not found. Please check your email !', 'Incorrect password. Try again !!!'].includes(res?.error ?? '') ? res?.error : 'Something went wrong!!!'
+       const error = ['User not found. Please check your email !','Email not verified. Please check your email.','Incorrect password. Try again !!!'].includes(res?.error ?? '') ? res?.error : 'Something went wrong!!!'
        return toast.error(error)
     }
     form.reset()
@@ -57,7 +57,7 @@ export default function SignIn() {
   return <div className="w-full min-h-screen flex-center text-lg">
 
     <motion.div initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{duration: 0.7, ease: 'easeInOut', type: 'spring', damping: '10'}} 
-    className='w-[90%] sm:w-1/3 max-w-3xl z-30'>
+    className='w-[90%] lg:w-1/3 md:w-[70%] max-w-3xl z-30'>
               <Card className='shadow-lg shadow-blue-700'>
                 <CardHeader className='text-center'>
                    <CardTitle className='text-4xl sm:text-5xl'>Welcome Back</CardTitle>
@@ -94,6 +94,12 @@ export default function SignIn() {
                              </FormItem>
                           )}
                         />
+
+                        <div className="flex justify-end">
+                          <Link href={'/forgot-password'} className='text-blue-500 font-semibold hover:underline text-base'>
+                            Forgot Password?
+                          </Link>
+                        </div>
 
                         <motion.button whileHover={form.formState.isSubmitting ? {opacity: 0.5} : {opacity: 0.8}} 
                           className='rounded-full font-bold cursor-pointer flex-center gap-2 w-full px-5 py-1 text-lg bg-black text-white dark:bg-white dark:text-black disabled:opacity-50 disabled:cursor-not-allowed'

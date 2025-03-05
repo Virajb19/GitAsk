@@ -19,11 +19,17 @@ enum Status {
   PROCESSED
 }
 
+enum TokenType {
+  EMAIL_VERIFICATION
+  RESET_PASSWORD
+}
+
 model User {
-  id       Int     @id @default(autoincrement())
-  username String  @unique
-  email    String  @unique
-  password String?
+  id            Int       @id @default(autoincrement())
+  username      String    @unique
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -145,7 +151,7 @@ model Issue {
   summary  String
 
   meetingId String
-  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
@@ -159,4 +165,15 @@ model StripeTransaction {
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  token      String
+  identifier Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  type       TokenType
+  expiresAt  DateTime
+
+  @@unique([token, identifier])
 }

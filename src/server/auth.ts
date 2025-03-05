@@ -14,7 +14,8 @@ import {
     interface Session extends DefaultSession {
       user: {
         id: number,
-        credits: number
+        credits: number,
+        emailVerified: boolean
       } & DefaultSession["user"];
     }
   }
@@ -22,7 +23,8 @@ import {
   declare module 'next-auth/jwt' {
     interface JWT {
         id: number,
-        credits: number
+        credits: number,
+        emailVerified: boolean
     }
   }
   
@@ -40,10 +42,11 @@ import {
         //   if(db_User) token.credits = db_User.credits
         // }
          if(token && token.sub) {
-          const existingUser = await db.user.findFirst({where: { OR: [{OauthId: token.sub}, { id: parseInt(token.sub)}]}, select: {id: true, credits: true}})
+          const existingUser = await db.user.findFirst({where: { OR: [{OauthId: token.sub}, { id: parseInt(token.sub)}]}, select: {id: true, credits: true, emailVerified: true}})
           if(existingUser) {
             token.id = existingUser.id
             token.credits = existingUser.credits
+            token.emailVerified = !!existingUser.emailVerified
           }
          }
          return token
@@ -53,6 +56,7 @@ import {
           session.user.name = token.name
           session.user.id = token.id 
           session.user.credits = token.credits
+          session.user.emailVerified = token.emailVerified
         }
         return session
       },
@@ -74,6 +78,7 @@ import {
                 data: {
                   username: user.name ?? "unknown",
                   email: user.email ?? "unknown",
+                  emailVerified: new Date(),
                   ProfilePicture: user.image,
                   OauthId: user.id,
                   OauthProvider: provider
@@ -109,6 +114,11 @@ import {
             
           const user = await db.user.findUnique({where: {email}})
           if(!user) throw new Error('User not found. Please check your email !')
+         
+          if (!user.emailVerified) {
+            throw new Error("Email not verified. Please check your email.");
+          } 
+          
           const isMatch = await bcrypt.compare(password, user.password as string)     
           if(!isMatch) throw new Error('Incorrect password. Try again !!!')
   
