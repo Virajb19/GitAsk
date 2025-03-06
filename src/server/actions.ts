@@ -21,7 +21,9 @@ export async function signup(formData: formData) {
     if(!parsedData.success) return {success: false, errors: parsedData.error.flatten().fieldErrors, msg: 'Invalid inputs'}
     const {username, email, password} = parsedData.data
 
-    const userExists = await db.user.findFirst({where: {OR: [{email}, {username}]}})
+    // const userExists = await db.user.findFirst({where: {OR: [{email}, {username}]}})
+    
+    const userExists = await db.user.findUnique({where: {email}})
     if(userExists) return {success: false, msg: 'user already exists'}
 
     const hashedPassword = await bcrypt.hash(password,10)

@@ -12,7 +12,7 @@ import { Loader2, LogIn} from 'lucide-react'
 export default function Navbar() {
 
   const pathname = usePathname()
-  if (!['/', '/signin', '/signup','/forgot-password','/verify-email'].includes(pathname)) return null
+  if (!(['/', '/signin', '/signup','/forgot-password','/verify-email'].includes(pathname) || pathname.startsWith('/reset-password'))) return null
 
   const { data: session, status } = useSession()
   const isAuth = !!session 

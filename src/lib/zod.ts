@@ -41,7 +41,7 @@ export const forgotPasswordSchema = z.object({
     email: z.string().email({ message: 'Provide a valid email!'}).trim()
 })
 
-export const changePasswordSchema = z.object({
+export const resetPasswordSchema = z.object({
     newPassword: z.string().min(8, {message: 'Password must be atleast 8 letters long'}).max(15)
     .regex(passwordRegex, {message: 'Password must contain atleast one special char and one number'}).trim(),
     confirmPassword: z.string()

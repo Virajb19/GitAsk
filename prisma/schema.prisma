@@ -24,9 +24,10 @@ enum TokenType {
   RESET_PASSWORD
 }
 
+// userId should be a string
 model User {
   id            Int       @id @default(autoincrement())
-  username      String    @unique
+  username      String    
   email         String    @unique
   emailVerified DateTime?
   password      String?

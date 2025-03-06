@@ -7,8 +7,7 @@ import { z } from 'zod'
 import { forgotPasswordSchema } from '~/lib/zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeft, Mail, Send } from 'lucide-react'
-import Link from 'next/link'
+import { Mail, Send } from 'lucide-react'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import { toast } from 'sonner'
@@ -60,7 +59,7 @@ export default function ForgotPasswordPage() {
                         <div className='flex flex-col gap-3 items-center'>
                               <span className='p-4 rounded-full bg-blue-600'><Mail className='size-8'/></span>
                               <p className='text-center font-semibold text-lg'>
-                                You will shortly receive a password reset link shortly to {form.getValues('email')}
+                                You will shortly receive a password reset link to {form.getValues('email')}
                               </p>
                         </div>
                       ) : (

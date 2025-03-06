@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
         const token = crypto.randomBytes(32).toString('hex')
         
-        await db.verificationToken.create({data: {identifier: user.id, token, type: 'RESET_PASSWORD',expiresAt: new Date(Date.now() + 3600000)}})
+        await db.verificationToken.create({data: {identifier: user.id, token, type: 'RESET_PASSWORD',expiresAt: new Date(Date.now() + 10 * 60 * 1000)}})
 
         const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password/${token}`
 
