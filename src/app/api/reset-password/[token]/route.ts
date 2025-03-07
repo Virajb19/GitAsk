@@ -24,6 +24,8 @@ export async function POST(req: NextRequest, {params}: {params: {token: string}}
 
         // user is not logged in so we can't access session.user.id since session object is null
         // That is why we need to generate a token and send an email to the user to get userId
+        // server does not know from which user request came
+        // changing password when user is logged in is very simple
 
         await db.$transaction(async tx => {
             await tx.user.update({where: {id: user.id}, data: {password: hashedPassword}})

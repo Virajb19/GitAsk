@@ -32,7 +32,7 @@ export default function SignUp() {
     if(res.success) {
       form.reset()
       toast.success(res.msg)
-      router.push('/signin')
+      router.push('/verify-email')
     } else toast.error(res.msg)
 
   }

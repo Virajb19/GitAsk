@@ -2,6 +2,8 @@
 
 import { SignUpSchema } from "~/lib/zod"
 import bcrypt from 'bcrypt'
+import { v4 as uuid } from 'uuid';
+import { cookies } from 'next/headers';
 import { db } from "~/server/db"
 import { z } from 'zod'
 import { streamText } from 'ai'
@@ -12,6 +14,7 @@ import { getServerAuthSession } from "./auth"
 import Stripe from 'stripe'
 import { redirect } from "next/navigation"
 import { Octokit } from "octokit"
+import { sendConfirmationEmail } from "~/utils/email";
 
 type formData = z.infer<typeof SignUpSchema>
 
@@ -27,14 +30,75 @@ export async function signup(formData: formData) {
     if(userExists) return {success: false, msg: 'user already exists'}
 
     const hashedPassword = await bcrypt.hash(password,10)
-    await db.user.create({data: {username,email,password: hashedPassword}})
+    const user = await db.user.create({data: {username,email,password: hashedPassword}, select: {id: true, email: true}})
 
+    const verificationToken = await db.verificationToken.create({data: {identifier: user.id, token: uuid(), type: 'EMAIL_VERIFICATION', expiresAt: new Date(Date.now() + 60 * 60 * 1000)}})
+    
+    const confirmationLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email/${verificationToken.token}`
+    await sendConfirmationEmail(user.email, confirmationLink, verificationToken.type)
+
+    cookies().set('USER_ID', user.id.toString(), {
+        maxAge: 60 * 60,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production'
+    })
+ 
     return {success: true, msg: 'Signed up successfully. Welcome to GitChat !!!'}
-} catch(e) {
-    console.error('Error while signing up',e)
+} catch(err) {
+    console.error('Error while signing up',err)
     return {success: false, msg: 'Something went wrong !!!'}
  }
+}
 
+export async function verifyEmail(token: string) {
+   try {
+       
+    const verificationToken = await db.verificationToken.findFirst({where: {token, expiresAt: {gt: new Date()}}, select: {identifier: true}})
+    if(!verificationToken) return {success: false, msg: 'Invalid or expired token'}
+
+    const user = await db.user.findUnique({where: {id: verificationToken.identifier}, select: {id: true, emailVerified: true}})
+    if(!user) return { success: false, msg: 'user not found'}
+
+    if (user.emailVerified) return { success: false, msg: 'Email already verified' }
+
+    await db.$transaction(async tx => {
+        await tx.user.update({where: {id: user.id}, data: {emailVerified: new Date()}})
+        await tx.verificationToken.delete({where: {token_identifier: {token,identifier: verificationToken.identifier}}})
+    })
+
+     // It can be modified only in Server action or route handler
+    // cookies().delete('USER_ID')
+    return {success: true, msg: 'Email verified successfully'}
+
+   } catch(err) {
+     console.error(err)
+     return {success: false, msg: 'Something went wrong !!!'}
+   }
+}
+
+export async function resendVerificationLink(prevToken: string) {
+    try {
+       // Make userId a string as cuid() in schema
+       const userId = parseInt(cookies().get('USER_ID')?.value as string)
+    //    if (!userId) return { success: false, msg: 'No Id found in cookies' }
+
+       const user = await db.user.findUnique({where: {id: userId}, select: {id: true, email: true, emailVerified: true}})
+       if (!user) return { success: false, msg: 'User not found' }
+    //    if (user.emailVerified) return { success: false, msg: 'Email already verified' }
+       
+       await db.verificationToken.delete({where: {token_identifier: {token: prevToken, identifier: user.id}}})
+
+       const verificationToken = await db.verificationToken.create({data: {identifier: user.id, token: uuid(), type: 'EMAIL_VERIFICATION', expiresAt: new Date(Date.now() + 60 * 60 * 1000)}})
+    
+       const confirmationLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email/${verificationToken.token}`
+       await sendConfirmationEmail(user.email, confirmationLink, verificationToken.type)
+
+       return { success: true, msg: 'Verification link resent'}
+       
+    } catch(err) {
+        console.error(err)
+        return {success: false, msg: 'Something went wrong !!!'}
+    }
 }
 
 const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY as string})

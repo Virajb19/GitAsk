@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { forgotPasswordSchema } from "~/lib/zod";
 import { db } from "~/server/db";
 import crypto from 'crypto';
-import { sendResetPasswordEmail } from "~/utils/email";
+import { sendConfirmationEmail } from "~/utils/email";
 
 export async function POST(req: NextRequest) {
     try {
@@ -16,12 +16,12 @@ export async function POST(req: NextRequest) {
 
         const token = crypto.randomBytes(32).toString('hex')
         
-        await db.verificationToken.create({data: {identifier: user.id, token, type: 'RESET_PASSWORD',expiresAt: new Date(Date.now() + 10 * 60 * 1000)}})
+        const resetToken = await db.verificationToken.create({data: {identifier: user.id, token, type: 'RESET_PASSWORD',expiresAt: new Date(Date.now() + 10 * 60 * 1000)}})
 
         const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password/${token}`
 
         try {
-            await sendResetPasswordEmail(email, resetLink)
+            await sendConfirmationEmail(email, resetLink, resetToken.type)
         } catch (emailError) {
             console.error("Failed to send email:", emailError)
             return NextResponse.json({ msg: "Failed to send password reset email" }, { status: 500 })

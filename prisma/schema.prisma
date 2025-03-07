@@ -24,7 +24,7 @@ enum TokenType {
   RESET_PASSWORD
 }
 
-// userId should be a string
+// userId should be a string as cuid()
 model User {
   id            Int       @id @default(autoincrement())
   username      String    
