@@ -55,11 +55,11 @@ useEffect(() => {
     <AnimatePresence>
         {isOpen && (
              <motion.div ref={sidebarRef} initial={{x: '-100%'}} animate={{x: 0}} exit={{x: '-100%'}} transition={{duration: 0.4, ease: 'circInOut'}}
-             className="lg:hidden absolute left-0 right-16 bottom-16 max-w-[500px] top-20 z-[200] rounded-tr-xl border-t-2 border-r-2 border-gray-700 bg-background flex flex-col gap-3 p-4">
+             className="lg:hidden absolute left-0 right-16 bottom-16 max-w-[300px] top-20 z-[200] rounded-tr-xl border-t-2 border-r-2 border-gray-700 bg-background flex flex-col gap-3 p-4">
                     <button onClick={() => {
                         router.push('/create')
                         setIsOpen(false)
-                    }} className="flex-center gap-2 py-2 border-2 border-dashed border-zinc-600 rounded-lg hover:border-zinc-400 duration-200"><Plus />New</button>
+                    }} className="flex-center gap-2 py-2 border-[3px] border-dashed border-zinc-600 rounded-lg hover:border-zinc-400 duration-200"><Plus />New</button>
                     
                     <div className="flex flex-col gap-3 max-h-[calc(90vh-7rem)] overflow-y-scroll">
                         {projects?.map((project, i) => {

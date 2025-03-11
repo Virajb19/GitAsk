@@ -41,7 +41,10 @@ export default function ResetPassword({token}: {token: string}) {
      })
 
      async function onSubmit(data: Input) {
-        // if(data.confirmPassword !== data.newPassword) return
+        // if(data.confirmPassword !== data.newPassword) {
+        //     toast.error('Passwords do not match')
+        //     return
+        // }
         await resetPassword(data)
      }
 

@@ -39,7 +39,7 @@ export default async function BillingPage() {
                               <span className="p-3 rounded-full bg-green-200 dark:bg-green-500/10 text-green-600"><CreditCard className="mb:size-5"/></span>
                               <div className="flex flex-col gap-0 items-start">
                                   <span className="text-lg font-semibold">Credits Added</span>
-                                  <span className="text-gray-500 mb:text-sm">{transaction.createdAt.toLocaleDateString()}</span>
+                                  <span className="text-gray-500 mb:text-sm font-semibold">{transaction.createdAt.toLocaleDateString()}</span>
                               </div>
                           </div>
                           <span className="text-lg mb:text-sm text-green-500 mr-3 flex-center gap-1 font-bold"><Plus className="size-4" strokeWidth={3}/>{transaction.credits} credits</span>

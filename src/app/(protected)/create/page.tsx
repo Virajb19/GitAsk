@@ -81,11 +81,11 @@ export default function CreatePage() {
 
   return <div className="grow flex-center gap-3">
         <Image src={'/github.svg'} alt="github" width={300} height={300} className="mb:hidden"/>
-        <motion.div initial={{opacity: 0, scale: 0.8}} animate={{opacity: 1, scale: 1}} transition={{duration: 0.5, ease: 'easeInOut'}}>
-            <Card>
+        <motion.div initial={{opacity: 0, scale: 0.8}} animate={{opacity: 1, scale: 1}} transition={{duration: 0.5, ease: 'easeInOut'}} className="mb:w-[90%]">
+            <Card className="shadow-lg shadow-blue-600">
                 <CardHeader>
-                    <CardTitle className="text-xl">Link your Github Repository</CardTitle>
-                    <CardDescription>Enter the URL of your Github Repository to link it to GitChat</CardDescription>
+                    <CardTitle className="text-xl uppercase">Link your Github Repository</CardTitle>
+                    <CardDescription className="font-semibold">Enter the URL of your Github Repository to link it to GitChat</CardDescription>
                 </CardHeader>
                   <CardContent>
                      <Form {...form}>
@@ -96,11 +96,13 @@ export default function CreatePage() {
                           name='name'
                           render={({ field }) => (
                              <FormItem className='flex flex-col gap-1'>
-                              <FormLabel>Project name</FormLabel>
+                              <FormLabel className="font-semibold">Project name</FormLabel>
                               <FormControl>
                                    <div className="flex items-center gap-2 p-2 rounded-xl border focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-transparent duration-200">
-                                      <FileText />
-                                      <input className='outline-none bg-transparent grow' placeholder='Enter your project name' {...field}/>                                      
+                                       <div className="shrink-0">
+                                        <FileText />
+                                       </div>
+                                      <input className='outline-none bg-transparent grow mb:text-sm' placeholder='Enter your project name' {...field}/>                                      
                                    </div>
                               </FormControl>
                               <FormMessage />
@@ -113,11 +115,13 @@ export default function CreatePage() {
                           name='repoURL'
                           render={({ field }) => (
                              <FormItem className='flex flex-col gap-1'>
-                              <FormLabel>Repo URL</FormLabel>
+                              <FormLabel className="font-semibold">Repo URL</FormLabel>
                               <FormControl>
                                 <div className="flex items-center gap-2 p-2 rounded-xl border focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-transparent duration-200">
-                                   <LuGithub className="size-5"/>
-                                   <input className='outline-none bg-transparent grow' placeholder='Enter your repo URL' {...field}/>
+                                   <div className="shrink-0">
+                                     <LuGithub className="size-5"/>
+                                   </div>
+                                   <input className='outline-none bg-transparent grow mb:text-sm' placeholder='Enter your repo URL' {...field}/>
                                 </div>
                               </FormControl>
                               <FormMessage />
@@ -130,11 +134,13 @@ export default function CreatePage() {
                           name='githubToken'
                           render={({ field }) => (
                              <FormItem className='flex flex-col gap-1'>
-                              <FormLabel>Github Token</FormLabel>
+                              <FormLabel className="font-semibold">Github Token</FormLabel>
                               <FormControl>
                                 <div className="flex items-center gap-2 p-2 rounded-xl border focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-transparent duration-200">
-                                  <Key />
-                                  <input className='outline-none bg-transparent grow' placeholder='optional (for private repositories)' {...field}/>
+                                   <div className="shrink-0">
+                                     <Key />
+                                   </div>
+                                  <input className='outline-none bg-transparent grow mb:text-sm overflow-hidden' placeholder='optional (for private repositories)' {...field}/>
                                 </div>
                               </FormControl>
                               <FormMessage />

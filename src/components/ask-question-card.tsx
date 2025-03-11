@@ -36,6 +36,12 @@ export default function AskQuestionCard() {
   })
 
   async function OnSubmit(data: Input) {
+   // For this toast to show remove max(500) from schema
+   if(data.question.length > 500) {
+      toast.error('Question is too big!')
+      return
+   }
+
      setAnswer('')
     try {
             const { output, fileReferences} = await askQuestion(data.question, projectId)
@@ -116,8 +122,8 @@ export default function AskQuestionCard() {
     <div className="flex-center col-span-3">
          <Card className="w-full relative">
             <CardHeader>
-                <CardTitle className="text-lg">Ask a Question</CardTitle>
-                <CardDescription>AI has the knowledge of the codebase</CardDescription>
+                <CardTitle className="text-lg font-semibold uppercase">Ask a Question</CardTitle>
+                <CardDescription className="text-lg">AI has the knowledge of the codebase</CardDescription>
             </CardHeader>
             <CardContent>
                <Form {...form}>
@@ -128,7 +134,7 @@ export default function AskQuestionCard() {
                           name='question'
                           render={({ field }) => (
                              <FormItem className='flex flex-col gap-1'>
-                              <FormMessage className="text-base text-red-500"/>
+                              <FormMessage className="text-base text-red-500 font-semibold"/>
                               <FormControl>
                                 <textarea {...field} className="input-style resize-none min-h-20" placeholder="Which file should I edit to change the Homepage?"/>
                               </FormControl>
@@ -136,7 +142,7 @@ export default function AskQuestionCard() {
                           )}
                         />
 
-                     <button ref={buttonRef} type="submit" className="flex-center gap-2 bg-blue-700 hover:bg-blue-800 transition-colors duration-200 px-4 py-2 rounded-2xl mt-7 text-lg text-white disabled:cursor-not-allowed disabled:opacity-75" 
+                     <button ref={buttonRef} type="submit" className="flex-center font-semibold gap-2 bg-blue-700 hover:bg-blue-800 transition-colors duration-200 px-4 py-2 rounded-2xl mt-7 text-lg text-white disabled:cursor-not-allowed disabled:opacity-75" 
                         disabled={form.formState.isSubmitting}>
                         {form.formState.isSubmitting ? (
                            <>

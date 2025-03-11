@@ -19,9 +19,9 @@ export default function DashBoard() {
       <div className="flex justify-between gap-3 items-center bg-blue-700 rounded-sm px-5 py-3 text-white/80">
         <LuGithub className="size-6" />
         <p className="flex flex-wrap items-center gap-2 font-semibold">This project is linked to
-          <Link target="_blank" rel="noopener noreferrer" href={project?.repoURL ?? '#'} className="text-sm text-white/80 hover:underline inline-flex items-center font-light gap-1">
+          <Link target="_blank" rel="noopener noreferrer" href={project?.repoURL ?? '#'} className="text-sm text-white/80 hover:underline inline-flex items-center font-semibold gap-2 group">
           {project?.repoURL || 'No repository link'}
-          <ExternalLink className="size-4"/>
+          <ExternalLink className="size-5 group-hover:translate-x-1 group-hover:-translate-y-1 duration-300"/>
           </Link>
         </p>
       </div>

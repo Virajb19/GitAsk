@@ -81,7 +81,7 @@ export default function CommitLogComponent() {
                       <div className="flex flex-wrap items-center justify-between">
                           <Link target="_blank"  rel="noopener noreferrer" href={`${project?.repoURL}/commits/${commit.hash}`} className="flex gap-3 items-center"> 
                                 <span className="font-semibold text-lg underline">{commit.authorName}</span>
-                                <span className="inline-flex items-center text-sm text-gray-500 hover:underline">committed</span>
+                                <span className="inline-flex items-center text-sm text-gray-500 hover:underline font-semibold">committed</span>
                                 <ExternalLink className="ml-1 size-4"/>
                               </Link>
                             <span className="">{formatDistanceToNow(new Date(commit.date), {addSuffix: true}).replace('about', '')}</span>

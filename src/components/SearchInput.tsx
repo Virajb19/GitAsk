@@ -15,7 +15,7 @@ export default function SearchInput() {
  }, [])
 
   return  <div className="flex items-center gap-2">
-               <div className="flex items-center bg-white dark:bg-[#2B2A33] rounded-lg px-2 border-2 border-transparent focus-within:border-blue-600 duration-200">
+               <div className="flex items-center mb:w-full bg-white dark:bg-[#2B2A33] rounded-lg px-2 border-2 border-transparent focus-within:border-blue-600 duration-200">
                     <Search /> 
                     <input id="search" ref={searchRef} onChange={(e) => debounced(e.target.value)} className="outline-none p-2 bg-transparent" placeholder="Search..."/>
                 </div>
