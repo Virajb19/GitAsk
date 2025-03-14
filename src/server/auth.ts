@@ -134,8 +134,8 @@ import {
         }
        }) ,
        GitHubProvider({
-        clientId: process.env.GITHUB_ID || "",
-        clientSecret: process.env.GITHUB_SECRET || ""
+        clientId: process.env.GITHUB_CLIENT_ID || "",
+        clientSecret: process.env.GITHUB_CLIENT_SECRET || ""
        }),
        GoogleProvider({
         clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -147,13 +147,13 @@ import {
       maxAge: 2 * 24 * 60 * 60
     },
     jwt: {
-      secret: process.env.NEXTAUTH_SECRET || 'secret',
+      secret: process.env.AUTH_SECRET || 'secret',
       maxAge: 60 * 60
     },
     pages: {
       signIn: '/signin'
     },
-    secret: process.env.NEXTAUTH_SECRET || 'secret'
+    secret: process.env.AUTH_SECRET || 'secret'
   } satisfies NextAuthOptions;
   
   export const getServerAuthSession = () => getServerSession(authOptions)
