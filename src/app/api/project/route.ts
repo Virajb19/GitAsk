@@ -48,7 +48,7 @@ try {
     return NextResponse.json({msg: 'Project created successfully', projectId: project.id}, { status: 201})
 
 } catch(err: any) {
-    console.error(err)
+    console.error('Error creating the project',err)
     if(err instanceof Prisma.PrismaClientKnownRequestError) {
       if(err.code === 'P2002') {
         return NextResponse.json({msg: 'You already have a project with this repo URL'}, {status: 409})
@@ -68,7 +68,7 @@ export async function GET() {
 
       return NextResponse.json({projects}, { status: 200})
   } catch(err) {
-      console.error(err)
+      console.error('Error getting the projects',err)
       return NextResponse.json({msg: 'Error getting the projects'},{ status: 500})
   }
 }

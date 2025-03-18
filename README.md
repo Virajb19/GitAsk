@@ -1,29 +1,144 @@
-# Create T3 App
+# GitChat
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+GitChat is an AI-powered tool that answers questions about any GitHub repository using RAG—just provide a repo URL and get insights instantly.
 
-## What's next? How do I make an app with this?
+https://github.com/user-attachments/assets/295c9db9-f9cd-4a04-a72d-29f03f665c83
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## How to run locally ?
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+**1.Clone the repo**
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+```bash 
+git clone https://github.com/Virajb19/GitChat 
+cd GitChat
+```
 
-## Learn More
+**2. Install pnpm and then dependencies**
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+```bash 
+npm i -g pnpm
+```
+```bash
+pnpm install
+```
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+**3. Run the server**
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+```bash
+pnpm dev
+```
 
-## How do I deploy this?
+**4. Create .env and add environment variables**
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+Refer .env.example
+
+**5. Start Database**
+
+Pull postgres image
+
+```bash
+docker pull postgres
+```
+Run docker container
+
+```bash
+docker run --name postgres-ctr -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres
+
+```
+Run this command
+
+```bash
+pnpm dlx prisma migrate deploy
+```
+
+Run this command to open prisma studio
+
+```bash
+pnpm dlx prisma studio
+```
+Open [http://localhost:5555]
+
+**6. Authentication**
+
+Run this to generate a key
+
+```bash
+openssl rand -base64 32
+```
+
+Add the key to AUTH_SECRET env var
+
+Go to [https://github.com/settings/apps] and create an OAuth app
+
+GITHUB_CLIENT_ID=""  
+GITHUB_CLIENT_SECRET=""  
+
+(Optional. You can just login using Github)
+
+Go to [https://console.cloud.google.com/] and create an OAuth app
+
+GOOGLE_CLIENT_ID="" GOOGLE_CLIENT_SECRET=""
+
+Create an App password (Optional. Just login using github)
+
+You need to enable 2-Step verification in your google account
+
+EMAIL_APP_USER="your_email@gmail.com"
+EMAIL_APP_PASSWORD="your_generated_app_password"
+
+**7. Gemini API**
+
+Go to [https://aistudio.google.com/] and create an API key
+
+GEMINI_API_KEY="your_gemini_api_key"
+
+GOOGLE_GENERATIVE_AI_API_KEY="your_gemini_api_key"
+
+**8. GitHub API**
+
+Go to [https://github.com/settings/tokens] and generate a token. Add that token to 
+
+GITHUB_ACCESS_TOKEN=""
+
+**9. Assembly AI**
+
+Get you API key from [https://www.assemblyai.com/]
+
+ASSEMBLY_API_KEY=""
+
+**10. Appwrite Storage**
+
+Get you secret key from [https://appwrite.io/]
+
+APPWRITE_SECRET_KEY=""
+
+Create a project and add project ID here
+
+NEXT_PUBLIC_APPWRITE_PROJECT_ID=""
+
+Create a bucket and add bucket ID here
+
+NEXT_PUBLIC_APPWRITE_BUCKET_ID=""
+
+**11. Stripe**
+
+Go to [https://dashboard.stripe.com/apikeys]
+
+STRIPE_SECRET_KEY="your_stripe_secret_key"
+STRIPE_PUBLISHABLE_KEY="your_stripe_publishable_key"
+
+Install stripe CLI in your system
+
+Run this command
+
+```bash
+stripe listen --forward-to localhost:3000/api/webhook/stripe
+```
+
+A secret will be generated. Add that secret to 
+
+STRIPE_WEBHOOK_SECRET=""
+
+
+
+

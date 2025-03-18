@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, { params } : { params: { projectId: 
         
         return NextResponse.json({questions}, { status: 200})
     } catch(err) {
-        console.error(err)
+        console.error('Error getting questions', err)
         return NextResponse.json({msg: 'Internal Server error'},{ status: 500})
     }
 }

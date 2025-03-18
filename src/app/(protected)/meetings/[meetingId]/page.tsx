@@ -1,13 +1,16 @@
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { db } from "~/server/db"
 import { VideoIcon } from 'lucide-react'
-import IssueCard from "~/components/IssueCard"
 import CopyButton from "~/components/CopyButton"
 import IssueList from "~/components/IssueList"
+import { getServerAuthSession } from "~/server/auth"
 
 export default async function MeetingDetailsPage({ params: { meetingId } }: { params: { meetingId: string}}) {
 
-    const meeting = await db.meeting.findUnique({ where: { id: meetingId}, include: { issues: true}})
+    const session = await getServerAuthSession()
+    if(!session?.user) redirect('/signin')  
+
+    const meeting = await db.meeting.findUnique({ where: { id: meetingId, userId: session.user.id}, include: { issues: true}})
     if(!meeting) return notFound()
 
     const issues = meeting.issues

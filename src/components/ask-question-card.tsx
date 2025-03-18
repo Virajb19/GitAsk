@@ -107,7 +107,7 @@ export default function AskQuestionCard() {
                    <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                        <Image src={'/favicon.ico'} alt='logo' width={40} height={40} />
-                       <button onClick={handleClick} disabled={answer === '' || loading} className="bg-[#2657df] px-3 py-2 rounded-md flex-center gap-2 disabled:cursor-not-allowed disabled:opacity-75">
+                       <button onClick={handleClick} disabled={answer === '' || loading} className="bg-blue-700 hover:bg-blue-500 duration-200 px-3 py-2 rounded-md flex-center gap-2 disabled:cursor-not-allowed disabled:opacity-75">
                         {loading ? <Loader2 className="size-5 animate-spin"/> : <Download className="size-5"/>} Save Answer
                         </button>
                       </DialogTitle>
@@ -116,14 +116,17 @@ export default function AskQuestionCard() {
                        <MDEditor.Markdown source={answer}/>
                      </div>
                      <FileReference files={fileReferences}/>
-                    <button onClick={() => setOpen(false)} className="bg-[#3760cf] rounded-sm py-2 text-lg font-bold hover:opacity-75 duration-100">Close</button>
+                    <button onClick={() => setOpen(false)} className="bg-blue-600 rounded-sm py-2 text-lg font-bold hover:opacity-75 duration-200">Close</button>
               </DialogContent>
         </Dialog>
     <div className="flex-center col-span-3">
          <Card className="w-full relative">
             <CardHeader>
-                <CardTitle className="text-lg font-semibold uppercase">Ask a Question</CardTitle>
-                <CardDescription className="text-lg">AI has the knowledge of the codebase</CardDescription>
+                <CardTitle className="text-lg font-semibold uppercase flex items-center gap-2">
+                  Ask a Question
+                  <span className="text-sm text-white p-1 bg-blue-600 rounded-lg">Ctrl + K</span>
+                  </CardTitle>
+                <CardDescription className="text-lg font-semibold">AI has the knowledge of the codebase</CardDescription>
             </CardHeader>
             <CardContent>
                <Form {...form}>

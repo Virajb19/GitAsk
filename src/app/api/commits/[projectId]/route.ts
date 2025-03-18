@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params } : { params: { projectId: 
     
         return NextResponse.json({commits}, { status: 200})
     } catch(err) {
-        console.error(err)
+        console.error('Error getting commits',err)
         return NextResponse.json({msg: 'Internal Server error'},{ status: 500})
     }
 }

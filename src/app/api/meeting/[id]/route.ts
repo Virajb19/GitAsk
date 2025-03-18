@@ -48,7 +48,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string}
 
         return NextResponse.json({ success: true}, { status: 200})
     } catch(err) {
-        console.error(err)
+        console.error('Error processing meeting',err)
         return NextResponse.json({msg: 'Internal Server error'},{status: 500})
     }
 }
@@ -66,7 +66,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
         return NextResponse.json({msg: 'deleted'}, { status: 200})
     } catch(err) {
-        console.error(err)
+        console.error('Error deleting meeting',err)
         return NextResponse.json({msg: 'Internal Server error'},{status: 500})
     }
 }

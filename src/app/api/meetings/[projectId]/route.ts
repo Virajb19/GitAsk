@@ -16,7 +16,7 @@ export async function GET(req: NextRequest, { params } : { params: { projectId: 
     
         return NextResponse.json({meetings}, { status: 200})
     } catch(err) {
-        console.error(err)
+        console.error('Error getting meetings',err)
         return NextResponse.json({msg: 'Internal Server error'},{status: 500})
     }
 }
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest, { params } : { params: { projectId:
         return NextResponse.json({meetingId: meeting.id}, { status: 200})
         
     } catch(err) {
-        console.error(err)
+        console.error('Error creating meeting',err)
         return NextResponse.json({msg: 'Internal Server error'},{status: 500})
     }
 } 

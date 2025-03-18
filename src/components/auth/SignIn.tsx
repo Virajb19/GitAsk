@@ -7,7 +7,7 @@ import { SignInSchema } from '~/lib/zod'
 import { z } from 'zod'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
-import { Loader } from 'lucide-react'
+import { ArrowLeft, Loader } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { DemarcationLine, OAuthButton } from './social-auth'
 import PasswordInput from './PasswordInput'
@@ -124,6 +124,10 @@ export default function SignIn() {
                             className="text-blue-500 font-semibold hover:underline"
                           >
                             Sign Up
+                          </Link>
+
+                          <Link href={'/'} className='text-blue-500 gap-2 flex-center font-semibold mt-3 group'>
+                             <ArrowLeft className='group-hover:-translate-x-2 duration-300'/> Back to Home
                           </Link>
                         </span>
                       </div>
