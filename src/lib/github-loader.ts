@@ -51,7 +51,20 @@ export async function indexGithubRepo(projectId: string, githubURL: string, gith
   //       await new Promise(resolve => setTimeout(resolve, 1000 * 20))
   //     }
   //  }
-   
+
+  // WITHOUT RATELIMITING
+  // const embeddings = await Promise.all(docsToSummarize.map(async doc => {
+  //   const summary = await summarizeCode(doc)
+  //   const embedding = await generateEmbedding(summary)
+
+  //   return {
+  //     summaryEmbedding: embedding,
+  //     sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
+  //     filename: doc.metadata.source,
+  //     summary
+  //   }
+  // }))
+  
   let summaries: string[] = []
   if(docsToSummarize.length < 13) {
         const responses = await Promise.allSettled(docsToSummarize.map(async doc => {
@@ -73,7 +86,7 @@ export async function indexGithubRepo(projectId: string, githubURL: string, gith
 
         if(summary === '') {
           console.log('waiting...')
-          await new Promise(r => setTimeout(r, 12 * 1000))
+          await new Promise(r => setTimeout(r, 20 * 1000))
         }
       }
   }

@@ -3,18 +3,23 @@ import { useProject } from "~/hooks/useProject";
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import axios, { AxiosError } from "axios";
 import { toast } from 'sonner';
+import { Dialog, DialogHeader, DialogContent, DialogTitle, DialogDescription, DialogTrigger } from "./ui/dialog";
+import { useState } from 'react';
 
 export default function ArchiveButton() {
 
     const { projectId, setProjectId, projects } = useProject()
 
-   const {mutate: archiveProject, isPending} = useMutation({
+    const [open, setOpen] = useState(false)
+    const queryClient = useQueryClient()
+
+   const deleteProject = useMutation({
       mutationFn: async (projectId: string) => {
          const res = await axios.delete(`/api/project/${projectId}`)
          return res.data
       },
       onSuccess: () => {
-         toast.success('Archived')
+         toast.success('Deleted')
          // const projects = queryClient.getQueryData<Project[]>(['getProjects'])
          const nextProject = projects?.find(p => p.id !== projectId)
          if(projects?.length) {
@@ -33,21 +38,33 @@ export default function ArchiveButton() {
       }
    })
 
-    const queryClient = useQueryClient()
-
-  return <button onClick={() => {
-              const confirm = window.confirm('Are you sure you want to archive this project?')
-              if(confirm) archiveProject(projectId)
-          }} 
-          disabled={isPending} className="bg-red-800 px-3 py-2 flex items-center gap-2 text-base text-gray-300 hover:text-gray-100 duration-300 font-semibold rounded-lg disabled:cursor-not-allowed disabled:opacity-70">
-        {isPending ? (
-         <>
-          <Loader2 strokeWidth={3} className="animate-spin size-5"/> Archiving...
-         </>
-      ) : (
-         <>
-            <Trash strokeWidth={3} className="size-5"/> Archive project
-         </>
-      )}
-  </button>
+  return <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger>
+                  <button onClick={() => {
+                        // const confirm = window.confirm('Are you sure you want to archive this project?')
+                        // if(confirm) archiveProject(projectId)
+                     }} 
+                     disabled={deleteProject.isPending} className="bg-red-800 px-3 py-2 flex items-center gap-2 text-base text-gray-300 hover:text-gray-100 duration-300 font-semibold rounded-lg disabled:cursor-not-allowed disabled:opacity-70">
+                  {deleteProject.isPending ? (
+                     <>
+                     <Loader2 strokeWidth={3} className="animate-spin size-5"/> Archiving...
+                     </>
+                  ) : (
+                     <>
+                        <Trash strokeWidth={3} className="size-5"/> Archive project
+                     </>
+                  )}
+            </button>
+        </DialogTrigger>
+        <DialogContent>
+             <DialogHeader className='font-semibold text-lg sm:text-xl text-left uppercase'>Are you sure you want to delete this project?</DialogHeader>
+             <div className="flex items-center gap-3 justify-end font-semibold">
+                 <button onClick={() => setOpen(false)} className="px-4 py-2 rounded-lg bg-blue-600">Cancel</button>
+                 <button onClick={() => {
+                    setOpen(false)
+                    deleteProject.mutate(projectId)
+                 }} className="px-4 py-2 rounded-lg bg-red-600">Delete</button>
+             </div>
+        </DialogContent>
+  </Dialog>
 }

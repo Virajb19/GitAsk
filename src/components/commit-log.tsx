@@ -31,8 +31,9 @@ export default function CommitLogComponent() {
          }
     },
     refetchInterval: 15 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    staleTime: 15 * 60 * 1000
+    // refetchOnWindowFocus: true,
+    staleTime: 15 * 60 * 1000,
+    // enabled: projectId !== ''
   })
 
   // toast.success(isFetching ? '1' : '0')

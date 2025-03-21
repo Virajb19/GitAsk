@@ -37,7 +37,7 @@ export default function SignUp() {
 
   }
 
-  return <div className="w-full min-h-screen flex-center text-lg">
+  return <div className="w-full min-h-screen flex-center pt-24 pb-5 text-lg">
 
     <motion.div initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{duration: 0.7, ease: 'easeInOut', type: 'spring', damping: '10'}} 
     className='w-[90%] lg:w-1/3 sm:w-[70%] max-w-3xl z-30'>

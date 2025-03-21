@@ -105,7 +105,7 @@ export default function CreatePage() {
                                       <input className='outline-none bg-transparent grow mb:text-sm' placeholder='Enter your project name' {...field}/>                                      
                                    </div>
                               </FormControl>
-                              <FormMessage />
+                              <FormMessage className="font-semibold"/>
                              </FormItem>
                           )}
                         />
@@ -124,7 +124,7 @@ export default function CreatePage() {
                                    <input className='outline-none bg-transparent grow mb:text-sm' placeholder='Enter your repo URL' {...field}/>
                                 </div>
                               </FormControl>
-                              <FormMessage />
+                              <FormMessage className="font-semibold"/>
                              </FormItem>
                           )}
                         />

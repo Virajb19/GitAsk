@@ -77,8 +77,9 @@ export default function AskQuestionCard() {
    useEffect(() => {
    //   const button = document.getElementById('button') as HTMLButtonElement
      const handleKeyDown = (e: KeyboardEvent) => {
-       if(e.ctrlKey && e.key === 'Enter') {
+       if(e.ctrlKey && e.key.toLowerCase() === 'k') {
           e.preventDefault()
+          e.stopPropagation()
           buttonRef.current?.click()
          //  button.click()
        }

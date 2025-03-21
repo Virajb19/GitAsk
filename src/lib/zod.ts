@@ -34,7 +34,7 @@ export const createMeetingSchema = z.object({
 
 export const processMeetingSchema = z.object({
     fileUrl: z.string(),
-    projectId: z.string(),
+    projectId: z.string().cuid(),
 })
 
 export const forgotPasswordSchema = z.object({

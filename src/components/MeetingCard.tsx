@@ -17,7 +17,7 @@ export default function MeetingCard() {
 
     const [uploading, setUploading] = useState(false)
     const [progress, setProgress] = useState(0)
-    const { projectId } = useProject()
+    const { projectId, projects } = useProject()
 
     const {data: session, status, update} = useSession()
     const credits = session?.user.credits
@@ -113,7 +113,7 @@ export default function MeetingCard() {
                 <p className='text-center text-base font-semibold text-gray-400'>Analyse your meeting with GitChat <br /> Powered by AI</p>
             </>
          )}
-         <button disabled={uploading} className='flex-center group py-2 px-4 text-white rounded-lg bg-blue-700 font-semibold gap-3 disabled:cursor-not-allowed disabled:opacity-70' {...getRootProps()}>
+         <button disabled={uploading || !projects ||projects.length === 0} className='flex-center group py-2 px-4 text-white rounded-lg bg-blue-700 font-semibold gap-3 disabled:cursor-not-allowed disabled:opacity-70' {...getRootProps()}>
             <Upload className='size-5 group-hover:-translate-y-1 duration-200'/> Upload meeting <input className='hidden' {...getInputProps()}/>
          </button>
   </div>
