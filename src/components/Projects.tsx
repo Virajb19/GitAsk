@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
 
 export default function Projects({ isCollapsed }: { isCollapsed: boolean }) {
 
-  const { projects, setProjectId, projectId, isLoading } = useProject()
+  const { projects, setProjectId, projectId, isLoading, isError } = useProject()
 
   const projectRefs = useRef<(HTMLDivElement | null)[]>([])
 
@@ -25,8 +25,12 @@ export default function Projects({ isCollapsed }: { isCollapsed: boolean }) {
   //    if(selectedProject) selectedProject.scrollIntoView({ behavior: 'smooth', block: 'center'})
   // }, [projectId])
 
+  if(isError && !isCollapsed) return <div className="flex-center h-[20vh] font-semibold text-xl text-red-600 border-4 border-blue-600 rounded-xl">
+        Error fetching projects
+  </div>
+
   if (isLoading || !projects) return <div className="flex flex-col gap-2 p-2 max-h-[45vh] border-4 border-blue-600 rounded-xl">
-    {Array.from({ length: 3 }).map((_, i) => {
+    {Array.from({ length: 4 }).map((_, i) => {
       return <Skeleton key={i} className="w-full h-12" />
     })}
   </div>

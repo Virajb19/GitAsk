@@ -16,7 +16,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useProject } from "~/hooks/useProject"
 import { useRouter } from "nextjs-toploader/app"
 import { checkCredits } from "~/server/actions"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { useMutation } from "@tanstack/react-query"
 
@@ -66,10 +66,11 @@ export default function CreatePage() {
 
   async function onSubmit(data: Input) {
 
-       toast.info('Project creation might take some time due to Gemini rate limits.Consider trying with a small codebase.', {duration: 6000})
+      //  toast.info('Project creation might take some time due to Gemini rate limits.Consider trying with a small codebase.', {duration: 6000})
     
        // use credits from session object checkCredits does not need to return credits
        // there is some bug when you fetch credits server side it gives the updated value but when you fetch client side it does not 
+       // Always try to get session/user info server side and pass to client
        const { fileCount, userCredits } = await checkCredits(data.repoURL, data.githubToken)
        setCreditInfo({fileCount, userCredits}) 
 
@@ -78,6 +79,11 @@ export default function CreatePage() {
         //  queryClient.refetchQueries({ queryKey: ['getProjects']})
        } else toast.error(`You need to buy ${fileCount - userCredits} more credits`, {position: 'bottom-right'})
    }
+
+   useEffect(() => {
+    toast.info('Project creation might take some time due to Gemini rate limits.Consider trying with a small codebase.', 
+    {duration: 10 * 1000, dismissible: true, position: 'bottom-right'})
+   }, [])
 
   return <div className="grow flex-center gap-3">
         <Image src={'/github.svg'} alt="github" width={300} height={300} className="mb:hidden"/>

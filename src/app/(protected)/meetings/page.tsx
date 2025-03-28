@@ -6,7 +6,7 @@ import axios from "axios";
 import MeetingCard from "~/components/MeetingCard";
 import { useProject } from "~/hooks/useProject";
 import { motion } from 'framer-motion'
-import { Check, Loader2} from 'lucide-react'
+import { CheckCheck, Loader2} from 'lucide-react'
 import { twMerge } from "tailwind-merge";
 import Link from "next/link";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -48,7 +48,8 @@ export default function MeetingPage() {
      return meetings?.filter(meeting => meeting.name.toLowerCase().includes(query)) ?? []
   }, [meetings,query])
 
-  if(isError) return <div className="flex flex-col grow mt-3 p-1">
+  // when isError is true meetings are undefined
+  if(isError) return <div className="flex flex-col grow mt-3 p-1 text-red-600">
      <MeetingCard />
      <span className="self-center my-auto text-2xl">No meetings found. Refresh!!!</span> 
 </div>
@@ -63,50 +64,59 @@ export default function MeetingPage() {
       })}          
   </div>
 
-  if(isError || meetings?.length === 0) return <div className="flex flex-col grow mt-3 p-1">
+ // Dont use filteredMeetings here
+  if(meetings.length === 0) return <div className="flex flex-col grow mt-3 p-1">
        <MeetingCard />
-      <span className="self-center my-auto text-2xl">No meetings found. Refresh!!!</span> 
+      <span className="self-center my-auto text-4xl">Create a meeting</span> 
   </div>
 
   return <div className="w-full flex flex-col p-3 gap-2 mb:p-0">
           <MeetingCard />
           <h3 className="text-3xl underline font-bold">All Meetings</h3>
             <ul className="flex flex-col gap-2 p-1 grow">
-               {filteredMeetings.map((meeting, i) => {
-                  return <motion.li key={meeting.id} initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.3, ease: 'easeInOut', delay: i * 0.1}}
-                    className="flex mb:flex-col mb:items-start items-center justify-between gap-2 p-2 rounded-lg border bg-white dark:bg-card">
-                       <div className="flex flex-col gap-1">
-                           <div className="flex items-center gap-3">
-                             <h4 className="text-lg text-wrap font-bold truncate">{meeting.name}</h4>
-                               <span className={twMerge("flex items-center px-2 py-1 rounded-full text-white gap-1 text-sm font-semibold", meeting.status === 'PROCESSING' ? 'bg-amber-500' : 'bg-green-700')}>
-                                   {meeting.status === 'PROCESSING' ? (
-                                     <>
-                                         <Loader2 className="animate-spin size-5"/> Processing...
-                                     </>
-                                   ) : (
-                                     <>
-                                         <Check /> Processed
-                                     </>
-                                   )}
-                               </span>
-                           </div>
-                           <div className="flex items-center text-gray-500 gap-2">
-                               <span className="whitespace-nowrap font-semibold">{new Date(meeting.createdAt).toLocaleDateString()}</span>
-                               <p className="font-semibold">
-                                 <span className="text-blue-500">{meeting.issues.length}</span> issues
-                                </p>
-                           </div>
-                       </div>
-                      <div className="flex items-center justify-between gap-2 mb:w-full">
-                         {meeting.status === 'PROCESSED' && !isDeleting[meeting.id] && (
-                             <Link href={`/meetings/${meeting.id}`} className="font-bold p-2 rounded-md bg-blue-800 text-white">
-                               View meeting
-                           </Link>
-                         )}
-                         {meeting.status === 'PROCESSED' && <MeetingDeleteButton meetingId={meeting.id} onPendingChange={handlePendingChange}/>}
-                      </div>
-                  </motion.li>
-               })}
+               {filteredMeetings.length === 0 ? (
+                  <h3 className="self-center my-auto">
+                      No meetings found
+                  </h3>
+               ) : (
+                  <>
+                      {filteredMeetings.map((meeting, i) => {
+                        return <motion.li key={meeting.id} initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.3, ease: 'easeInOut', delay: i * 0.1}}
+                          className="flex mb:flex-col mb:items-start items-center justify-between gap-2 p-2 rounded-lg border bg-white dark:bg-card">
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-3">
+                                  <h4 className="text-lg text-wrap font-bold truncate">{meeting.name}</h4>
+                                    <span className={twMerge("flex items-center px-2 py-1 rounded-full text-white gap-1 text-sm font-semibold", meeting.status === 'PROCESSING' ? 'bg-amber-500' : 'bg-green-700')}>
+                                        {meeting.status === 'PROCESSING' ? (
+                                          <>
+                                              <Loader2 className="animate-spin size-5"/> Processing...
+                                          </>
+                                        ) : (
+                                          <>
+                                              <CheckCheck /> Processed
+                                          </>
+                                        )}
+                                    </span>
+                                </div>
+                                <div className="flex items-center text-gray-500 gap-2">
+                                    <span className="whitespace-nowrap font-semibold">{new Date(meeting.createdAt).toLocaleDateString()}</span>
+                                    <p className="font-semibold">
+                                      <span className="text-blue-500">{meeting.issues.length}</span> issues
+                                      </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-between gap-2 mb:w-full">
+                              {meeting.status === 'PROCESSED' && !isDeleting[meeting.id] && (
+                                  <Link href={`/meetings/${meeting.id}`} className="font-bold p-2 rounded-md bg-blue-800 hover:bg-blue-600 duration-200 text-white">
+                                    View meeting
+                                </Link>
+                              )}
+                              {meeting.status === 'PROCESSED' && <MeetingDeleteButton meetingId={meeting.id} onPendingChange={handlePendingChange}/>}
+                            </div>
+                        </motion.li>
+                      })}
+                  </>
+               )}
             </ul>
   </div>
 }

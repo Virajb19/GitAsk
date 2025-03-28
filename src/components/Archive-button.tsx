@@ -47,11 +47,11 @@ export default function ArchiveButton() {
                      disabled={deleteProject.isPending} className="bg-red-800 px-3 py-2 flex items-center gap-2 text-base text-gray-300 hover:text-gray-100 duration-300 font-semibold rounded-lg disabled:cursor-not-allowed disabled:opacity-70">
                   {deleteProject.isPending ? (
                      <>
-                     <Loader2 strokeWidth={3} className="animate-spin size-5"/> Archiving...
+                     <Loader2 strokeWidth={3} className="animate-spin size-5"/> Deleting...
                      </>
                   ) : (
                      <>
-                        <Trash strokeWidth={3} className="size-5"/> Archive project
+                        <Trash strokeWidth={3} className="size-5"/> Delete project
                      </>
                   )}
             </button>

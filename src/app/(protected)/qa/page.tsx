@@ -49,7 +49,7 @@ export default function QApage() {
 
   if(isError) return <div className="flex flex-col grow mt-3 p-1">
      <AskQuestionCard />
-     <span className="self-center my-auto text-2xl">No questions found. Refresh!!!</span> 
+     <h3 className="self-center my-auto text-2xl text-red-600">No questions found. Refresh!!!</h3> 
 </div>
 
   // || use isFetching
@@ -61,13 +61,18 @@ export default function QApage() {
                 })}
           </div>
 
+  if(questions.length === 0) return <div className="flex flex-col grow mt-3 p-1">
+       <AskQuestionCard />
+       <h3 className="self-center my-auto text-3xl">Ask a Question!</h3> 
+  </div>
+          
   const question = filteredQuestions?.[quesIdx]
 
   return <div className="w-full flex flex-col gap-3 p-1">
           <AskQuestionCard />
          <Sheet>
               <h3 className="font-bold underline">Saved Questions</h3>
-               {(questions && questions?.length > 0) ? (
+               {(questions && questions.length > 0) ? (
                  <>
                      {filteredQuestions.map((question, i) => {
 

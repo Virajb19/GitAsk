@@ -18,6 +18,7 @@ const items = [
 
 export default function AppSidebar() {
 
+   // Global Zustand state
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
 

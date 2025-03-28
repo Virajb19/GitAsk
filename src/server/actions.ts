@@ -105,6 +105,20 @@ const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_
 
 export async function askQuestion(question: string, projectId: string) {
     const stream = createStreamableValue()
+
+    // const { textStream: translationStream } = await streamText({
+    //     model: google('gemini-2.0-flash'),
+    //     prompt: `Translate the following text to English and output only the translated text: "${question}"`,
+    // });
+    
+    // let translatedQuestion = '';
+    // for await (const text of translationStream) {
+    //     translatedQuestion += text;
+    // }
+
+    // console.log(translatedQuestion)
+    
+    // const queryEmbedding = await generateEmbedding(translatedQuestion);
  
     const queryEmbedding = await generateEmbedding(question)
     const vectorQuery = `[${queryEmbedding.join(',')}]`

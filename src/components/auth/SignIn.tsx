@@ -24,7 +24,7 @@ export default function SignIn() {
 
   const router = useRouter()
 
-  const { loading } = useLoadingState()
+  const { loading, setLoading } = useLoadingState()
 
   const queryClient = useQueryClient()
 
@@ -35,7 +35,11 @@ export default function SignIn() {
 
   async function onSubmit(data: SignInData) {
     
+    setLoading(true)
     const res = await signIn('credentials',{...data, redirect: false})
+    // await new Promise(r => setTimeout(r,7000))
+    setLoading(false)
+    
     if(!res?.ok) {
        const error = ['User not found. Please check your email !','Email not verified. Please check your email.','Incorrect password. Try again !!!'].includes(res?.error ?? '') ? res?.error : 'Something went wrong!!!'
        return toast.error(error)

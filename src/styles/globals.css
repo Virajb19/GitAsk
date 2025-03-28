@@ -23,7 +23,7 @@ h3 {
 }
 
 .input-style {
-  @apply outline-none px-4 py-2 bg-transparent placeholder:text-sm rounded-xl border focus:ring-2 focus:ring-blue-600 focus:border-transparent duration-200
+  @apply outline-none px-4 py-2 placeholder:text-sm bg-secondary dark:bg-black rounded-xl border focus:ring-2 focus:ring-blue-600 focus:border-transparent duration-200
 }
 
 .scrollbar {

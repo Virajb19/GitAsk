@@ -12,7 +12,6 @@ https://github.com/user-attachments/assets/295c9db9-f9cd-4a04-a72d-29f03f665c83
 git clone https://github.com/Virajb19/GitChat 
 cd GitChat
 ```
-
 **2. Install pnpm and then dependencies**
 
 ```bash 

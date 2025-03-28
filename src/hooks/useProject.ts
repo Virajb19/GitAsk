@@ -16,8 +16,14 @@ export const useProject = () => {
  const {data: projects,isLoading, isError} = useQuery<Project[]>({
   queryKey: ['getProjects', userId],
   queryFn: async () => {
-      const { data: { projects }} = await axios.get('/api/project')
-      return projects
+      try {
+        const { data: { projects }} = await axios.get('/api/project')
+        // throw new Error('Error fetching projects')
+        return projects
+      } catch(err) {
+        console.error(err)
+        throw new Error('Error fetching projects')
+      }
   },
   enabled: !!userId
  })
@@ -28,7 +34,7 @@ export const useProject = () => {
     return projects?.find(project => project.id === projectId)
  }, [projects, projectId])
 
- if(isError) toast.error('Some error occured')
+//  if(isError) toast.error('Some error occured')
 
-    return { projects, projectId, setProjectId, project, isLoading}
+    return { projects, projectId, setProjectId, project, isLoading, isError}
 }

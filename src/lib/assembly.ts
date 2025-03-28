@@ -1,7 +1,16 @@
 import { AssemblyAI } from 'assemblyai'
 import fs from 'fs/promises'
 
-const client = new AssemblyAI({ apiKey : process.env.ASSEMBLY_API_KEY ?? ''})
+// const client = new AssemblyAI({ apiKey : process.env.ASSEMBLY_API_KEY ?? ''})
+
+let asm: AssemblyAI | null = null
+
+export async function getAssemblyClient() {
+    if(!asm) {
+        asm = new AssemblyAI({apiKey: process.env.ASSEMBLY_API_KEY!}) 
+    }
+    return asm
+}
 
 function msToTime(ms: number) {
    const seconds = ms / 1000
@@ -14,6 +23,8 @@ export async function processMeeting(fileUrl: string) {
 
     // const fileData = await fs.readFile(filePath)
     // const fileurl = await client.files.upload(fileData)
+
+    const client = await getAssemblyClient()
 
     const transcript = await client.transcripts.transcribe({
         audio_url: fileUrl,

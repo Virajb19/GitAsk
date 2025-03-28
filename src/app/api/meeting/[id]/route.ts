@@ -59,8 +59,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
         if(!session?.user) return NextResponse.json({msg: 'Unauthorized'}, { status: 401})
 
         const { id } = params
-        const meeting = await db.meeting.findUnique({ where: { id }, select: { id: true}})
+        const meeting = await db.meeting.findUnique({ where: { id }, select: { id: true, status: true}})
         if(!meeting) return NextResponse.json({ msg: 'meeting not found'}, { status: 404})
+
+        if(meeting.status === 'PROCESSING') return NextResponse.json({msg: 'Meeting is currently being processed and cannot be deleted'}, { status: 403})
 
         await db.meeting.delete({ where: { id: meeting.id}})
 

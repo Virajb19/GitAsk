@@ -11,6 +11,10 @@ const bodySchema = createProjectSchema.extend({
   fileCount: z.number()
 })
 
+// export const config = {
+//    runtime: 'edge'
+// }
+
 export async function POST(req: NextRequest) {
 try {
 

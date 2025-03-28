@@ -7,7 +7,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from 'sonner'
 import { getQueryClient } from "~/lib/queryClient";
 
-const query = getQueryClient()
+const queryClient = getQueryClient()
 
 function ThemedToaster() {
   const { theme } = useTheme()
@@ -25,7 +25,7 @@ export default function Providers({ children, ...props }: ThemeProviderProps) {
 
   return (
     <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange {...props}>
-    <QueryClientProvider client={query}>
+    <QueryClientProvider client={queryClient}>
       <SessionProvider>
         <ThemedToaster />
         {children}

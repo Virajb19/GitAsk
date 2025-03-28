@@ -14,6 +14,7 @@ import PasswordInput from './PasswordInput'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { signup } from '~/server/actions'
+import { useLoadingState } from '~/lib/store'
 
 type SignUpData = z.infer<typeof SignUpSchema>
 
@@ -21,14 +22,19 @@ export default function SignUp() {
 
   const router = useRouter()
 
+  const {loading, setLoading} = useLoadingState()
+
   const form = useForm<SignUpData>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: { username: '', email: '', password: ''}
   })
 
   async function onSubmit(data: SignUpData) {
-  
+    
+    setLoading(true)
     const res = await signup(data)
+    setLoading(false)
+
     if(res.success) {
       form.reset()
       toast.success(res.msg)
@@ -96,7 +102,7 @@ export default function SignUp() {
 
                         <motion.button whileHover={form.formState.isSubmitting ? {opacity: 0.5} : {opacity: 0.7}}
                           className='mx-auto rounded-full font-semibold cursor-pointer flex items-center gap-2 w-full flex-center px-6 py-1 text-lg bg-black text-white dark:bg-white dark:text-black disabled:cursor-not-allowed disabled:opacity-75'
-                          disabled={form.formState.isSubmitting} type='submit'> 
+                          disabled={form.formState.isSubmitting || loading} type='submit'> 
                          {form.formState.isSubmitting && <Loader className='animate-spin'/>} {form.formState.isSubmitting ? 'Please wait...' : 'Sign up'}
                         </motion.button>
 

@@ -20,11 +20,11 @@ export async function loadGithubRepo(githubURL: string, githubToken?: string) {
 export async function indexGithubRepo(projectId: string, githubURL: string, githubToken?: string) {
    const docs = await loadGithubRepo(githubURL, githubToken)
    const docsWithoutSummary = await db.sourceCodeEmbedding.findMany({where: {projectId, summary: ''}, select: {filename: true}})
-   const docsToSummarize = docs.filter(doc => !docsWithoutSummary.some(docWithoutSummary => docWithoutSummary.filename.toLowerCase() == doc.metadata.source.toLowerCase()))
+   const docsToSummarize = docs.filter(doc => !docsWithoutSummary.some(docWithoutSummary => docWithoutSummary.filename == doc.metadata.source))
 
    //filename is filePath which is unique 
-   const existingFilepaths = new Set(docsWithoutSummary.map(d => d.filename))
-   const docstoSummarize = docs.filter(doc => existingFilepaths.has(doc.metadata.source))
+  //  const existingFilepaths = new Set(docsWithoutSummary.map(d => d.filename))
+  //  const docstoSummarize = docs.filter(doc => existingFilepaths.has(doc.metadata.source))
 
   //  console.log('Docs to summarize',docsToSummarize.length)
   //  return
@@ -65,6 +65,7 @@ export async function indexGithubRepo(projectId: string, githubURL: string, gith
   //   }
   // }))
   
+  // docs and summaries array should be in same order(Promise.allSettled)
   let summaries: string[] = []
   if(docsToSummarize.length < 13) {
         const responses = await Promise.allSettled(docsToSummarize.map(async doc => {
@@ -92,6 +93,7 @@ export async function indexGithubRepo(projectId: string, githubURL: string, gith
   }
 
    // USE THEN CATCH
+   // summaries and embeddings need not to be in same order (Promise.all)
   const embeddings = await Promise.all(docsToSummarize.map(async (doc,i) => {
       const embedding = await generateEmbedding(summaries[i] ?? '').catch(err => {
          console.error(err)
@@ -107,6 +109,27 @@ export async function indexGithubRepo(projectId: string, githubURL: string, gith
   }))
 
   // NO RATE LIMITING IN EMBEDDING MODEL 
+  // Dont use Promise.all if a query fails then all the insertions fail
+
+  // WITHOUT RATELIMITING
+
+  // await Promise.allSettled(embeddings.map(async embedding => {
+  //     const sourceCodeEmbedding = await db.sourceCodeEmbedding.create({
+  //       data: {
+  //         sourceCode: embedding.sourceCode,
+  //         filename: embedding.filename,
+  //         summary: embedding.summary,
+  //         projectId
+  //       }
+  //     })
+
+  //     await db.$executeRaw`
+  //     UPDATE "SourceCodeEmbedding"
+  //     SET "summaryEmbedding" = ${embedding.summaryEmbedding}::vector
+  //     WHERE id = ${sourceCodeEmbedding.id}
+  //     `
+  // }))
+
   await Promise.allSettled(embeddings.map(async (embedding) => {
       const sourceCodeEmbedding = await db.sourceCodeEmbedding.upsert({
         where: { filename_projectId: {filename: embedding.filename, projectId}},

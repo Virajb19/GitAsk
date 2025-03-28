@@ -23,7 +23,7 @@ export default function EmailVerificationFailed({token}: {token: string}) {
   
   // Apply RESENT_TIME to avoid spamming or abuse 
  // can we ask for user email here to resend link??
-  return <div className="w-[90%] lg:w-1/3 sm:w-[70%] max-w-3xl z-30 bg-card rounded-lg p-4 flex flex-col text-center gap-4">
+  return <div className="w-[90%] lg:w-1/3 sm:w-[70%] max-w-3xl z-30 bg-card shadow-lg shadow-blue-600 rounded-lg p-4 flex flex-col text-center gap-4">
       {emailSent ? (
            <h3 className="font-bold">Email sent.Check your inbox</h3>
       ) : (

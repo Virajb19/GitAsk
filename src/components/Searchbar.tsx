@@ -4,7 +4,7 @@ import Image from "next/image";
 import { ThemeToggle } from "./ThemeToggle";
 import UserAccountNav from "./UserAccountNav";
 import { AnimatePresence, motion } from 'framer-motion'
-import { Menu, X ,Plus, Search } from 'lucide-react'
+import { Menu, X ,Plus, Search, Loader2, AlertCircle } from 'lucide-react'
 import { useEffect, useRef, useState } from "react";
 import { useProject } from "~/hooks/useProject";
 import { twMerge } from "tailwind-merge";
@@ -12,11 +12,20 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useMediaQuery } from 'usehooks-ts'
 import SearchInput from "./SearchInput";
 import SearchInputMobile from "./SearchInputMobile";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Searchbar() {
 
+// const queryClient = useQueryClient()
+// const queryState = queryClient.getQueryState(['getProjects'])
+// const isError = queryState?.status === 'error' | 'pending' | 'success'
+
 const [isOpen, setIsOpen] = useState(false)
-const { projects , setProjectId, projectId} = useProject()
+
+// why put isError above isLoading || !projects because when isLoading or isError is true
+// projects are undefined so when isError is true projects will be undefined so !projects will
+// be true and you will see loaders 
+const { projects , setProjectId, projectId, isLoading, isError} = useProject()
 
 const router = useRouter()
 const sidebarRef = useRef<HTMLDivElement>(null)
@@ -51,7 +60,7 @@ useEffect(() => {
          <ThemeToggle />
          <UserAccountNav />
       </div>
-
+     
     <AnimatePresence>
         {isOpen && (
              <motion.div ref={sidebarRef} initial={{x: '-100%'}} animate={{x: 0}} exit={{x: '-100%'}} transition={{duration: 0.4, ease: 'circInOut'}}
@@ -61,20 +70,41 @@ useEffect(() => {
                         setIsOpen(false)
                     }} className="flex-center gap-2 py-2 border-[3px] border-dashed border-zinc-600 rounded-lg hover:border-zinc-400 duration-200"><Plus />New</button>
                     
-                    <div className="flex flex-col gap-3 max-h-[calc(90vh-7rem)] overflow-y-scroll">
-                        {projects?.map((project, i) => {
-                        return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: i * 0.3, ease: 'easeOut' }} key={i} 
-                          onClick={() => {
-                            setProjectId(project.id)
-                            // setIsOpen(false)
-                          }}
-                          className={twMerge("flex items-center gap-2 p-2 rounded-lg cursor-pointer border border-blue-900/2", project.id === projectId ? "bg-blue-600/15 border-blue-900" : "hover:bg-blue-600/15 duration-200")}>
-                          <span className={twMerge("px-3 py-1 border rounded-sm bg-accent", project.id === projectId && "bg-blue-500 transition-colors")}>{project.name[0]}</span>
-                          <p className={twMerge("truncate text-base", project.id === projectId && "text-blue-600")}>{project.name}</p>
-                        </motion.div>
-                      })}
+                    {/* max-h-[calc(90vh-7rem)] */}
+                    <div className="flex flex-col gap-3 h-[calc(90vh-7rem)] overflow-y-scroll border-t-2 border-gray-400 pt-2">
+
+                      {isError ? (
+                          <div className="flex-center gap-2 text-red-600 font-semibold my-auto">
+                             <AlertCircle />
+                              Error fetching projects
+                          </div>
+                        ) : isLoading || !projects ?  (
+                            <div className="flex justify-center items-center my-auto">
+                                <div className="size-5 border-[3px] border-blue-500/30 rounded-full animate-spin border-t-blue-500"/>
+                          </div>
+                        ) : projects.length === 0 ? (
+                          <h3 className="flex-center font-semibold my-auto text-xl">
+                              Create a project
+                          </h3>
+                        ) : (
+                          <>
+                            {projects.map((project, i) => {
+                                return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: i * 0.3, ease: 'easeOut' }} key={i} 
+                                onClick={() => {
+                                  setProjectId(project.id)
+                                  // setIsOpen(false)
+                                }}
+                                className={twMerge("flex items-center gap-2 p-2 rounded-lg cursor-pointer border border-blue-900/2", project.id === projectId ? "bg-blue-600/15 border-blue-900" : "hover:bg-blue-600/15 duration-200")}>
+                                <span className={twMerge("px-3 py-1 border rounded-sm bg-accent", project.id === projectId && "bg-blue-500 transition-colors")}>{project.name[0]}</span>
+                                <p className={twMerge("truncate text-base", project.id === projectId && "text-blue-600")}>{project.name}</p>
+                              </motion.div>
+                            })}
+                          </>
+                        )}
+
                       {/* <div className="bg-red-900 h-[900px] shrink-0"></div> */}
                 </div>
+
             </motion.div>
         )}
 

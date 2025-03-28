@@ -144,11 +144,11 @@ import {
     ],
     session: {
       strategy: 'jwt',
-      maxAge: 2 * 24 * 60 * 60
+      maxAge: 7 * 24 * 60 * 60
     },
     jwt: {
       secret: process.env.AUTH_SECRET || 'secret',
-      maxAge: 60 * 60
+      maxAge: 60 * 60 * 10
     },
     pages: {
       signIn: '/signin'
