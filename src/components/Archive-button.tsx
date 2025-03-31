@@ -44,7 +44,7 @@ export default function ArchiveButton() {
                         // const confirm = window.confirm('Are you sure you want to archive this project?')
                         // if(confirm) archiveProject(projectId)
                      }} 
-                     disabled={deleteProject.isPending} className="bg-red-800 px-3 py-2 flex items-center gap-2 text-base text-gray-300 hover:text-gray-100 duration-300 font-semibold rounded-lg disabled:cursor-not-allowed disabled:opacity-70">
+                     disabled={deleteProject.isPending} className="bg-red-800 hover:bg-red-700 px-3 py-2 flex items-center gap-2 text-base text-gray-300 hover:text-gray-100 duration-300 font-semibold rounded-lg disabled:cursor-not-allowed disabled:opacity-70">
                   {deleteProject.isPending ? (
                      <>
                      <Loader2 strokeWidth={3} className="animate-spin size-5"/> Deleting...
@@ -63,7 +63,7 @@ export default function ArchiveButton() {
                  <button onClick={() => {
                     setOpen(false)
                     deleteProject.mutate(projectId)
-                 }} className="px-4 py-2 rounded-lg bg-red-600">Delete</button>
+                 }} className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 duration-300">Delete</button>
              </div>
         </DialogContent>
   </Dialog>

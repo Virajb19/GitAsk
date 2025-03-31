@@ -48,14 +48,14 @@ export default function SignIn() {
     router.push('/')
     toast.success('Login successfull!. Welcome back!')
 
-    const projectId = localStorage.getItem('projectId')
-    queryClient.prefetchQuery({ 
-      queryKey: ['getCommits', projectId],
-      queryFn: async () => {
-         const { data : { commits }} = await axios.get(`/api/commits/${projectId}`)
-         return commits
-      }
-    })
+    // const projectId = localStorage.getItem('projectId')
+    // queryClient.prefetchQuery({ 
+    //   queryKey: ['getCommits', projectId],
+    //   queryFn: async () => {
+    //      const { data : { commits }} = await axios.get(`/api/commits/${projectId}`)
+    //      return commits
+    //   }
+    // })
   }
 
   return <div className="w-full min-h-screen flex-center pt-24 pb-5 text-lg">

@@ -16,7 +16,7 @@ import { useSearchQuery } from "~/lib/store"
 
 export default function CommitLogComponent() {
 
-  const { projectId, project } = useProject()
+  const { projectId, project, projectCount } = useProject()
 
   let { query } = useSearchQuery()
 
@@ -49,8 +49,8 @@ export default function CommitLogComponent() {
   }, [commits,query])
 
   if(isError) return <div className="flex-center gap-2 grow mt-3 p-1 text-2xl text-red-600">
-         <AlertCircle />
-          Error fetching commits. Refresh!!!
+         <AlertCircle />      
+         {projectCount === 0 ? 'No commits found!. Refresh' : 'Error fetching commits. Refresh!!!'}
     </div>
 
   // const showSkeletons = isLoading || isRefetching

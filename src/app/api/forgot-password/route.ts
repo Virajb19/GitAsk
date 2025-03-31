@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({msg: 'Password reset email sent'}, {status: 200})
     } catch(err) {
-        console.error(err)
+        console.error('Error changing password',err)
         return NextResponse.json({msg: 'Internal Server error'},{status: 500})
     }
 }

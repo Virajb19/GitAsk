@@ -9,15 +9,15 @@ export async function GET(req: NextRequest, { params } : { params: { projectId: 
         if(!session?.user) return NextResponse.json({msg: 'Unauthorized'}, { status: 401})
 
         const { projectId } = params
-        const project = await db.project.findUnique({ where: { id: projectId}, select: { id: true}})
+        const project = await db.project.findUnique({ where: { id: projectId}, select: { id: true, repoURL: true}})
         if(!project) return NextResponse.json({msg: 'project not found'}, { status: 404})
         
         const commits = await db.commit.findMany({where: { projectId}, orderBy: { date: 'desc'}})
-        await pollCommits(projectId)
+        await pollCommits(projectId, project.repoURL)
     
         return NextResponse.json({commits}, { status: 200})
     } catch(err) {
-        console.error('Error getting commits',err)
+        console.error('Error getting commits\n',err)
         return NextResponse.json({msg: 'Internal Server error'},{ status: 500})
     }
 }

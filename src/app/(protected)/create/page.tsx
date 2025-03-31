@@ -15,10 +15,11 @@ import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import { useProject } from "~/hooks/useProject"
 import { useRouter } from "nextjs-toploader/app"
-import { checkCredits } from "~/server/actions"
-import { useEffect, useState } from "react"
+import { checkCredits, checkRepoExists } from "~/server/actions"
+import { useState } from "react"
 import { useSession } from "next-auth/react"
 import { useMutation } from "@tanstack/react-query"
+import { useIsRefetching } from "~/lib/store"
 
 type Input = z.infer<typeof createProjectSchema>
 
@@ -39,51 +40,52 @@ export default function CreatePage() {
   const userId = session?.user.id
   const credits = session?.user.credits
 
+  const { setIsRefetching } = useIsRefetching()
+
   const {mutateAsync: createProject, isPending, isError} = useMutation({
     mutationFn: async ({data, fileCount}: {data: Input, fileCount: number}) => {
       const {data : { projectId }} = await axios.post('/api/project', {...data, fileCount})
       return projectId
     },
     onSuccess: async (projectId: string) => {
-      toast.success('Successfully created the project', {position: 'bottom-right'})
-      form.setValue('name', '')
-      form.setValue('repoURL', '')
-
-     //  form.reset()
-
-     await queryClient.refetchQueries({queryKey: ['getProjects', userId]})
-     setProjectId(projectId)
-     router.push('/dashboard')
+        toast.success('Successfully created the project', {position: 'bottom-right'})
+        form.reset()
+        await queryClient.refetchQueries({queryKey: ['getProjects', userId]})
+        setProjectId(projectId)
+        router.push('/dashboard')
     },
-
     onError: (err) => {
        console.error(err)
-       if(err instanceof AxiosError) {
-        toast.error(err.response?.data.msg || 'Something went wrong', {position: 'bottom-right'})
-       } else toast.error('Something went wrong!!!')
-    }
+       if(err instanceof AxiosError) toast.error(err.response?.data.msg || 'Something went wrong', {position: 'bottom-right'})
+       else toast.error('Something went wrong!!!')
+    },
+    onMutate: () => setIsRefetching(false),
+    onSettled: () => setIsRefetching(true)
   })
 
   async function onSubmit(data: Input) {
+    //  try {
 
-      //  toast.info('Project creation might take some time due to Gemini rate limits.Consider trying with a small codebase.', {duration: 6000})
-    
-       // use credits from session object checkCredits does not need to return credits
-       // there is some bug when you fetch credits server side it gives the updated value but when you fetch client side it does not 
-       // Always try to get session/user info server side and pass to client
-       const { fileCount, userCredits } = await checkCredits(data.repoURL, data.githubToken)
-       setCreditInfo({fileCount, userCredits}) 
+          const repoExists = await checkRepoExists(data.repoURL)
+          if (!repoExists) {
+            form.setError('repoURL', { message: 'This repository does not exist' })
+            // toast.error('This repository does not exist', { position: 'bottom-right'})
+            return
+          }
 
-       if(userCredits > fileCount) { 
-         await createProject({data, fileCount})
-        //  queryClient.refetchQueries({ queryKey: ['getProjects']})
-       } else toast.error(`You need to buy ${fileCount - userCredits} more credits`, {position: 'bottom-right'})
+           // there is some bug when you fetch credits server side it gives the updated value but when you fetch client side it does not 
+          // Always try to get session/user info server side and pass to client
+          const { fileCount, userCredits } = await checkCredits(data.repoURL, data.githubToken)
+          setCreditInfo({fileCount, userCredits}) 
+
+          if(userCredits > fileCount) { 
+            await createProject({data, fileCount})
+          } else toast.error(`You need to buy ${fileCount - userCredits} more credits`, {position: 'bottom-right'})
+    //  } catch(err) {
+    //      console.error(err)
+    //      toast.error('Error submitting form')
+    //  }  
    }
-
-   useEffect(() => {
-    toast.info('Project creation might take some time due to Gemini rate limits.Consider trying with a small codebase.', 
-    {duration: 10 * 1000, dismissible: true, position: 'bottom-right'})
-   }, [])
 
   return <div className="grow flex-center gap-3">
         <Image src={'/github.svg'} alt="github" width={300} height={300} className="mb:hidden"/>

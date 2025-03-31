@@ -1,6 +1,9 @@
 import { GithubRepoLoader } from '@langchain/community/document_loaders/web/github'
-import { generateEmbedding, summarizeCode } from './gemini'
+import { generateEmbedding, summarizeCode, summarizeFilesBatch } from './gemini'
 import { db } from '~/server/db'
+
+const BATCH_SIZE = Number(process.env.BATCH_SIZE) || 30
+const MAX_RUNS = 7
 
 export async function loadGithubRepo(githubURL: string, githubToken?: string) {
 
@@ -18,135 +21,211 @@ export async function loadGithubRepo(githubURL: string, githubToken?: string) {
 }
 
 export async function indexGithubRepo(projectId: string, githubURL: string, githubToken?: string) {
-   const docs = await loadGithubRepo(githubURL, githubToken)
-   const docsWithoutSummary = await db.sourceCodeEmbedding.findMany({where: {projectId, summary: ''}, select: {filename: true}})
-   const docsToSummarize = docs.filter(doc => !docsWithoutSummary.some(docWithoutSummary => docWithoutSummary.filename == doc.metadata.source))
+  const docs = await loadGithubRepo(githubURL, githubToken)
 
-   //filename is filePath which is unique 
-  //  const existingFilepaths = new Set(docsWithoutSummary.map(d => d.filename))
-  //  const docstoSummarize = docs.filter(doc => existingFilepaths.has(doc.metadata.source))
-
-  //  console.log('Docs to summarize',docsToSummarize.length)
-  //  return
-   if(docsToSummarize.length === 0) return
-
-  //  const batchSize = 13
-  //  const summaries: string[] = []
-
-  //  for(let i=0 ; i < docsToSummarize.length; i += batchSize) {
-  //    const batch = docsToSummarize.slice(i, i + batchSize)
-  //    const responses = await Promise.allSettled(batch.map(async doc => {
-  //       const summary = await summarizeCode(doc).catch(err => {
-  //         console.error('Error summarizing code', err)
-  //         return ''
-  //       })
-  //       return summary
-  //    }))
-
-  //    const batchSummaries = responses.map(response => response.status === 'fulfilled' ? response.value : '')
-  //    summaries.push(...batchSummaries)
-
-  //     console.log('waiting...')
-  //     if(docsToSummarize.length > batchSize) {
-  //       await new Promise(resolve => setTimeout(resolve, 1000 * 20))
-  //     }
-  //  }
-
-  // WITHOUT RATELIMITING
-  // const embeddings = await Promise.all(docsToSummarize.map(async doc => {
-  //   const summary = await summarizeCode(doc)
-  //   const embedding = await generateEmbedding(summary)
-
-  //   return {
-  //     summaryEmbedding: embedding,
-  //     sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
-  //     filename: doc.metadata.source,
-  //     summary
-  //   }
-  // }))
-  
-  // docs and summaries array should be in same order(Promise.allSettled)
-  let summaries: string[] = []
-  if(docsToSummarize.length < 13) {
-        const responses = await Promise.allSettled(docsToSummarize.map(async doc => {
-        const summary = await summarizeCode(doc).catch(err => {
-          console.error('Error summarizing code', err)
-          return ''
-        })
-        return summary
-        }))
-      summaries = responses.map(response => response.status === 'fulfilled' ? response.value : '')
-  } else {
-      for (const doc of docsToSummarize) {
-        const summary = await summarizeCode(doc).catch(err => {
-          console.error('Error crearing summary', err)
-          return ''
-        })
-
-        summaries.push(summary)
-
-        if(summary === '') {
-          console.log('waiting...')
-          await new Promise(r => setTimeout(r, 20 * 1000))
-        }
-      }
-  }
-
-   // USE THEN CATCH
-   // summaries and embeddings need not to be in same order (Promise.all)
-  const embeddings = await Promise.all(docsToSummarize.map(async (doc,i) => {
-      const embedding = await generateEmbedding(summaries[i] ?? '').catch(err => {
-         console.error(err)
-         return []
-      })
+   const embeddings = await Promise.all(docs.map(async doc => {
+     const summary = await summarizeCode(doc)
+     const embedding = await generateEmbedding(summary)
 
       return {
-         summaryEmbedding: embedding,
-         sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
-         filename: doc.metadata.source,
-         summary: summaries[i] ?? ''
+        summaryEmbedding: embedding,
+        sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
+        filename: doc.metadata.source,
+        summary
       }
-  }))
+     }))
 
-  // NO RATE LIMITING IN EMBEDDING MODEL 
-  // Dont use Promise.all if a query fails then all the insertions fail
-
-  // WITHOUT RATELIMITING
-
-  // await Promise.allSettled(embeddings.map(async embedding => {
-  //     const sourceCodeEmbedding = await db.sourceCodeEmbedding.create({
-  //       data: {
-  //         sourceCode: embedding.sourceCode,
-  //         filename: embedding.filename,
-  //         summary: embedding.summary,
-  //         projectId
-  //       }
-  //     })
-
-  //     await db.$executeRaw`
-  //     UPDATE "SourceCodeEmbedding"
-  //     SET "summaryEmbedding" = ${embedding.summaryEmbedding}::vector
-  //     WHERE id = ${sourceCodeEmbedding.id}
-  //     `
-  // }))
-
-  await Promise.allSettled(embeddings.map(async (embedding) => {
-      const sourceCodeEmbedding = await db.sourceCodeEmbedding.upsert({
-        where: { filename_projectId: {filename: embedding.filename, projectId}},
-        update: { summary: embedding.summary},
-        create: {
+    await Promise.allSettled(embeddings.map(async embedding => {
+      const sourceCodeEmbedding = await db.sourceCodeEmbedding.create({
+        data: {
           sourceCode: embedding.sourceCode,
           filename: embedding.filename,
           summary: embedding.summary,
           projectId
-        }
-       })
+        },
+        select: { id: true}
+      })
 
-       await db.$executeRaw`
-       UPDATE "SourceCodeEmbedding"
-       SET "summaryEmbedding" = ${embedding.summaryEmbedding}::vector
-       WHERE id = ${sourceCodeEmbedding.id}
-       `
+      await db.$executeRaw`
+      UPDATE "SourceCodeEmbedding"
+      SET "summaryEmbedding" = ${embedding.summaryEmbedding}::vector
+      WHERE id = ${sourceCodeEmbedding.id}
+      `
   }))
-
 }
+
+export function startIndexing(projectId: string, githubURL: string) {
+
+    let runCount = 0
+
+     async function indexGithubRepo() {
+
+         try {
+
+              // throw new Error('Error while indexing')
+
+              runCount++
+              console.log(`Indexing repository: ${runCount}`)
+
+              const docsWithoutSummary = await db.sourceCodeEmbedding.findMany({where: {projectId, summary: ''}, select: {filename: true}})
+              console.log('docs without summary', docsWithoutSummary.length)
+
+              const docsCount = await db.sourceCodeEmbedding.count({where: { projectId }})
+              const isAlldocsSummarized = docsWithoutSummary.length === 0 && docsCount > 0
+
+              if(isAlldocsSummarized) {
+                console.log('All documents are summarized. Stopping recursion.')
+                await db.project.update({where: {id: projectId}, data: { status: 'READY'}})
+                return
+              }
+
+              const docs = await loadGithubRepo(githubURL)
+
+              const unprocessedFiles = new Set(docsWithoutSummary.map(d => d.filename))
+              const docsToSummarize = unprocessedFiles.size === 0 ? docs : docs.filter(doc => unprocessedFiles.has(doc.metadata.source))
+              
+              if(docsToSummarize.length === 0) {
+                console.log('No more documents to summarize. Stopping recursion.')
+                await db.project.update({where: {id: projectId}, data: { status: 'READY'}})
+                return
+              }
+        
+              let summaries: string[] = []
+
+              for(let i=0; i < docsToSummarize.length; i += BATCH_SIZE) {
+                const batch = docsToSummarize.slice(i, i + BATCH_SIZE)
+      
+                console.log('Summarizing the batch', i, ' - ', i + BATCH_SIZE)
+                const batchSummaries = await summarizeFilesBatch(batch)
+      
+                summaries.push(...batchSummaries)
+          
+                if(batchSummaries.every(summary => summary === '')) {
+                  console.log('waiting 20 seconds...')
+                  await new Promise(r => setTimeout(r, 20 * 1000))
+                }
+            }
+
+              const embeddings = await Promise.all(docsToSummarize.map(async (doc,i) => {
+                const embedding = await generateEmbedding(summaries[i] ?? '')
+          
+                return {
+                  summaryEmbedding: embedding,
+                  sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
+                  filename: doc.metadata.source,
+                  summary: summaries[i] ?? ''
+                }
+              }))
+
+                await Promise.allSettled(embeddings.map(async (embedding) => {
+                  const sourceCodeEmbedding = await db.sourceCodeEmbedding.upsert({
+                    where: { filename_projectId: {filename: embedding.filename, projectId}},
+                    update: { summary: embedding.summary},
+                    create: {
+                      sourceCode: embedding.sourceCode,
+                      filename: embedding.filename,
+                      summary: embedding.summary,
+                      projectId
+                    },
+                    select: { id: true}
+                  })
+
+                  await db.$executeRaw`
+                  UPDATE "SourceCodeEmbedding"
+                  SET "summaryEmbedding" = ${embedding.summaryEmbedding}::vector
+                  WHERE id = ${sourceCodeEmbedding.id}
+                  `
+              }))
+
+              if (runCount < MAX_RUNS) {
+                console.log('Waiting for 10 seconds before next run...')
+                await new Promise(r => setTimeout(r, 1000 * 10))
+                indexGithubRepo()
+              } else {
+                console.log('Maximum run count reached. Stopping indexing.Marking as READY')
+                await db.project.update({where: {id: projectId}, data: { status: 'READY'}})
+                return
+              }
+
+        } catch(err) {
+          console.error('Error indexing repo', err)
+          await db.project.update({where: {id: projectId}, data: { status: 'FAILED'}})
+          return 
+        }
+     }
+
+     indexGithubRepo()
+}
+
+// export async function IndexGithubRepo(projectId: string, githubURL: string, githubToken?: string) {
+//    const docs = await loadGithubRepo(githubURL, githubToken)
+//    const docsWithoutSummary = await db.sourceCodeEmbedding.findMany({where: {projectId, summary: ''}, select: {filename: true}})
+//    const docsToSummarize = docsWithoutSummary.length === 0 ? docs : docs.filter(doc => docsWithoutSummary.some(docWithoutSummary => docWithoutSummary.filename == doc.metadata.source))
+
+//    //filename is filePath which is unique 
+//   //  const docsWithoutSummarySet = new Set(docsWithoutSummary.map(d => d.filename))
+//   //  const docsToSummarize = docs.filter(doc => docsWithoutSummarySet.has(doc.metadata.source))
+
+//   //  console.log('Docs to summarize',docsToSummarize.length)
+//    if(docsToSummarize.length === 0) return
+
+//   // docs and summaries array should be in same order(Promise.allSettled)
+//   let summaries: string[] = []
+//   if(docsToSummarize.length < 13) {
+//         const responses = await Promise.allSettled(docsToSummarize.map(async doc => {
+//         const summary = await summarizeCode(doc).catch(err => {
+//           console.error('Error summarizing code', err)
+//           return ''
+//         })
+//         return summary
+//         }))
+//       summaries = responses.map(response => response.status === 'fulfilled' ? response.value : '')
+//   } else {
+//       for (const doc of docsToSummarize) {
+//         const summary = await summarizeCode(doc)
+
+//         summaries.push(summary)
+
+//         if(summary === '') {
+//           console.log('waiting...')
+//           await new Promise(r => setTimeout(r, 20 * 1000))
+//         }
+//       }
+//   }
+
+//    // USE THEN CATCH
+//    // summaries and embeddings need not to be in same order (Promise.all)
+//    //if you are using index i then only you need to maintain order between docs and summaries
+//    // Better is to not use index to avoid inconsistency
+//   const embeddings = await Promise.all(docsToSummarize.map(async (doc,i) => {
+//       const embedding = await generateEmbedding(summaries[i] ?? '')
+
+//       return {
+//          summaryEmbedding: embedding,
+//          sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
+//          filename: doc.metadata.source,
+//          summary: summaries[i] ?? ''
+//       }
+//   }))
+
+//   await Promise.allSettled(embeddings.map(async (embedding) => {
+//       const sourceCodeEmbedding = await db.sourceCodeEmbedding.upsert({
+//         where: { filename_projectId: {filename: embedding.filename, projectId}},
+//         update: { summary: embedding.summary},
+//         create: {
+//           sourceCode: embedding.sourceCode,
+//           filename: embedding.filename,
+//           summary: embedding.summary,
+//           projectId
+//         },
+//         select: { id: true}
+//        })
+
+//        await db.$executeRaw`
+//        UPDATE "SourceCodeEmbedding"
+//        WHERE id = ${sourceCodeEmbedding.id}
+//        SET "summaryEmbedding" = ${embedding.summaryEmbedding}::vector
+//        `
+//   }))
+// }
+

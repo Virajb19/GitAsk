@@ -19,7 +19,7 @@ export async function DELETE(req: NextRequest, { params } : { params: { question
         return NextResponse.json({msg: 'Deleted'}, { status: 200})
 
     } catch(err) {
-        console.error(err)
+        console.error('Error deleting question', err)
         return NextResponse.json({msg: 'Error deleting question'}, { status: 500})
     }
 }

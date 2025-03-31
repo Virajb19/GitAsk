@@ -4,7 +4,7 @@ import Image from "next/image";
 import { ThemeToggle } from "./ThemeToggle";
 import UserAccountNav from "./UserAccountNav";
 import { AnimatePresence, motion } from 'framer-motion'
-import { Menu, X ,Plus, Search, Loader2, AlertCircle } from 'lucide-react'
+import { Menu, X ,Plus, Search, Loader2, AlertCircle, AlertTriangle } from 'lucide-react'
 import { useEffect, useRef, useState } from "react";
 import { useProject } from "~/hooks/useProject";
 import { twMerge } from "tailwind-merge";
@@ -12,11 +12,14 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useMediaQuery } from 'usehooks-ts'
 import SearchInput from "./SearchInput";
 import SearchInputMobile from "./SearchInputMobile";
-import { useQueryClient } from "@tanstack/react-query";
+import { getQueryClient } from "~/lib/queryClient";
+import Projects from "./Projects";
+import { getEmbeddings } from "~/server/actions";
+import { toast } from "sonner";
 
 export default function Searchbar() {
 
-// const queryClient = useQueryClient()
+// const queryClient = getQueryClient()
 // const queryState = queryClient.getQueryState(['getProjects'])
 // const isError = queryState?.status === 'error' | 'pending' | 'success'
 
@@ -95,10 +98,25 @@ useEffect(() => {
                                   // setIsOpen(false)
                                 }}
                                 className={twMerge("flex items-center gap-2 p-2 rounded-lg cursor-pointer border border-blue-900/2", project.id === projectId ? "bg-blue-600/15 border-blue-900" : "hover:bg-blue-600/15 duration-200")}>
-                                <span className={twMerge("px-3 py-1 border rounded-sm bg-accent", project.id === projectId && "bg-blue-500 transition-colors")}>{project.name[0]}</span>
-                                <p className={twMerge("truncate text-base", project.id === projectId && "text-blue-600")}>{project.name}</p>
+                                <span className={twMerge("size-9 flex-center border rounded-sm bg-accent", project.id === projectId && "bg-blue-500 transition-colors")}>
+                                {project.status === 'INDEXING' ? (
+                                     <div className="size-5 border-[3px] border-yellow-500/30 rounded-full animate-spin border-t-amber-500"/>
+                                        ) : project.status === 'READY' ? (
+                                               project.name[0]
+                                        ) : (
+                                          <AlertTriangle className="size-5 text-red-500"/>
+                                        )}
+                                  </span>
+                                <p className={twMerge("truncate text-base font-semibold", project.id === projectId && "text-blue-600", project.status === 'INDEXING' && 'animate-pulse', project.status === 'FAILED' && 'text-red-600')}>
+                                  {project.name}
+                                  </p>
                               </motion.div>
                             })}
+
+                             {/* isCollapsed should be global */}
+                            {/* <div className="border-4 h-[70vh]">
+                               <Projects isCollapsed={isCollapsed}/>
+                            </div> */}
                           </>
                         )}
 

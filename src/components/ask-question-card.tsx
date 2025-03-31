@@ -22,7 +22,7 @@ type Input = z.infer<typeof askQuestionSchema>
 
 export default function AskQuestionCard() {
 
-   const { projectId } = useProject()
+   const { projectId, project } = useProject()
   const [open, setOpen] = useState(false)
   const [fileReferences, setFileReferences] = useState<{filename: string, sourceCode: string, summary: string}[]>([])
   const [answer,setAnswer] = useState('')
@@ -147,7 +147,7 @@ export default function AskQuestionCard() {
                         />
 
                      <button ref={buttonRef} type="submit" className="flex-center font-semibold gap-2 bg-blue-700 hover:bg-blue-800 transition-colors duration-200 px-4 py-2 rounded-2xl mt-7 text-lg text-white disabled:cursor-not-allowed disabled:opacity-75" 
-                        disabled={form.formState.isSubmitting}>
+                        disabled={form.formState.isSubmitting || project?.status !== 'READY'}>
                         {form.formState.isSubmitting ? (
                            <>
                               <RefreshCw className="animate-spin"/> Asking...

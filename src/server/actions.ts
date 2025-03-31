@@ -6,15 +6,16 @@ import { v4 as uuid } from 'uuid';
 import { cookies } from 'next/headers';
 import { db } from "~/server/db"
 import { z } from 'zod'
-import { streamText } from 'ai'
+import { streamText, generateText } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { generateEmbedding } from "~/lib/gemini"
 import { getServerAuthSession } from "./auth"
 import Stripe from 'stripe'
 import { redirect } from "next/navigation"
-import { Octokit } from "octokit"
 import { sendConfirmationEmail } from "~/utils/email";
+import { getOctokitClient } from "~/lib/github";
+import axios from "axios";
 
 type formData = z.infer<typeof SignUpSchema>
 
@@ -32,16 +33,16 @@ export async function signup(formData: formData) {
     const hashedPassword = await bcrypt.hash(password,10)
     const user = await db.user.create({data: {username,email,password: hashedPassword}, select: {id: true, email: true}})
 
-    const verificationToken = await db.verificationToken.create({data: {identifier: user.id, token: uuid(), type: 'EMAIL_VERIFICATION', expiresAt: new Date(Date.now() + 60 * 60 * 1000)}})
+    // const verificationToken = await db.verificationToken.create({data: {identifier: user.id, token: uuid(), type: 'EMAIL_VERIFICATION', expiresAt: new Date(Date.now() + 60 * 60 * 1000)}})
     
-    const confirmationLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email/${verificationToken.token}`
-    await sendConfirmationEmail(user.email, confirmationLink, verificationToken.type)
+    // const confirmationLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email/${verificationToken.token}`
+    // await sendConfirmationEmail(user.email, confirmationLink, verificationToken.type)
 
-    cookies().set('USER_ID', user.id.toString(), {
-        maxAge: 60 * 60,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production'
-    })
+    // cookies().set('USER_ID', user.id.toString(), {
+    //     maxAge: 60 * 60,
+    //     httpOnly: true,
+    //     secure: process.env.NODE_ENV === 'production'
+    // })
  
     return {success: true, msg: 'Signed up successfully. Welcome to GitChat !!!'}
 } catch(err) {
@@ -106,20 +107,15 @@ const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_
 export async function askQuestion(question: string, projectId: string) {
     const stream = createStreamableValue()
 
-    // const { textStream: translationStream } = await streamText({
-    //     model: google('gemini-2.0-flash'),
+    // const { response } = await generateText({
+    //     model: google('gemini-1.5-flash'),
     //     prompt: `Translate the following text to English and output only the translated text: "${question}"`,
-    // });
-    
-    // let translatedQuestion = '';
-    // for await (const text of translationStream) {
-    //     translatedQuestion += text;
-    // }
+    // })
 
-    // console.log(translatedQuestion)
-    
-    // const queryEmbedding = await generateEmbedding(translatedQuestion);
- 
+    // const translatedQuestion = response.text()
+
+    // const queryEmbedding = await generateEmbedding(translatedQuestion)
+
     const queryEmbedding = await generateEmbedding(question)
     const vectorQuery = `[${queryEmbedding.join(',')}]`
 
@@ -133,7 +129,7 @@ export async function askQuestion(question: string, projectId: string) {
      LIMIT 10 
     ` as { filename: string, sourceCode: string, summary: string} []
 
-    console.log(result.length)
+    console.log('Similar files: ', result.length)
 
     let context = ''
 
@@ -255,7 +251,7 @@ export async function createCheckoutSession(credits: number) {
     return redirect(session.url!)
 }
 
-const octokit = new Octokit({auth: process.env.GITHUB_ACCESS_TOKEN})
+const octokit = getOctokitClient()
 
 export async function checkCredits(githubURL: string, githubToken?: string) {
 
@@ -299,9 +295,34 @@ async function countFiles(path: string, owner: string, repo: string, acc: number
     return acc
 }
 
+export async function checkRepoExists(repoURL: string) {
+    const [owner, repo] = repoURL.split('/').slice(-2)
+    try {
+        const headers = { Authorization: `token ${process.env.GITHUB_ACCESS_TOKEN}` }
+        await axios.get(`https://api.github.com/repos/${owner}/${repo}`, { headers })
+        return true
+    } catch(err) {
+        return false
+    }
+}
+
+
 export async function getEmbeddings(projectId: string) {
     const embeddings = await db.sourceCodeEmbedding.count({ where: {projectId, summary: ''}})
-    return embeddings
+    // return embeddings
+
+//     const results = await db.$queryRaw`
+//     SELECT 
+//       "id",
+//       "filename",
+//       "summary",
+//       "summaryEmbedding",
+//     FROM "SourceCodeEmbedding"
+//     WHERE "projectId" = ${projectId}
+//     LIMIT 10
+//   `;
+
+// console.table(results);
     // const embeddings = await db.sourceCodeEmbedding.findMany({ where: { projectId}, select: { summary: true}})
     // const largestSummary = embeddings.reduce((prev, curr) => {
     //     return curr.summary.length > prev?.length ? curr.summary : prev

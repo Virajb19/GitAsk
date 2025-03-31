@@ -19,6 +19,12 @@ enum Status {
   PROCESSED
 }
 
+enum ProjectStatus {
+  INDEXING
+  READY
+  FAILED
+}
+
 enum TokenType {
   EMAIL_VERIFICATION
   RESET_PASSWORD
@@ -57,6 +63,9 @@ model Project {
   name        String
   repoURL     String
   githubToken String?
+
+  // isIndexed   Boolean @default(false)
+  status ProjectStatus @default(INDEXING)
 
   deletedAt DateTime?
 

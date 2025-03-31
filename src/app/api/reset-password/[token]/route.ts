@@ -34,7 +34,7 @@ export async function POST(req: NextRequest, {params}: {params: {token: string}}
 
         return NextResponse.json({msg: 'Password reset successfully'}, {status: 201})
     } catch(err) {
-        console.error(err)
+        console.error('Error reseting password', err)
         return NextResponse.json({msg: 'Internal Server error'},{status: 500})
     }
 }

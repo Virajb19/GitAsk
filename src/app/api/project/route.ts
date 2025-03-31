@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { pollCommits } from "~/lib/github";
-import { indexGithubRepo } from "~/lib/github-loader";
+import { indexGithubRepo, startIndexing } from "~/lib/github-loader";
 import { createProjectSchema } from "~/lib/zod";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
@@ -36,18 +36,23 @@ try {
     const existingProject = await db.project.findFirst({where: {repoURL,userId}})
     if(existingProject) return NextResponse.json({msg: 'You already have a project with this repo URL'}, {status: 409})
 
-    const project = await db.project.create({data: {name,repoURL,githubToken,userId}})
+    // Transaction won't work
+    const project = await db.project.create({data: {name,repoURL,githubToken,userId}, select: {id: true, repoURL: true}})
 
     try {
-      await pollCommits(project.id)
-      await indexGithubRepo(project.id,project.repoURL)
+      await pollCommits(project.id, project.repoURL)
+      // await indexGithubRepo(project.id,project.repoURL)
     } catch(err) {
         console.error(err)
         await db.project.delete({where: {id: project.id}})
         return NextResponse.json({msg: 'Error creating the project'}, { status: 500})
     }
 
-    await db.user.update({where: {id: userId}, data: {credits: {decrement: fileCount}}})
+    await db.user.update({where: {id: userId}, data: {credits: {decrement: fileCount}}});
+    
+    (async () => {
+       startIndexing(project.id, project.repoURL)
+    }) ()
 
     return NextResponse.json({msg: 'Project created successfully', projectId: project.id}, { status: 201})
 
@@ -72,7 +77,7 @@ export async function GET() {
 
       return NextResponse.json({projects}, { status: 200})
   } catch(err) {
-      console.error('Error getting the projects',err)
+      console.error('Error getting the projects\n',err)
       return NextResponse.json({msg: 'Error getting the projects'},{ status: 500})
   }
 }

@@ -18,7 +18,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { projectId
         return NextResponse.json({msg: 'Project deleted'}, { status: 200})
 
     } catch(err) {
-        console.error(err)
+        console.error('Error deleting project',err)
         return NextResponse.json({msg: 'Internal server error'}, { status: 500})
     }
 }
