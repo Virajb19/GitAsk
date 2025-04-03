@@ -2,7 +2,7 @@
 
 GitChat is an AI-powered tool that answers questions about any GitHub repository using RAG—just provide a repo URL and get insights instantly.
 
-https://github.com/user-attachments/assets/295c9db9-f9cd-4a04-a72d-29f03f665c83
+https://github.com/user-attachments/assets/794f49e4-a355-479b-9de1-3e5ab2f21239
 
 ## How to run locally ?
 
@@ -72,13 +72,13 @@ Go to [https://github.com/settings/apps] and create an OAuth app
 GITHUB_CLIENT_ID=""  
 GITHUB_CLIENT_SECRET=""  
 
-(Optional. You can just login using Github)
+(Optional. You can just login using Github or Email)
 
 Go to [https://console.cloud.google.com/] and create an OAuth app
 
 GOOGLE_CLIENT_ID="" GOOGLE_CLIENT_SECRET=""
 
-Create an App password (Optional. Just login using github)
+Create an App password (Optional. Just login using github or Email)
 
 You need to enable 2-Step verification in your google account
 

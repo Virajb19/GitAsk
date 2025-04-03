@@ -32,7 +32,7 @@ export default async function BillingPage() {
              Make a transaction!
           </div>
          ): (
-              <ul className="grow flex flex-col p-1 mb:p-0 gap-5 overflow-y-scroll">
+              <ul className="grow flex flex-col p-1 mb:p-0 gap-5 overflow-y-scroll border-t border-gray-700">
               {transactions.map(transaction => {
                 return <li key={transaction.id} className="flex items-center p-2 mb:p-1.5 justify-between rounded-lg bg-white dark:bg-card border">
                           <div className="flex gap-2 items-center">

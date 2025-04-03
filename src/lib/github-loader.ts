@@ -1,6 +1,7 @@
 import { GithubRepoLoader } from '@langchain/community/document_loaders/web/github'
 import { generateEmbedding, summarizeCode, summarizeFilesBatch } from './gemini'
 import { db } from '~/server/db'
+import chalk from 'chalk'
 
 const BATCH_SIZE = Number(process.env.BATCH_SIZE) || 30
 const MAX_RUNS = 7
@@ -80,6 +81,7 @@ export function startIndexing(projectId: string, githubURL: string) {
               }
 
               const docs = await loadGithubRepo(githubURL)
+              console.log(`Total docs: ${docs.length}`)
 
               const unprocessedFiles = new Set(docsWithoutSummary.map(d => d.filename))
               const docsToSummarize = unprocessedFiles.size === 0 ? docs : docs.filter(doc => unprocessedFiles.has(doc.metadata.source))
@@ -101,7 +103,7 @@ export function startIndexing(projectId: string, githubURL: string) {
                 summaries.push(...batchSummaries)
           
                 if(batchSummaries.every(summary => summary === '')) {
-                  console.log('waiting 20 seconds...')
+                  console.log(chalk.blue('waiting 20 seconds...'))
                   await new Promise(r => setTimeout(r, 20 * 1000))
                 }
             }
@@ -138,17 +140,17 @@ export function startIndexing(projectId: string, githubURL: string) {
               }))
 
               if (runCount < MAX_RUNS) {
-                console.log('Waiting for 10 seconds before next run...')
+                console.log(chalk.blue('Waiting for 10 seconds before next run...'))
                 await new Promise(r => setTimeout(r, 1000 * 10))
                 indexGithubRepo()
               } else {
-                console.log('Maximum run count reached. Stopping indexing.Marking as READY')
+                console.log(chalk.bgMagenta('Maximum run count reached. Stopping indexing.Marking as READY'))
                 await db.project.update({where: {id: projectId}, data: { status: 'READY'}})
                 return
               }
 
         } catch(err) {
-          console.error('Error indexing repo', err)
+          console.error(chalk.red('Error indexing repo\n', err))
           await db.project.update({where: {id: projectId}, data: { status: 'FAILED'}})
           return 
         }

@@ -208,8 +208,8 @@ export async function archiveProject(projectId: string) {
         const project = await db.project.findUnique({ where: {id: projectId}, select: { id: true}})
         if(!project) return { success: false, msg: 'Project not found!!'}
 
-        await db.project.update({where: { id: projectId}, data: {deletedAt: new Date()}})
-        // await db.project.delete({where: {id: projectId}})
+        // await db.project.update({where: { id: projectId}, data: {deletedAt: new Date()}})
+        await db.project.delete({where: {id: projectId}})
 
         return { success: true }
 

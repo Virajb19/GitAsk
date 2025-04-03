@@ -1,4 +1,20 @@
 import {z} from 'zod'
+import { checkRepoExists } from '~/server/actions'
+
+// This is client side function accessToken will not be available here which is required for private repos and higher rate limits
+// or if you want it client side you have to use NEXT_PUBLIC in env var
+
+// export async function checkRepoExists(repoURL: string) {
+//     const [owner, repo] = repoURL.split('/').slice(-2)
+//     toast.success(process.env.GITHUB_ACCESS_TOKEN)
+//     try {
+//         const headers = { Authorization: `token ${process.env.GITHUB_ACCESS_TOKEN}` }
+//         await axios.get(`https://api.github.com/repos/${owner}/${repo}`, { headers })
+//         return true
+//     } catch(err) {
+//         return false
+//     }
+// }
 
 const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
 const githubRepoUrl = /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/
@@ -20,6 +36,7 @@ export const SignInSchema = z.object({
 export const createProjectSchema = z.object({
     name: z.string().min(1, {message: 'Provide a project name'}).max(25, { message: 'Project name cannot exceed 25 letters'}).trim(),
     repoURL: z.string().regex(githubRepoUrl, { message: 'Provide a valid repo URL'}).trim(),
+    // .refine(async url => await checkRepoExists(url), { message: 'This repository does not exist'}),
     githubToken: z.string().regex(githubAccessToken, { message: 'Provide a valid access token'}).trim().optional()
 })
 

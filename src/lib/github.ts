@@ -86,6 +86,97 @@ export async function pollCommits(projectId: string, repoURL: string) {
 }
 
 // async function updateFiles(newCommits: Response[], repoURL: string, projectId: string) {
+//    const octokit = getOctokitClient();
+//    const [owner, repo] = repoURL.split('/').slice(-2);
+   
+//    if (!owner || !repo) throw new Error('Invalid Github URL');
+
+//    // Process each commit to get changed files
+//    for (const commit of newCommits) {
+//        try {
+//            // Get the commit details including files changed
+//            const { data: commitData } = await octokit.rest.repos.getCommit({
+//                owner,
+//                repo,
+//                ref: commit.hash
+//            });
+
+//            // Process each changed file in the commit
+//            for (const file of commitData.files) {
+//                try {
+//                    // Skip deleted files
+//                    if (file.status === 'removed') {
+//                        await db.sourceCodeEmbedding.deleteMany({
+//                            where: {
+//                                filename: file.filename,
+//                                projectId
+//                            }
+//                        });
+//                        continue;
+//                    }
+
+//                    // For renamed files, update the filename
+//                    if (file.status === 'renamed' && file.previous_filename) {
+//                        await db.sourceCodeEmbedding.updateMany({
+//                            where: {
+//                                filename: file.previous_filename,
+//                                projectId
+//                            },
+//                            data: {
+//                                filename: file.filename
+//                            }
+//                        });
+//                    }
+
+//                    // Get file content (skip binary files)
+//                    if (file.status !== 'renamed' && !file.filename.endsWith('.md')) {
+//                        const { data: fileData } = await octokit.rest.repos.getContent({
+//                            owner,
+//                            repo,
+//                            path: file.filename,
+//                            ref: commit.hash
+//                        });
+
+//                        if ('content' in fileData) {
+//                            const content = Buffer.from(fileData.content, 'base64').toString('utf-8');
+//                            const summary = await summarizeCode({ 
+//                                pageContent: content, 
+//                                metadata: { source: file.filename }
+//                            });
+
+//                            await db.sourceCodeEmbedding.upsert({ 
+//                                where: { 
+//                                    filename_projectId: { 
+//                                        filename: file.filename, 
+//                                        projectId 
+//                                    } 
+//                                }, 
+//                                update: { 
+//                                    sourceCode: content, 
+//                                    summary,
+//                                }, 
+//                                create: { 
+//                                    filename: file.filename, 
+//                                    sourceCode: content, 
+//                                    summary, 
+//                                    projectId,
+//                                }
+//                            });
+//                        }
+//                    }
+//                } catch (fileError) {
+//                    console.error(`Error processing file ${file.filename}:`, fileError);
+//                    continue;
+//                }
+//            }
+//        } catch (commitError) {
+//            console.error(`Error processing commit ${commit.hash}:`, commitError);
+//            continue;
+//        }
+//    }
+// }
+
+// async function updateFiles(newCommits: Response[], repoURL: string, projectId: string) {
 
 //    const [owner, repo] = repoURL.split('/').slice(-2)
 //    if(!owner || !repo) throw new Error('Invalid Github URL')

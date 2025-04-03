@@ -6,6 +6,7 @@ import { createProjectSchema } from "~/lib/zod";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { z } from 'zod'
+import { checkRepoExists } from "~/server/actions";
 
 const bodySchema = createProjectSchema.extend({
   fileCount: z.number()
@@ -27,9 +28,13 @@ try {
     const user = await db.user.findUnique({ where: { id: userId}, select: { credits: true}})
     if(!user) return NextResponse.json({msg: 'user not found'}, { status: 404})
     
+    // const parsedData = await bodySchema.safeParseAsync(body)
     const parsedData = bodySchema.safeParse(body)
     if(!parsedData.success) return NextResponse.json({msg: 'Invalid inputs', errors: parsedData.error.flatten().fieldErrors}, { status: 400})
     const { name, repoURL, githubToken, fileCount } = parsedData.data
+
+    // const repoExists = await checkRepoExists(repoURL)
+    // if (!repoExists) return NextResponse.json({msg: 'This repository does not exist'}, { status: 400})
 
     if(fileCount > user.credits) return NextResponse.json({msg: 'Insufficient credits'}, { status: 403})
 
@@ -37,7 +42,7 @@ try {
     if(existingProject) return NextResponse.json({msg: 'You already have a project with this repo URL'}, {status: 409})
 
     // Transaction won't work
-    const project = await db.project.create({data: {name,repoURL,githubToken,userId}, select: {id: true, repoURL: true}})
+    const project = await db.project.create({data: {name,repoURL,githubToken,userId}, select: {id: true, repoURL: true}});
 
     try {
       await pollCommits(project.id, project.repoURL)
@@ -51,7 +56,14 @@ try {
     await db.user.update({where: {id: userId}, data: {credits: {decrement: fileCount}}});
     
     (async () => {
-       startIndexing(project.id, project.repoURL)
+      // try {
+      //   await pollCommits(project.id, project.repoURL)
+        startIndexing(project.id, project.repoURL)
+      // } catch(err) {
+      //     console.error(err)
+      //     await db.project.delete({where: {id: project.id}})
+      //     return NextResponse.json({msg: 'Error creating the project'}, { status: 500})
+      // }
     }) ()
 
     return NextResponse.json({msg: 'Project created successfully', projectId: project.id}, { status: 201})
@@ -73,7 +85,8 @@ export async function GET() {
       if(!session?.user) return NextResponse.json({msg: 'Unauthorized'}, { status: 401})
       const userId = session.user.id
 
-      const projects = await db.project.findMany({ where: { userId, deletedAt: null}, orderBy: { createdAt: 'desc'}})
+      // deletedAt: null
+      const projects = await db.project.findMany({ where: { userId }, orderBy: { createdAt: 'desc'}})
 
       return NextResponse.json({projects}, { status: 200})
   } catch(err) {

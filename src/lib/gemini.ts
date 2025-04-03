@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { Document } from '@langchain/core/documents'
 import { z } from 'zod'
+import chalk from 'chalk'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string)
 const model = genAI.getGenerativeModel({
@@ -85,13 +86,48 @@ export async function generateEmbedding(summary: string) {
   } 
 }
 
+const API_KEYS = [process.env.GEMINI_API_KEY_1 as string, process.env.GEMINI_API_KEY_2 as string].filter(Boolean)
+const isProduction = process.env.NODE_ENV === 'production'
 
-const filesSummarySchema = z.record(z.string(), z.string())
+// Global vars
+let apiKeyIndex = 0
+let requestCount = 0
+const modelInstances: Record<string, any> = {}
+
+function getNextApiKey() {
+//     if(!isProduction) return process.env.GEMINI_API_KEY!
+    if(requestCount >= 3) {
+         apiKeyIndex = (apiKeyIndex + 1) % API_KEYS.length
+         requestCount = 0
+    }
+    requestCount++
+    const key = API_KEYS[apiKeyIndex] ?? process.env.GEMINI_API_KEY!
+    return key
+}
+
+function getModelForKey(apiKey: string) {
+     if(!modelInstances[apiKey]) {
+          console.log(chalk.green(`Creating new model instance for key: ${apiKey.slice(0,7)}`))
+          const genAI = new GoogleGenerativeAI(apiKey)
+          modelInstances[apiKey] = genAI.getGenerativeModel({ model: 'gemini-1.5-flash'})
+     }
+     return modelInstances[apiKey]
+}
+
+const filesSummarySchema = z.record(z.string().min(1), z.string())
 
 export async function summarizeFilesBatch(docs: Document[]): Promise<string[]> {
+     let modelToUse = model
+
+     if(isProduction) {
+          const apiKey = getNextApiKey()
+          console.log(chalk.yellow(`Summarizing with API key: ${apiKeyIndex} - ${apiKey.slice(0,7)}`))
+          modelToUse = getModelForKey(apiKey)
+     }
+
      try {
         const prompt = `You are an intelligent senior software engineer explaining code to new team members.
-      For each of the following files, provide a concise summary (max 100 words) in this exact JSON string format:
+       For each of the following files, provide a concise summary (max 100 words) in this exact JSON string format:
      
        {
            "path/to/file1": "summary text",
@@ -112,7 +148,7 @@ export async function summarizeFilesBatch(docs: Document[]): Promise<string[]> {
             ${'```'}
        `).join('\n')}`
 
-       const { response } = await model.generateContent([prompt])
+       const { response } = await modelToUse.generateContent([prompt])
        const rawResponse = response.text()
 
        const jsonString = rawResponse.replace(/```json/g, '').replace(/```/g, '').trim()
@@ -124,7 +160,10 @@ export async function summarizeFilesBatch(docs: Document[]): Promise<string[]> {
        return batchSummaries
 
      } catch(err) {
-          console.error('Error generating summaries', err)
+          console.error(`Error generating summaries with API key: ${apiKeyIndex}`, err)
+          apiKeyIndex = (apiKeyIndex + 1) % API_KEYS.length
+          requestCount = 0
+          console.log(chalk.red(`Switching to API key: ${apiKeyIndex}`))
           return new Array(docs.length).fill('') as string[]
           // return []
      }
