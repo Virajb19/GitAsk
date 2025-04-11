@@ -13,7 +13,7 @@ export async function GET(req: NextRequest, { params } : { params: { projectId: 
         if(!project) return NextResponse.json({msg: 'project not found'}, { status: 404})
         
         const commits = await db.commit.findMany({where: { projectId}, orderBy: { date: 'desc'}})
-        await pollCommits(projectId, project.repoURL)
+        await pollCommits(project.id, project.repoURL)
     
         return NextResponse.json({commits}, { status: 200})
     } catch(err) {

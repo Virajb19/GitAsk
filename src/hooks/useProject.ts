@@ -29,7 +29,7 @@ export const useProject = () => {
       }
   },
   enabled: !!userId,
-  refetchInterval: isRefetching ? 15 * 1000 : false
+  // refetchInterval: isRefetching ? 15 * 1000 : false
  })
 
  // USE DATA DIRECTLY FROM THE QUERY DON'T CREATE A LOCAL STATE FOR THE DATA FETCHED

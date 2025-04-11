@@ -42,18 +42,33 @@ export default function CreatePage() {
 
   const { setIsRefetching } = useIsRefetching()
 
+  const indexProject = useMutation({
+    mutationFn: async ({ projectId, repoURL }: { projectId: string; repoURL: string }) => {
+      const res = await axios.post(`/api/project/${projectId}`, {repoURL})
+      return res.data
+    },
+    onSuccess: () => toast.success('Project indexed successfully', {position: 'bottom-right'}),
+    onError: (err) => {
+       console.error(err)
+       toast.error('Error indexing the project')
+    },
+    onSettled: () => queryClient.refetchQueries({queryKey: ['getProjects', userId]}),
+  })
+
   const {mutateAsync: createProject, isPending, isError} = useMutation({
     mutationFn: async ({data, fileCount}: {data: Input, fileCount: number}) => {
-      const {data : { projectId }} = await axios.post('/api/project', {...data, fileCount})
-      return projectId
+      const {data : { projectId, repoURL }} = await axios.post('/api/project', {...data, fileCount})
+      return {projectId, repoURL}
     },
-    onSuccess: async (projectId: string) => {
+    onSuccess: async ({projectId,repoURL}) => {
         toast.success('Successfully created the project', {position: 'bottom-right'})
         form.reset()
         await queryClient.refetchQueries({queryKey: ['getProjects', userId]})
         setProjectId(projectId)
         router.push('/dashboard')
         setTimeout(() => toast.info('Initializing project. Please wait...', { position: 'top-center'}), 3000)
+
+        indexProject.mutate({projectId,repoURL})
     },
     onError: (err) => {
        console.error(err)

@@ -73,11 +73,12 @@ import {
               where: {id: existingUser.id},
               data: {lastLogin: new Date(), username: user.name ?? undefined, email: user.email ?? undefined, ProfilePicture: user.image, OauthProvider: provider, OauthId: user.id}
              })
+             // Make email optional in schema because some providers do not provide email
            } else {
               await db.user.create({
                 data: {
                   username: user.name ?? "unknown",
-                  email: user.email ?? "unknown",
+                  email: user.email ?? `${user.id}@${provider.toLowerCase()}.oauth`,
                   emailVerified: new Date(),
                   ProfilePicture: user.image,
                   OauthId: user.id,

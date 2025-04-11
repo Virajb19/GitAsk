@@ -114,7 +114,11 @@ export default function AskQuestionCard() {
                       </DialogTitle>
                    </DialogHeader>
                      <div id="editor" className="max-h-[30vh] max-w-[70vw] mb:max-w-[90vw] overflow-scroll">
-                       <MDEditor.Markdown source={answer}/>
+                         {answer === '' ? (
+                            <h3 className="font-semibold text-lg italic animate-pulse">Generating...</h3>
+                         ) : (
+                            <MDEditor.Markdown source={answer}/>
+                         )}
                      </div>
                      <FileReference files={fileReferences}/>
                     <button onClick={() => setOpen(false)} className="bg-blue-600 rounded-sm py-2 text-lg font-bold hover:opacity-75 duration-200">Close</button>

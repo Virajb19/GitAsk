@@ -6,6 +6,8 @@ import chalk from 'chalk'
 const BATCH_SIZE = Number(process.env.BATCH_SIZE) || 30
 const MAX_RUNS = 7
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 export async function loadGithubRepo(githubURL: string, githubToken?: string) {
 
   const loader = new GithubRepoLoader(githubURL, {
@@ -55,7 +57,7 @@ export async function indexGithubRepo(projectId: string, githubURL: string, gith
   }))
 }
 
-export function startIndexing(projectId: string, githubURL: string) {
+export async function startIndexing(projectId: string, githubURL: string) {
 
     let runCount = 0
 
@@ -66,7 +68,7 @@ export function startIndexing(projectId: string, githubURL: string) {
               // throw new Error('Error while indexing')
 
               runCount++
-              console.log(`Indexing repository: ${runCount}`)
+              console.log(chalk.cyanBright(`Indexing repository: ${runCount}`))
 
               const docsWithoutSummary = await db.sourceCodeEmbedding.findMany({where: {projectId, summary: ''}, select: {filename: true}})
               console.log('docs without summary', docsWithoutSummary.length)
@@ -104,7 +106,7 @@ export function startIndexing(projectId: string, githubURL: string) {
           
                 if(batchSummaries.every(summary => summary === '')) {
                   console.log(chalk.blue('waiting 20 seconds...'))
-                  await new Promise(r => setTimeout(r, 20 * 1000))
+                  await new Promise(r => setTimeout(r, (isProduction ? 7 : 20) * 1000))
                 }
             }
 
@@ -141,8 +143,8 @@ export function startIndexing(projectId: string, githubURL: string) {
 
               if (runCount < MAX_RUNS) {
                 console.log(chalk.blue('Waiting for 10 seconds before next run...'))
-                await new Promise(r => setTimeout(r, 1000 * 10))
-                indexGithubRepo()
+                await new Promise(r => setTimeout(r, 1000 * (isProduction ? 5 : 10)))
+                await indexGithubRepo()
               } else {
                 console.log(chalk.bgMagenta('Maximum run count reached. Stopping indexing.Marking as READY'))
                 await db.project.update({where: {id: projectId}, data: { status: 'READY'}})
@@ -156,7 +158,7 @@ export function startIndexing(projectId: string, githubURL: string) {
         }
      }
 
-     indexGithubRepo()
+    await indexGithubRepo()
 }
 
 // export async function IndexGithubRepo(projectId: string, githubURL: string, githubToken?: string) {

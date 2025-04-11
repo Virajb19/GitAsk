@@ -55,18 +55,18 @@ try {
 
     await db.user.update({where: {id: userId}, data: {credits: {decrement: fileCount}}});
     
-    (async () => {
+    // (async () => {
       // try {
       //   await pollCommits(project.id, project.repoURL)
-        startIndexing(project.id, project.repoURL)
+        // startIndexing(project.id, project.repoURL)
       // } catch(err) {
       //     console.error(err)
       //     await db.project.delete({where: {id: project.id}})
       //     return NextResponse.json({msg: 'Error creating the project'}, { status: 500})
       // }
-    }) ()
+    // }) ()
 
-    return NextResponse.json({msg: 'Project created successfully', projectId: project.id}, { status: 201})
+    return NextResponse.json({msg: 'Project created successfully', projectId: project.id, repoURL: project.repoURL}, { status: 201})
 
 } catch(err: any) {
     console.error('Error creating the project',err)

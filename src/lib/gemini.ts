@@ -160,7 +160,7 @@ export async function summarizeFilesBatch(docs: Document[]): Promise<string[]> {
        return batchSummaries
 
      } catch(err) {
-          console.error(`Error generating summaries with API key: ${apiKeyIndex}`, err)
+          console.error(`Error generating summaries with API key: ${apiKeyIndex}\n`, err)
           apiKeyIndex = (apiKeyIndex + 1) % API_KEYS.length
           requestCount = 0
           console.log(chalk.red(`Switching to API key: ${apiKeyIndex}`))
