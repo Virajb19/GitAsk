@@ -8,7 +8,7 @@ import { DM_Sans, Space_Grotesk } from 'next/font/google';
 import Navbar from "~/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "GitChat",
+  title: "GitSync",
   description: "Ask AI about a Github repo!",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };

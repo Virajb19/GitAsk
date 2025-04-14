@@ -47,7 +47,7 @@ export default function AppSidebar() {
                 </motion.button>
                 {!isCollapsed && <motion.h2 initial={{ x: 20, opacity: 0, scale: 0.9}} animate={{ x: 0, opacity: 1, scale: 1}} transition={{ duration: 0.5, ease: 'backInOut', delay: 0.5, type: 'spring'}}
                  className="text-3xl xl:text-5xl bg-gradient-to-r from-blue-400 to-blue-700 bg-clip-text font-black tracking-tighter text-transparent">
-                    GitChat
+                    GitSync
                     </motion.h2>
                 }
             </div>

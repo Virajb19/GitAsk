@@ -1,6 +1,6 @@
-# GitChat
+# GitSync
 
-GitChat is an AI-powered tool that answers questions about any GitHub repository using RAG—just provide a repo URL and get insights instantly.
+GitSync is an AI-powered tool that answers questions about any GitHub repository using RAG—just provide a repo URL and get insights instantly.
 
 https://github.com/user-attachments/assets/794f49e4-a355-479b-9de1-3e5ab2f21239
 
@@ -9,8 +9,8 @@ https://github.com/user-attachments/assets/794f49e4-a355-479b-9de1-3e5ab2f21239
 **1.Clone the repo**
 
 ```bash 
-git clone https://github.com/Virajb19/GitChat 
-cd GitChat
+git clone https://github.com/Virajb19/GitSync
+cd GitSync
 ```
 **2. Install pnpm and then dependencies**
 

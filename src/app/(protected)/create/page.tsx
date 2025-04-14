@@ -109,7 +109,7 @@ export default function CreatePage() {
             <Card className="shadow-lg shadow-blue-600">
                 <CardHeader>
                     <CardTitle className="text-xl uppercase">Link your Github Repository</CardTitle>
-                    <CardDescription className="font-semibold">Enter the URL of your Github Repository to link it to GitChat</CardDescription>
+                    <CardDescription className="font-semibold">Enter the URL of your Github Repository to link it to GitSync</CardDescription>
                 </CardHeader>
                   <CardContent>
                      <Form {...form}>

@@ -44,7 +44,7 @@ export async function signup(formData: formData) {
     //     secure: process.env.NODE_ENV === 'production'
     // })
  
-    return {success: true, msg: 'Signed up successfully. Welcome to GitChat !!!'}
+    return {success: true, msg: 'Signed up successfully. Welcome to GitSync !!!'}
 } catch(err) {
     console.error('Error while signing up',err)
     return {success: false, msg: 'Something went wrong !!!'}
@@ -233,7 +233,7 @@ export async function createCheckoutSession(credits: number) {
                 price_data: {
                     currency: "usd",
                     product_data: {
-                        name: `${credits} Gitchat credits`
+                        name: `${credits} GitSync credits`
                     },
                     unit_amount: Math.round((credits / 50) * 100),
                 }, 

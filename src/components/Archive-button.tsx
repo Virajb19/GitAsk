@@ -19,7 +19,7 @@ export default function ArchiveButton() {
          return res.data
       },
       onSuccess: () => {
-         toast.success('Deleted')
+         toast.success('Project deleted')
          // const projects = queryClient.getQueryData<Project[]>(['getProjects'])
          const nextProject = projects?.find(p => p.id !== projectId)
          if(projects?.length) {
