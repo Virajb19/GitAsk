@@ -110,7 +110,7 @@ export default function MeetingCard() {
             <>
                 <Presentation className='size-10 animate-bounce'/>
                 <h4 className='font-bold text-lg'>Create a new Meeting</h4>
-                <p className='text-center text-base font-semibold text-gray-400'>Analyse your meeting with GitSync <br /> Powered by AI</p>
+                <p className='text-center text-base font-semibold text-gray-400'>Analyse your meeting with GitAsk <br /> Powered by AI</p>
             </>
          )}
          <button disabled={uploading || !projects || projects.length === 0 || project?.status !== 'READY'} className='flex-center group py-2 px-4 text-white rounded-lg bg-blue-700 font-semibold gap-3 disabled:cursor-not-allowed disabled:opacity-70' {...getRootProps()}>

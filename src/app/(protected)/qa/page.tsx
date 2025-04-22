@@ -53,7 +53,7 @@ export default function QApage() {
 </div>
 
   // || use isFetching
-  if(isLoading || !questions) return <div className="w-full flex flex-col gap-3 p-1">
+  if(isFetching || !questions) return <div className="w-full flex flex-col gap-3 p-1">
                 <AskQuestionCard />
                 <h3 className="font-bold underline">Saved Questions</h3>
                 {Array.from({length: 5}).map((_,i) => {
@@ -81,7 +81,7 @@ export default function QApage() {
                         return <Fragment key={question.id}>
                           <SheetTrigger onClick={() => setQuesIdx(i)}>
                               <motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.3, ease: 'easeInOut', delay: i * 0.1}}
-                              className="flex group items-start lg:items-center justify-between gap-3 p-3 rounded-lg bg-card text-left border">
+                              className="flex group items-start lg:items-center justify-between gap-3 p-3 rounded-lg bg-card text-left border hover:border-blue-600 duration-200">
                                 {ProfilePicture ? (
                                   <Image src={question.user.ProfilePicture ?? ''} alt="user" width={50} height={50} className="rounded-full mb:hidden"/>
                                 ) : (

@@ -44,7 +44,7 @@ export async function signup(formData: formData) {
     //     secure: process.env.NODE_ENV === 'production'
     // })
  
-    return {success: true, msg: 'Signed up successfully. Welcome to GitSync !!!'}
+    return {success: true, msg: 'Signed up successfully. Welcome to GitAsk !!!'}
 } catch(err) {
     console.error('Error while signing up',err)
     return {success: false, msg: 'Something went wrong !!!'}
@@ -107,12 +107,17 @@ const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_
 export async function askQuestion(question: string, projectId: string) {
     const stream = createStreamableValue()
 
-    // const { response } = await generateText({
+    // const { textStream } = streamText({
     //     model: google('gemini-1.5-flash'),
-    //     prompt: `Translate the following text to English and output only the translated text: "${question}"`,
+    //     prompt: `Translate the following question to English and output only the translated question, and do add the coding keywords(login,schema etc) that question might correspond to. The Question is:"${question}"`,
     // })
 
-    // const translatedQuestion = response.text()
+    // let translatedQuestion = ''
+    // for await (const text of textStream) {
+    //     translatedQuestion += text
+    // }
+
+    // console.log('Translated question: ', translatedQuestion)
 
     // const queryEmbedding = await generateEmbedding(translatedQuestion)
 
@@ -233,7 +238,7 @@ export async function createCheckoutSession(credits: number) {
                 price_data: {
                     currency: "usd",
                     product_data: {
-                        name: `${credits} GitSync credits`
+                        name: `${credits} GitAsk credits`
                     },
                     unit_amount: Math.round((credits / 50) * 100),
                 }, 

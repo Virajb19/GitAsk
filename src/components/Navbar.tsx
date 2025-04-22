@@ -23,7 +23,7 @@ export default function Navbar() {
     <div className='flex items-center gap-2'>
       <Image src={'/favicon.ico'} alt='logo' width={40} height={40} />
       <motion.h2 initial={{ y: -23 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: 'backInOut' }}
-        className='mb:text-4xl bg-gradient-to-r from-blue-400 to-blue-700 bg-clip-text font-black tracking-tighter text-transparent min-[375px]:block'>GitSync</motion.h2>
+        className='mb:text-4xl bg-gradient-to-r from-blue-400 to-blue-700 bg-clip-text font-black tracking-tighter text-transparent min-[375px]:block'>GitAsk</motion.h2>
     </div>
 
     <div className='flex items-center gap-3 p-1 sm:mr-10'>

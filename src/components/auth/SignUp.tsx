@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { toast } from 'sonner'
 import { signup } from '~/server/actions'
 import { useLoadingState } from '~/lib/store'
+import { signIn } from 'next-auth/react'
 
 type SignUpData = z.infer<typeof SignUpSchema>
 
@@ -40,6 +41,19 @@ export default function SignUp() {
       toast.success(res.msg)
       // router.push('/verify-email')
       router.push('/signin')
+
+      // Sign In after signup
+      // const signInRes = await signIn('credentials', {
+      //   username: data.username,
+      //   password: data.password,
+      //   redirect: false,
+      // })
+      // if (signInRes?.error) {
+      //   toast.error('Sign in failed')
+      // } else {
+      //   toast.success('Sign in successful')
+      // }
+      // router.push('/')
     } else toast.error(res.msg)
 
   }
@@ -51,7 +65,7 @@ export default function SignUp() {
               <Card className='shadow-lg shadow-blue-700'>
                 <CardHeader className='text-center'>
                    <CardTitle className='text-[1.8rem] sm:text-5xl'>
-                    Welcome to <span className='bg-gradient-to-b from-blue-400 to-blue-700 bg-clip-text pr-1 font-black tracking-tighter text-transparent'>GitSync</span>
+                    Welcome to <span className='bg-gradient-to-b from-blue-400 to-blue-700 bg-clip-text pr-1 font-black tracking-tighter text-transparent'>GitAsk</span>
                     </CardTitle>
                    <CardDescription className='sm:text-base'>Please enter your details to signup</CardDescription>
                 </CardHeader>
