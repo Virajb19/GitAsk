@@ -33,7 +33,7 @@ export default function DeleteButton({questionId}: {questionId: string}) {
         },
         onSettled: () => {
             // queryClient.refetchQueries({ queryKey: ['getQuestions']})
-            queryClient.invalidateQueries({ queryKey: ['getQuestions', projectId]})
+            // queryClient.invalidateQueries({ queryKey: ['getQuestions', projectId]})
         }
       })
     

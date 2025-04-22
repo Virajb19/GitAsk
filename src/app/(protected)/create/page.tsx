@@ -15,7 +15,7 @@ import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import { useProject } from "~/hooks/useProject"
 import { useRouter } from "nextjs-toploader/app"
-import { checkCredits, checkRepoExists } from "~/server/actions"
+import { checkCredits, checkRepoExists, updateProjectStatus } from "~/server/actions"
 import { useState } from "react"
 import { useSession } from "next-auth/react"
 import { useMutation } from "@tanstack/react-query"
@@ -33,7 +33,7 @@ export default function CreatePage() {
   const [creditInfo, setCreditInfo] = useState({ fileCount: 0, userCredits: 0})
 
   const queryClient = useQueryClient()
-  const { setProjectId } = useProject()
+  const { projectId, setProjectId } = useProject()
   const router = useRouter()
 
   const {data: session} = useSession()
@@ -52,7 +52,12 @@ export default function CreatePage() {
        console.error(err)
        toast.error('Error indexing the project')
     },
-    onSettled: () => queryClient.refetchQueries({queryKey: ['getProjects', userId]}),
+    onSettled: async () => {
+      if(process.env.NEXT_PUBLIC_NODE_ENV === 'production') {
+        await updateProjectStatus('READY', projectId)
+      }
+      queryClient.refetchQueries({queryKey: ['getProjects', userId]})
+    },
   })
 
   const {mutateAsync: createProject, isPending, isError} = useMutation({

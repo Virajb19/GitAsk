@@ -16,6 +16,7 @@ import { redirect } from "next/navigation"
 import { sendConfirmationEmail } from "~/utils/email";
 import { getOctokitClient } from "~/lib/github";
 import axios from "axios";
+import { ProjectStatus } from "@prisma/client";
 
 type formData = z.infer<typeof SignUpSchema>
 
@@ -311,6 +312,12 @@ export async function checkRepoExists(repoURL: string) {
     }
 }
 
+export async function updateProjectStatus(status: ProjectStatus, projectId: string) {
+    const session = await getServerAuthSession()
+    if(!session?.user) throw new Error('Unauthorized') 
+
+    await db.project.update({where: {id: projectId}, data: {status}})
+}
 
 export async function getEmbeddings(projectId: string) {
     const embeddings = await db.sourceCodeEmbedding.count({ where: {projectId, summary: ''}})
