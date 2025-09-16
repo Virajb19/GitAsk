@@ -38,7 +38,9 @@ export default function ArchiveButton() {
       }
    })
 
-  return <Dialog open={open} onOpenChange={setOpen}>
+  return <Dialog open={open} onOpenChange={val => {
+      if(!deleteProject.isPending) setOpen(val) // --> (|| true and && false) to make statement true and false
+    }}>
         <DialogTrigger>
                   <button onClick={() => {
                         // const confirm = window.confirm('Are you sure you want to archive this project?')
@@ -59,11 +61,20 @@ export default function ArchiveButton() {
         <DialogContent>
              <DialogHeader className='font-semibold text-lg sm:text-xl text-left uppercase'>Are you sure you want to delete this project?</DialogHeader>
              <div className="flex items-center gap-3 justify-end font-semibold">
-                 <button onClick={() => setOpen(false)} className="px-4 py-2 rounded-lg bg-blue-600">Cancel</button>
+                 <button disabled={deleteProject.isPending} onClick={() => setOpen(false)} className="px-4 py-2 rounded-lg bg-blue-600 disabled:opacity-80">Cancel</button>
                  <button onClick={() => {
                     setOpen(false)
                     deleteProject.mutate(projectId)
-                 }} disabled={projects?.length === 0} className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 duration-300">Delete</button>
+                 }} disabled={projects?.length === 0 || deleteProject.isPending} className="px-4 py-2 flex-center gap-2 rounded-lg bg-red-600 hover:bg-red-500 duration-300 disabled:cursor-not-allowed disabled:opacity-70">
+
+                     {deleteProject.isPending ? (
+                        <>
+                           <Loader2 strokeWidth={3} className="animate-spin size-5"/> Deleting...
+                        </>
+                     ) : (
+                        "Delete"
+                     )}
+                 </button>
              </div>
         </DialogContent>
   </Dialog>

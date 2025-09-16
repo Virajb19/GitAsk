@@ -10,6 +10,8 @@ export default function Projects({ isCollapsed }: { isCollapsed: boolean }) {
 
   const { projects, setProjectId, projectId, isLoading, isError } = useProject()
 
+  // toast.success(JSON.stringify(projects));
+
   const projectRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {
