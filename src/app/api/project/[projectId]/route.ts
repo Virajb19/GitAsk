@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { startIndexing } from "~/lib/github-loader";
+import { indexGithubRepoWithPlimit, startIndexing } from "~/lib/github-loader";
 import { createProjectSchema } from "~/lib/zod";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
@@ -43,7 +43,8 @@ export async function POST(req: NextRequest, { params }: { params: { projectId: 
         if(!parsedData.success) return NextResponse.json({msg: 'Invalid inputs', errors: parsedData.error.flatten().fieldErrors}, { status: 400})
         const { repoURL } = parsedData.data
 
-        await startIndexing(project.id, repoURL)
+        // await startIndexing(project.id, repoURL)
+        await indexGithubRepoWithPlimit(projectId, repoURL)
 
         // await db.user.update({where: {id: userId}, data: {credits: {decrement: fileCount}}})
 

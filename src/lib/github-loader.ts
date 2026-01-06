@@ -1,10 +1,14 @@
 import { GithubRepoLoader } from '@langchain/community/document_loaders/web/github'
-import { generateEmbedding, summarizeCode, summarizeFilesBatch } from './gemini'
+// import { generateEmbedding, summarizeCode, summarizeFilesBatch } from './gemini'
+import { generateEmbedding, summarizeCode, summarizeFilesBatch } from './openrouter'
 import { db } from '~/server/db'
 import chalk from 'chalk'
+import { sleep } from './utils'
+import pLimit from 'p-limit'
 
 const BATCH_SIZE = Number(process.env.BATCH_SIZE) || 30
 const MAX_RUNS = 7
+const CONCURRENCY = Number(process.env.CONCURRENCY) || 5
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -57,46 +61,103 @@ export async function indexGithubRepo(projectId: string, githubURL: string, gith
   }))
 }
 
+export async function indexGithubRepoWithPlimit(projectId: string, githubURL: string, githubToken?: string) {
+      const docs = await loadGithubRepo(githubURL, githubToken)
+      console.log(chalk.cyan(`Loaded ${docs.length} files`))
+
+      const limit = pLimit(CONCURRENCY)
+      let processed = 0, successCount = 0, failureCount = 0
+
+      await Promise.all(docs.map(doc => limit(async () => {
+             try {
+                     const summary = await summarizeCode(doc)
+                     if(!summary.trim()) {
+                         console.warn(chalk.yellow(`Empty summary: ${doc.metadata.source}`))
+                         failureCount++
+                        //  throw new Error('Empty summary')
+                         return
+                     }
+
+                     const embedding = await generateEmbedding(summary)
+                      if (!embedding) {
+                          failureCount++
+                          return
+                      }
+                    
+                       const sourceCodeEmbedding = await db.sourceCodeEmbedding.create({
+                            data: {
+                              sourceCode: doc.pageContent,
+                               filename: doc.metadata.source,
+                               summary,
+                              projectId
+                            },
+                            select: { id: true}
+                          })
+
+                          await db.$executeRaw`
+                          UPDATE "SourceCodeEmbedding"
+                          SET "summaryEmbedding" = ${embedding}::vector(1536)
+                          WHERE id = ${sourceCodeEmbedding.id}
+                          `
+
+                    processed++
+                    successCount++
+                    if(processed % 10 == 0) {
+                       console.log(chalk.gray(`Processed ${processed}/${docs.length}`))
+                    }
+
+             } catch(err) {
+                  failureCount++
+                  console.error(chalk.red(`Failed: ${doc.metadata.source}`), err)
+             }
+      })))
+
+      if(successCount == 0) {
+          await db.project.update({where: {id: projectId}, data: {status: 'FAILED'}})
+          console.log(chalk.red(`Indexing failed: 0/${docs.length} files indexed`))
+      } else {
+            await db.project.update({where: {id: projectId}, data: {status: 'READY'}})
+            console.log(chalk.green(`Indexing complete: ${successCount}/${docs.length} files indexed`))
+      }
+}
+
 export async function startIndexing(projectId: string, githubURL: string) {
+       let runCount = 0
 
-    let runCount = 0
+       try {
+             while(runCount < MAX_RUNS) {
+                    runCount++
+                    console.log(chalk.cyanBright(`Indexing repository: ${runCount}`))
 
-     async function indexGithubRepo() {
-
-         try {
-
-              // throw new Error('Error while indexing')
-
-              runCount++
-              console.log(chalk.cyanBright(`Indexing repository: ${runCount}`))
 
               const docsWithoutSummary = await db.sourceCodeEmbedding.findMany({where: {projectId, summary: ''}, select: {filename: true}})
               console.log('docs without summary', docsWithoutSummary.length)
 
-              const docsCount = await db.sourceCodeEmbedding.count({where: { projectId }})
+               const docsCount = await db.sourceCodeEmbedding.count({where: { projectId }})
               const isAlldocsSummarized = docsWithoutSummary.length === 0 && docsCount > 0
 
               if(isAlldocsSummarized) {
-                console.log('All documents are summarized. Stopping recursion.')
+                console.log('All documents are summarized. Marking ready.')
+                // break;
                 await db.project.update({where: {id: projectId}, data: { status: 'READY'}})
                 return
               }
-
-              const docs = await loadGithubRepo(githubURL)
-              console.log(`Total docs: ${docs.length}`)
-
-              const unprocessedFiles = new Set(docsWithoutSummary.map(d => d.filename))
-              const docsToSummarize = unprocessedFiles.size === 0 ? docs : docs.filter(doc => unprocessedFiles.has(doc.metadata.source))
               
+               const docs = await loadGithubRepo(githubURL)
+               console.log(`Total docs: ${docs.length}`)
+
+               const unprocessedFiles = new Set(docsWithoutSummary.map(d => d.filename))
+              const docsToSummarize = unprocessedFiles.size === 0 ? docs : docs.filter(doc => unprocessedFiles.has(doc.metadata.source))
+
               if(docsToSummarize.length === 0) {
                 console.log('No more documents to summarize. Stopping recursion.')
                 await db.project.update({where: {id: projectId}, data: { status: 'READY'}})
                 return
               }
-        
-              let summaries: string[] = []
 
-              for(let i=0; i < docsToSummarize.length; i += BATCH_SIZE) {
+                let summaries: string[] = []
+
+          for(let i=0; i < docsToSummarize.length; i += BATCH_SIZE) {
                 const batch = docsToSummarize.slice(i, i + BATCH_SIZE)
       
                 console.log('Summarizing the batch', i, ' - ', i + BATCH_SIZE)
@@ -105,8 +166,8 @@ export async function startIndexing(projectId: string, githubURL: string) {
                 summaries.push(...batchSummaries)
           
                 if(batchSummaries.every(summary => summary === '')) {
-                  console.log(chalk.blue('waiting 20 seconds...'))
-                  await new Promise(r => setTimeout(r, (isProduction ? 7 : 20) * 1000))
+                  console.log(chalk.blue('waiting 10 seconds...'))
+                  await new Promise(r => setTimeout(r, (isProduction ? 5 : 10) * 1000))
                 }
             }
 
@@ -134,32 +195,138 @@ export async function startIndexing(projectId: string, githubURL: string) {
                     select: { id: true}
                   })
 
+                  // if (embedding.summaryEmbedding.length !== 1536) {
+                  //         console.warn(`Skipping embedding for ${embedding.filename} (len=${embedding.summaryEmbedding.length})`)
+                  //         return
+                  //   }
+
                   await db.$executeRaw`
                   UPDATE "SourceCodeEmbedding"
-                  SET "summaryEmbedding" = ${embedding.summaryEmbedding}::vector
+                  SET "summaryEmbedding" = ${embedding.summaryEmbedding}::vector(1536)
                   WHERE id = ${sourceCodeEmbedding.id}
                   `
+
               }))
 
-              if (runCount < MAX_RUNS) {
-                console.log(chalk.blue('Waiting for 10 seconds before next run...'))
-                await new Promise(r => setTimeout(r, 1000 * (isProduction ? 5 : 10)))
-                await indexGithubRepo()
-              } else {
+                 console.log(chalk.blue("Waiting before next indexing run..."))
+                 await sleep(1000 * (isProduction ? 5 : 10))
+
+           }
+
+           // LOOP ENDS
+
                 console.log(chalk.bgMagenta('Maximum run count reached. Stopping indexing.Marking as READY'))
                 await db.project.update({where: {id: projectId}, data: { status: 'READY'}})
-                return
-              }
 
-        } catch(err) {
-          console.error(chalk.red('Error indexing repo\n', err))
-          await db.project.update({where: {id: projectId}, data: { status: 'FAILED'}})
-          return 
-        }
-     }
-
-    await indexGithubRepo()
+       } catch(err) {
+            console.error(chalk.red("Error indexing repo\n", err))
+            await db.project.update({where: {id: projectId}, data: {status: 'FAILED'}})
+       }
 }
+
+// export async function startIndexing(projectId: string, githubURL: string) {
+
+//     let runCount = 0
+
+//      async function indexGithubRepo() {
+
+//          try {
+
+//               // throw new Error('Error while indexing')
+
+//               runCount++
+//               console.log(chalk.cyanBright(`Indexing repository: ${runCount}`))
+
+//               const docsWithoutSummary = await db.sourceCodeEmbedding.findMany({where: {projectId, summary: ''}, select: {filename: true}})
+//               console.log('docs without summary', docsWithoutSummary.length)
+
+//               const docsCount = await db.sourceCodeEmbedding.count({where: { projectId }})
+//               const isAlldocsSummarized = docsWithoutSummary.length === 0 && docsCount > 0
+
+//               if(isAlldocsSummarized) {
+//                 console.log('All documents are summarized. Stopping recursion.')
+//                 await db.project.update({where: {id: projectId}, data: { status: 'READY'}})
+//                 return
+//               }
+
+//               const docs = await loadGithubRepo(githubURL)
+//               console.log(`Total docs: ${docs.length}`)
+
+//               const unprocessedFiles = new Set(docsWithoutSummary.map(d => d.filename))
+//               const docsToSummarize = unprocessedFiles.size === 0 ? docs : docs.filter(doc => unprocessedFiles.has(doc.metadata.source))
+              
+//               if(docsToSummarize.length === 0) {
+//                 console.log('No more documents to summarize. Stopping recursion.')
+//                 await db.project.update({where: {id: projectId}, data: { status: 'READY'}})
+//                 return
+//               }
+        
+//               let summaries: string[] = []
+
+//               for(let i=0; i < docsToSummarize.length; i += BATCH_SIZE) {
+//                 const batch = docsToSummarize.slice(i, i + BATCH_SIZE)
+      
+//                 console.log('Summarizing the batch', i, ' - ', i + BATCH_SIZE)
+//                 const batchSummaries = await summarizeFilesBatch(batch)
+      
+//                 summaries.push(...batchSummaries)
+          
+//                 if(batchSummaries.every(summary => summary === '')) {
+//                   console.log(chalk.blue('waiting 20 seconds...'))
+//                   await new Promise(r => setTimeout(r, (isProduction ? 7 : 20) * 1000))
+//                 }
+//             }
+
+//               const embeddings = await Promise.all(docsToSummarize.map(async (doc,i) => {
+//                 const embedding = await generateEmbedding(summaries[i] ?? '')
+          
+//                 return {
+//                   summaryEmbedding: embedding,
+//                   sourceCode: JSON.parse(JSON.stringify(doc.pageContent)) as string,
+//                   filename: doc.metadata.source,
+//                   summary: summaries[i] ?? ''
+//                 }
+//               }))
+
+//                 await Promise.allSettled(embeddings.map(async (embedding) => {
+//                   const sourceCodeEmbedding = await db.sourceCodeEmbedding.upsert({
+//                     where: { filename_projectId: {filename: embedding.filename, projectId}},
+//                     update: { summary: embedding.summary},
+//                     create: {
+//                       sourceCode: embedding.sourceCode,
+//                       filename: embedding.filename,
+//                       summary: embedding.summary,
+//                       projectId
+//                     },
+//                     select: { id: true}
+//                   })
+
+//                   await db.$executeRaw`
+//                   UPDATE "SourceCodeEmbedding"
+//                   SET "summaryEmbedding" = ${embedding.summaryEmbedding}::vector
+//                   WHERE id = ${sourceCodeEmbedding.id}
+//                   `
+//               }))
+
+//               if (runCount < MAX_RUNS) {
+//                 console.log(chalk.blue('Waiting for 10 seconds before next run...'))
+//                 await new Promise(r => setTimeout(r, 1000 * (isProduction ? 5 : 10)))
+//                 await indexGithubRepo()
+//               } else {
+//                 console.log(chalk.bgMagenta('Maximum run count reached. Stopping indexing.Marking as READY'))
+//                 await db.project.update({where: {id: projectId}, data: { status: 'READY'}})
+//                 return
+//               }
+
+//         } catch(err) {
+//           console.error(chalk.red('Error indexing repo\n', err))
+//           await db.project.update({where: {id: projectId}, data: { status: 'FAILED'}})
+//           return 
+//         }
+//      }
+
+//     await indexGithubRepo()
+// }
 
 // export async function IndexGithubRepo(projectId: string, githubURL: string, githubToken?: string) {
 //    const docs = await loadGithubRepo(githubURL, githubToken)

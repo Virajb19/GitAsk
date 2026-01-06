@@ -38,7 +38,7 @@ export default function CreatePage() {
 
   const {data: session} = useSession()
   const userId = session?.user.id
-  const credits = session?.user.credits
+  // const credits = session?.user.credits
 
   const { setIsRefetching } = useIsRefetching()
 
@@ -73,6 +73,7 @@ export default function CreatePage() {
         router.push('/dashboard')
         setTimeout(() => toast.info('Initializing project. Please wait...', { position: 'top-center'}), 3000)
 
+         // INDEX ONLY AFTER PROJECT IS CREATED SUCCESSFULLY
         indexProject.mutate({projectId,repoURL})
     },
     onError: (err) => {
@@ -87,6 +88,11 @@ export default function CreatePage() {
   async function onSubmit(data: Input) {
     //  try {
 
+      // BETTER UX 
+      // Always keep pages as server component and fetch important data
+      // then create client child components and pass this data to them (user info or other data from DB)
+      // for ex -> /create page and CreateForm.tsx client component
+
           const repoExists = await checkRepoExists(data.repoURL)
           if (!repoExists) {
             form.setError('repoURL', { message: 'This repository does not exist' })
@@ -96,6 +102,7 @@ export default function CreatePage() {
 
            // there is some bug when you fetch credits server side it gives the updated value but when you fetch client side it does not 
           // Always try to get session/user info server side and pass to client
+          // Do not get userCredits client side but server side like this 
           const { fileCount, userCredits } = await checkCredits(data.repoURL, data.githubToken)
           setCreditInfo({fileCount, userCredits}) 
 

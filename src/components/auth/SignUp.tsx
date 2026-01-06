@@ -116,9 +116,23 @@ export default function SignUp() {
                         />
 
                         <motion.button whileHover={form.formState.isSubmitting ? {opacity: 0.5} : {opacity: 0.7}}
-                          className='mx-auto rounded-full font-semibold cursor-pointer flex items-center gap-2 w-full flex-center px-6 py-1 text-lg bg-black text-white dark:bg-white dark:text-black disabled:cursor-not-allowed disabled:opacity-75'
+                          className='mx-auto rounded-full font-semibold cursor-pointer flex items-center gap-2 w-full flex-center px-6 py-1 text-lg bg-black text-white dark:bg-white dark:text-black disabled:cursor-not-allowed disabled:opacity-50'
                           disabled={form.formState.isSubmitting || loading} type='submit'> 
-                         {form.formState.isSubmitting && <Loader className='animate-spin'/>} {form.formState.isSubmitting ? 'Please wait...' : 'Sign up'}
+
+                         {/* {form.formState.isSubmitting && <Loader className='animate-spin'/>} {form.formState.isSubmitting ? 'Please wait...' : 'Sign up'}
+                          */}
+
+                          {form.formState.isSubmitting ? (
+                             <>
+                                <span className='size-5 border-[3px] border-gray-400 border-t-blue-700 rounded-full animate-spin'></span>
+                                Please wait...
+                             </>
+                          ) : (
+                              <>
+                                  Sign up
+                              </>
+    
+                          )}
                         </motion.button>
 
                         <DemarcationLine />

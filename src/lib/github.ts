@@ -1,5 +1,6 @@
 import { Octokit } from 'octokit'
-import { summarizeCode, summarizeCommit } from './gemini'
+// import { summarizeCode, summarizeCommit } from './gemini'
+import { summarizeCommit } from './openrouter'
 import axios from 'axios'
 import { db } from '~/server/db'
 

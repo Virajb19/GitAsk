@@ -62,11 +62,31 @@ import {
       },
       signIn: async ({ user, account, profile}) => {
        try {
-          
-         if(account?.provider && profile) {
+
+        // Basically , I created account with github and default email was virajb853@gmail.com 
+        // Then I created an account with google/credentials with email virajb004@gmail.com
+        // Then I changed my default email in github to virajb004@gmail.com 
+        // logged out of app
+        // Then when I log in again it gets the existingUser from OauthId and since existingUser is there
+        // it tries to update the email to virajb004@gmail.com
+        // but user with virajb004@gmail.com already exists
+        // since email must be unique it throws error
+
+        // To solve this for now, delete user with email virajb004@gmail from database  
+
+         if (!account || !user.email) return false
+
+         if(account.provider && profile) {
   
           const provider = account.provider === 'github' ? 'GITHUB' : 'GOOGLE'
            
+          // VERY IMPORTANT --> Dont update the email if user exits 
+          // Refer this -> https://chatgpt.com/c/695be2a4-297c-8324-8706-42bed407ee3b
+
+          // Can we remove the unique constraint from email ?? --> ITS BAD dont do that 
+          // better avoid updating email if email is updated in an Oauth provider 
+          // update other things like if you changed profilePicture
+
            const existingUser = await db.user.findFirst({where: { OR: [{email: user.email!}, {OauthId: user.id}]}, select: {id: true}})
            if(existingUser) {
              await db.user.update({
@@ -87,10 +107,189 @@ import {
               })
            }     
          }
+
+    //        await db.user.upsert({
+    //   where: { email: user.email }, // ✅ email is identity
+    //   update: {
+    //     username: user.name ?? undefined,
+    //     ProfilePicture: user.image ?? undefined,
+    //     lastLogin: new Date(),
+    //     OauthProvider: provider,
+    //     OauthId: account.providerAccountId, // ✅ correct ID
+    //   },
+    //   create: {
+    //     username: user.name ?? "unknown",
+    //     email: user.email, // ✅ set once
+    //     emailVerified: new Date(),
+    //     ProfilePicture: user.image ?? undefined,
+    //     OauthProvider: provider,
+    //     OauthId: account.providerAccountId,
+    //     lastLogin: new Date(),
+    //   },
+    // })
+
+
+      // IF ACCOUNT MODEL IS THERE IN SCHEMA
+      // ONE PROVIDER = ONE ACCOUNT
+      // THIS IS BETTER 
+      // FIXES EMAIL CHANGE PROBLEM 
+
+      // --> SIGNIN 1
+
+  //   signIn: async ({ user, account }) => {
+  // try {
+  //   if (!account || account.provider === "credentials") return true
+
+  //   let dbUser = null
+
+  //   // 1. If email exists → use it
+  //   if (user.email) {
+  //     dbUser = await db.user.upsert({
+  //       where: { email: user.email },
+  //       update: {
+  //         username: user.name ?? undefined,
+  //         ProfilePicture: user.image ?? undefined,
+  //         lastLogin: new Date(),
+  //       },
+  //       create: {
+  //         email: user.email,
+  //         username: user.name ?? "unknown",
+  //         ProfilePicture: user.image ?? undefined,
+  //         emailVerified: new Date(),
+  //         lastLogin: new Date(),
+  //       },
+  //     })
+  //   } else {
+  //     // 2. No email → check existing account
+  //     const existingAccount = await db.account.findUnique({
+  //       where: {
+  //         provider_providerAccountId: {
+  //           provider: account.provider,
+  //           providerAccountId: account.providerAccountId,
+  //         },
+  //       },
+  //       include: { user: true },
+  //     })
+
+  //     if (existingAccount) {
+  //       dbUser = existingAccount.user
+  //     } else {
+  //       // 3. Create user WITHOUT email
+  //       dbUser = await db.user.create({
+  //         data: {
+  //           username: user.name ?? "unknown",
+  //           ProfilePicture: user.image ?? undefined,
+  //           lastLogin: new Date(),
+  //         },
+  //       })
+  //     }
+  //   }
+
+  //   // 4. Link OAuth account
+  //   await db.account.upsert({
+  //     where: {
+  //       provider_providerAccountId: {
+  //         provider: account.provider,
+  //         providerAccountId: account.providerAccountId,
+  //       },
+  //     },
+  //     update: {
+  //       userId: dbUser.id,
+  //     },
+  //     create: {
+  //       userId: dbUser.id,
+  //       provider: account.provider,
+  //       providerAccountId: account.providerAccountId,
+  //     },
+  //   })
+
+  //   return true
+  // } catch (e) {
+  //   console.error("[OAuth signIn]", e)
+  //   return false
+  // }
+// }
+
+
+  // SIGNIN 2 --> This one is better 
+
+// signIn: async ({ user, account }) => {
+//   try {
+//     if (!account) return false
+//     if (account.provider === "credentials") return true
+
+//     // 1. Find existing account (this is the source of truth)
+//     const existingAccount = await db.account.findUnique({
+//       where: {
+//         provider_providerAccountId: {
+//           provider: account.provider,
+//           providerAccountId: account.providerAccountId,
+//         },
+//       },
+//       include: { user: true },
+//     })
+
+//     let dbUser
+
+//     if (existingAccount) {
+//       // ✅ Known OAuth identity → use linked user
+//       dbUser = existingAccount.user
+//     } else {
+//       // 2. No account yet → try email ONLY for initial linking
+//       if (user.email) {
+//         const emailUser = await db.user.findUnique({
+//           where: { email: user.email },
+//         })
+
+//         if (emailUser) {
+//           dbUser = emailUser
+//         }
+//       }
+
+//       // 3. Still no user → create new one
+//       if (!dbUser) {
+//         dbUser = await db.user.create({
+//           data: {
+//             email: user.email ?? null,
+//             username: user.name ?? "unknown",
+//             ProfilePicture: user.image ?? undefined,
+//             emailVerified: user.email ? new Date() : null,
+//           },
+//         })
+//       }
+
+//       // 4. Link OAuth account
+//       await db.account.create({
+//         data: {
+//           userId: dbUser.id,
+//           provider: account.provider,
+//           providerAccountId: account.providerAccountId,
+//         },
+//       })
+//     }
+
+//     // 5. Update non-identity fields ONLY
+//     await db.user.update({
+//       where: { id: dbUser.id },
+//       data: {
+//         lastLogin: new Date(),
+//         username: user.name ?? undefined,
+//         ProfilePicture: user.image ?? undefined,
+//       },
+//     })
+
+//     return true
+//   } catch (err) {
+//     console.error("[OAuth signIn error]", err)
+//     return false
+//   }
+// }
+
+
   
           return true
-       } catch(e) {
-        console.log(e)
+       } catch(err) {
+        console.log("[OAuth SignIn Error]", err)
         return false
        }
     },
@@ -126,6 +325,39 @@ import {
           await db.user.update({where: {id: user.id}, data: {lastLogin: new Date()}})
   
           return {id: user.id.toString(), name: user.username, email: user.email}
+
+  //          const user = await db.user.findUnique({ where: { email } })
+  // if (!user) throw new Error("User not found")
+
+  // const isMatch = await bcrypt.compare(password, user.password!)
+  // if (!isMatch) throw new Error("Incorrect password")
+
+  // // 🔑 ENSURE credentials account exists
+  // await db.account.upsert({
+  //   where: {
+  //     provider_providerAccountId: {
+  //       provider: "credentials",
+  //       providerAccountId: user.id.toString(),
+  //     },
+  //   },
+  //   update: {},
+  //   create: {
+  //     provider: "credentials",
+  //     providerAccountId: user.id.toString(),
+  //     userId: user.id,
+  //   },
+  // })
+
+  // await db.user.update({
+  //   where: { id: user.id },
+  //   data: { lastLogin: new Date() },
+  // })
+
+  // return {
+  //   id: user.id.toString(),
+  //   email: user.email,
+  //   name: user.username,
+  // }
   
   } catch(e) {
     console.error(e)

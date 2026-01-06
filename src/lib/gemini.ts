@@ -3,9 +3,10 @@ import { Document } from '@langchain/core/documents'
 import { z } from 'zod'
 import chalk from 'chalk'
 
+// Switch to ai@4.0.14 for this --> VERY IMPORTANT
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string)
 const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash'
+    model: 'gemini-2.0-flash'
 })
 
 export async function summarizeCommit(diff: string) {
@@ -109,7 +110,7 @@ function getModelForKey(apiKey: string) {
      if(!modelInstances[apiKey]) {
           console.log(chalk.green(`Creating new model instance for key: ${apiKey.slice(0,7)}`))
           const genAI = new GoogleGenerativeAI(apiKey)
-          modelInstances[apiKey] = genAI.getGenerativeModel({ model: 'gemini-1.5-flash'})
+          modelInstances[apiKey] = genAI.getGenerativeModel({ model: 'gemini-2.0-flash'})
      }
      return modelInstances[apiKey]
 }

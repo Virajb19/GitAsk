@@ -12,11 +12,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { askQuestion, saveQuestion } from "~/server/actions";
 import { useProject } from "~/hooks/useProject";
-import { readStreamableValue } from "ai/rsc";
+// import { readStreamableValue } from "ai/rsc";
 import { toast } from "sonner";
 import MDEditor from '@uiw/react-md-editor'
 import FileReference from "./file-reference";
 import { useQueryClient } from "@tanstack/react-query"
+import { sleep } from "~/lib/utils";
 
 type Input = z.infer<typeof askQuestionSchema>
 
@@ -36,25 +37,62 @@ export default function AskQuestionCard() {
   })
 
   async function OnSubmit(data: Input) {
-   // For this toast to show remove max(500) from schema
+
+   // For this toast to show remove max(500) from askQuestionSchema
    if(data.question.length > 500) {
       toast.error('Question is too big!')
       return
    }
 
-     setAnswer('')
-    try {
-            const { output, fileReferences} = await askQuestion(data.question, projectId)
-            setOpen(true)
-            setFileReferences(fileReferences)
+   //   setAnswer('')
+   //  try {
+   //          const { output, fileReferences} = await askQuestion(data.question, projectId)
+   //          setOpen(true)
+   //          setFileReferences(fileReferences)
 
-            for await (const text of readStreamableValue(output)) {
-               if(text) setAnswer(ans => ans += text)
+   //          for await (const text of readStreamableValue(output)) {
+   //             if(text) setAnswer(ans => ans += text)
+   //       }
+   //    } catch (err) {
+   //       setOpen(false)
+   //       toast.error('Something went wrong. Try again!!!')
+   //  } 
+
+      setAnswer('')
+      sleep(1000)
+
+      try {
+         const res = await fetch(`/api/askQuestion/${projectId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: data.question }),
+         })
+
+         if (!res.ok || !res.body) throw new Error("Streaming failed")
+
+               const fileReferences = JSON.parse(
+                  decodeURIComponent(res.headers.get("X-File-References") ?? "[]")
+               )
+
+               setFileReferences(fileReferences)
+               setOpen(true)
+
+               const reader = res.body.getReader()
+               const decoder = new TextDecoder()
+
+               while (true) {
+                  const { value, done } = await reader.read()
+                  if (done) break
+                   const chunk = decoder.decode(value)
+                     if(chunk) {
+                        setAnswer(ans => ans + chunk)
+                        await sleep(60)
+                     }
+               }
+         } catch (err) {
+            setOpen(false)
+            toast.error("Something went wrong. Try again!!!")
          }
-      } catch (err) {
-         setOpen(false)
-         toast.error('Something went wrong. Try again!!!')
-    } 
   }
 
    const handleClick = useCallback(async () => {
@@ -114,6 +152,7 @@ export default function AskQuestionCard() {
                       </DialogTitle>
                    </DialogHeader>
                      <div id="editor" className="max-h-[30vh] max-w-[70vw] mb:max-w-[90vw] overflow-scroll">
+                          {/* we can use a loading state while AI is generating answer but that is not required as of now */}
                          {answer === '' ? (
                             <h3 className="font-semibold text-lg italic animate-pulse">Generating...</h3>
                          ) : (
