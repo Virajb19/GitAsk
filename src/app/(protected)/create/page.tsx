@@ -71,6 +71,7 @@ export default function CreatePage() {
         await queryClient.refetchQueries({queryKey: ['getProjects', userId]})
         setProjectId(projectId)
         router.push('/dashboard')
+        
         setTimeout(() => toast.info('Initializing project. Please wait...', { position: 'top-center'}), 3000)
 
          // INDEX ONLY AFTER PROJECT IS CREATED SUCCESSFULLY
