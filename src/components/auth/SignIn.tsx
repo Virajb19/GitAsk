@@ -17,6 +17,8 @@ import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { useLoadingState } from '~/lib/store'
+import { useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 
 type SignInData = z.infer<typeof SignInSchema>
 
@@ -33,6 +35,24 @@ export default function SignIn() {
     defaultValues: { email: '', password: ''}
   })
 
+  const searchParams = useSearchParams()
+
+  // Shows toast twice due to reactStrictMode (will work fine in production)
+  // if you want one toast in dev mode either disable reactStrictMode or use shownRef
+
+  // const shownRef = useRef(false)
+
+  useEffect(() => {
+      // if (shownRef.current) return
+
+      const reason = searchParams.get("reason")
+      if(reason == "auth") {
+          // shownRef.current = true
+          toast.success('You need to signin first')
+          router.replace('/signin')
+      }
+  }, [searchParams])
+
   async function onSubmit(data: SignInData) {
     
     setLoading(true)
@@ -40,7 +60,7 @@ export default function SignIn() {
     // await new Promise(r => setTimeout(r,7000))
     setLoading(false)
     
-    if(!res?.ok) {
+    if(res?.error || !res?.ok) {
        const error = ['User not found. Please check your email !','Email not verified. Please check your email.','Incorrect password. Try again !!!'].includes(res?.error ?? '') ? res?.error : 'Something went wrong!!!'
        return toast.error(error)
     }

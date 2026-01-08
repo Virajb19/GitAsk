@@ -7,7 +7,7 @@ import { getServerAuthSession } from "~/server/auth";
 export default async function SideBarLayout({children}: {children: ReactNode}) {
 
   const session = await getServerAuthSession()
-  if(!session?.user) redirect('/signin')
+  if(!session?.user) return redirect('/signin?reason=auth')
 
   return <main className="w-full min-h-screen flex gap-3">
           <AppSidebar />

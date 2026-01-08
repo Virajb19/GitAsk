@@ -13,6 +13,10 @@ const OPENROUTER_KEYS = [
   process.env.OPENROUTER_API_KEY_3,
 ].filter(Boolean) as string[]
 
+// A user can have multiple accounts -> If you are on same browser
+// A browser is an user 
+// Different browsers -> Different users -> Different credits
+
 if (OPENROUTER_KEYS.length === 0) {
   throw new Error("No OpenRouter API keys provided")
 }
