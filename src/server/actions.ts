@@ -28,9 +28,17 @@ export async function signup(formData: formData) {
     const {username, email, password} = parsedData.data
 
     // const userExists = await db.user.findFirst({where: {OR: [{email}, {username}]}})
+    // if(userExists) return {success: false, msg: 'user already exists'}
+
+    // ENFORCE UNIQUE USERNAME (useDebounceCallback) -> use debouncing
+
+    // OR simply do this
+
+    // const usernameExists = await db.user.findUnique({where: {username}})
+    // if(usernameExists) return {success: false, msg: 'username already taken', usernameTaken: true}
     
     const userExists = await db.user.findUnique({where: {email}})
-    if(userExists) return {success: false, msg: 'user already exists'}
+    if(userExists) return {success: false, msg: 'user already exists with that email'}
 
     const hashedPassword = await bcrypt.hash(password,10)
     const user = await db.user.create({data: {username,email,password: hashedPassword}, select: {id: true, email: true}})

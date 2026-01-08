@@ -48,7 +48,7 @@ export default function SignIn() {
       const reason = searchParams.get("reason")
       if(reason == "auth") {
           // shownRef.current = true
-          toast.success('You need to signin first')
+          toast.error('You need to signin first')
           router.replace('/signin')
       }
   }, [searchParams])

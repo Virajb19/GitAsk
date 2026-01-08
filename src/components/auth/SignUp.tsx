@@ -54,7 +54,15 @@ export default function SignUp() {
       //   toast.success('Sign in successful')
       // }
       // router.push('/')
-    } else toast.error(res.msg)
+    } else  {
+
+        // ENFORCE UNIQUE USERNAME
+
+        // if(res.usernameTaken) {
+        //    form.setError('username', { message: res.msg} , { shouldFocus: true})
+        // }
+        toast.error(res.msg)
+    }
 
   }
 
