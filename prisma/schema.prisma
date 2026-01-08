@@ -70,7 +70,7 @@ model User {
 //   @@unique([provider, providerAccountId])
 // }
 
-/*   USE THIS IN SCHEMA */
+// USE THIS SCHEMA
 
 // model Account {
 //   id                String  @id @default(cuid())

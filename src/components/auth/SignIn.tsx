@@ -54,6 +54,8 @@ export default function SignIn() {
   }, [searchParams])
 
   async function onSubmit(data: SignInData) {
+
+    //  const toastId = toast.loading('Signin you in...', { position: 'bottom-right'})
     
     setLoading(true)
     const res = await signIn('credentials',{...data, redirect: false})
@@ -66,7 +68,9 @@ export default function SignIn() {
     }
     form.reset()
     router.push('/')
+    // toast.success('Login successfull!. Welcome back!', {id: toastId, position: 'bottom-right'})
     toast.success('Login successfull!. Welcome back!')
+
 
     // const projectId = localStorage.getItem('projectId')
     // queryClient.prefetchQuery({ 
