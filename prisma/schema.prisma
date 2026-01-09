@@ -71,6 +71,7 @@ model User {
 // }
 
 // USE THIS SCHEMA
+// USE DB STRATEGY WITH SESSION TABLE AND PREVENT USER TO LOGIN TO MULTIPLE DEVICES AT THE SAME TIME
 
 // model Account {
 //   id                String  @id @default(cuid())
@@ -157,7 +158,7 @@ model Commit {
 model SourceCodeEmbedding {
   id String @id @default(cuid())
 
-  summaryEmbedding Unsupported("vector(1536)")?
+  summaryEmbedding Unsupported("vector(768)")?
   sourceCode       String
   filename         String
   summary          String

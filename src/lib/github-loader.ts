@@ -96,7 +96,7 @@ export async function indexGithubRepoWithPlimit(projectId: string, githubURL: st
 
                           await db.$executeRaw`
                           UPDATE "SourceCodeEmbedding"
-                          SET "summaryEmbedding" = ${embedding}::vector(1536)
+                          SET "summaryEmbedding" = ${embedding}::vector(768)
                           WHERE id = ${sourceCodeEmbedding.id}
                           `
 
@@ -202,7 +202,7 @@ export async function startIndexing(projectId: string, githubURL: string) {
 
                   await db.$executeRaw`
                   UPDATE "SourceCodeEmbedding"
-                  SET "summaryEmbedding" = ${embedding.summaryEmbedding}::vector(1536)
+                  SET "summaryEmbedding" = ${embedding.summaryEmbedding}::vector(768)
                   WHERE id = ${sourceCodeEmbedding.id}
                   `
 

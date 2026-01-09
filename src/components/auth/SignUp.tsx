@@ -60,6 +60,7 @@ export default function SignUp() {
 
         // if(res.usernameTaken) {
         //    form.setError('username', { message: res.msg} , { shouldFocus: true})
+        //    return
         // }
         toast.error(res.msg)
     }

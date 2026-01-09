@@ -33,8 +33,8 @@ export async function generateEmbedding(summary: string): Promise<number[]> {
 
   try {
     const { embedding } = await embed({
-      model: openrouter.embedding("text-embedding-3-small") as any,
-      value: summary,
+      model: openrouter.embedding("intfloat/e5-base-v2") as any,
+      value: `passage: ${summary}`,
     })
     
     // console.log('Embedding : ', embedding.length)

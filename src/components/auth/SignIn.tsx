@@ -64,7 +64,9 @@ export default function SignIn() {
     
     if(res?.error || !res?.ok) {
        const error = ['User not found. Please check your email !','Email not verified. Please check your email.','Incorrect password. Try again !!!'].includes(res?.error ?? '') ? res?.error : 'Something went wrong!!!'
+      //  toast.dismiss(toastId)
        return toast.error(error)
+      //  return toast.error(error, {id: toastId})
     }
     form.reset()
     router.push('/')

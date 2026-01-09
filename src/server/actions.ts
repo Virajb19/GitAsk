@@ -31,13 +31,16 @@ export async function signup(formData: formData) {
     // if(userExists) return {success: false, msg: 'user already exists'}
 
     // ENFORCE UNIQUE USERNAME (useDebounceCallback) -> use debouncing
+    // Also make username a unique field in prisma schema
 
     // OR simply do this
 
     // const usernameExists = await db.user.findUnique({where: {username}})
     // if(usernameExists) return {success: false, msg: 'username already taken', usernameTaken: true}
     
-    const userExists = await db.user.findUnique({where: {email}})
+    // IF username is not a unique field in schema
+    // Then just use this (verify by email)
+    const userExists = await db.user.findUnique({where: {email}, select: {id: true}})
     if(userExists) return {success: false, msg: 'user already exists with that email'}
 
     const hashedPassword = await bcrypt.hash(password,10)
@@ -140,7 +143,7 @@ export async function askQuestion(question: string, projectId: string) {
      SELECT "filename", "sourceCode", "summary",
       1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) AS similarity
      FROM "SourceCodeEmbedding"
-     WHERE  1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) > 0.36
+     WHERE  1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) > 0.35
      AND "projectId" = ${projectId}
      ORDER BY similarity DESC
      LIMIT 10 
