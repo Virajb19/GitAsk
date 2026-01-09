@@ -10,6 +10,7 @@ export default function Projects({ isCollapsed }: { isCollapsed: boolean }) {
 
   const { projects, setProjectId, projectId, isLoading, isError } = useProject()
 
+  // console.log(projects) -> Ctrl + Shift + I (browser window)
   // toast.success(JSON.stringify(projects));
 
   const projectRefs = useRef<(HTMLDivElement | null)[]>([])

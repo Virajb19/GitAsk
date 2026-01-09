@@ -59,7 +59,7 @@ export default function AskQuestionCard() {
    //  } 
 
       setAnswer('')
-      sleep(1000)
+      await sleep(1000)
 
       try {
          const res = await fetch(`/api/askQuestion/${projectId}`, {
@@ -70,9 +70,17 @@ export default function AskQuestionCard() {
 
          if (!res.ok || !res.body) throw new Error("Streaming failed")
 
-               const fileReferences = JSON.parse(
-                  decodeURIComponent(res.headers.get("X-File-References") ?? "[]")
-               )
+
+           let fileReferences: any[] = []
+
+                  try {
+                     const header = res.headers.get("X-File-References")
+                     if (header) {
+                        fileReferences = JSON.parse(decodeURIComponent(header))
+                     }
+                  } catch (err) {
+                     console.warn("Failed to parse file references header", err)
+                  }
 
                setFileReferences(fileReferences)
                setOpen(true)
@@ -89,7 +97,12 @@ export default function AskQuestionCard() {
                         await sleep(60)
                      }
                }
-         } catch (err) {
+         } catch (err: any) {
+            if (err?.name === "AbortError") return
+
+            // *IMPORTANT*
+            // Print errors in browser window for debugging use shortcut -> (Ctrl + Shift + I)
+            console.error("Streaming error:", err)
             setOpen(false)
             toast.error("Something went wrong. Try again!!!")
          }
