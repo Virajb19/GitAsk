@@ -77,7 +77,7 @@ export async function POST(req: NextRequest, { params }: { params: { projectId: 
               headers: {
                   "Content-Type": "text/plain; charset=utf-8",
                   "Cache-Control": "no-cache",
-                  "X-File-References": encodeURIComponent(JSON.stringify(fileReferences)),
+                  // "X-File-References": encodeURIComponent(JSON.stringify(fileReferences)),
               },
             })
 

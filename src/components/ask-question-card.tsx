@@ -36,6 +36,8 @@ export default function AskQuestionCard() {
     defaultValues: { question: ''}
   })
 
+  const abortRef = useRef<AbortController | null>(null)
+
   async function OnSubmit(data: Input) {
 
    // For this toast to show remove max(500) from askQuestionSchema
@@ -58,29 +60,52 @@ export default function AskQuestionCard() {
    //       toast.error('Something went wrong. Try again!!!')
    //  } 
 
+         abortRef.current?.abort()
+         abortRef.current = new AbortController()
+
       setAnswer('')
       await sleep(1000)
 
       try {
+
          const res = await fetch(`/api/askQuestion/${projectId}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ question: data.question }),
+            signal: abortRef.current.signal,
          })
 
          if (!res.ok || !res.body) throw new Error("Streaming failed")
 
+            /**
+ * IMPORTANT:
+ * Do NOT send large payloads (like file references, source code, or summaries)
+ * via HTTP response headers.
+ *
+ * Browsers enforce strict size limits on response headers.
+ * Exceeding this limit causes:
+ *   - net::ERR_RESPONSE_HEADERS_TOO_BIG
+ *   - fetch() to fail silently on the client
+ *
+ * Always send large data in:
+ *   - the response body
+ *   - the streaming payload
+ *   - or via a separate API call
+ */
 
-           let fileReferences: any[] = []
 
-                  try {
-                     const header = res.headers.get("X-File-References")
-                     if (header) {
-                        fileReferences = JSON.parse(decodeURIComponent(header))
-                     }
-                  } catch (err) {
-                     console.warn("Failed to parse file references header", err)
-                  }
+         //   let fileReferences: any[] = []
+
+         //          try {
+         //             const header = res.headers.get("X-File-References")
+         //             if (header) {
+         //                fileReferences = JSON.parse(decodeURIComponent(header))
+         //             }
+         //          } catch (err) {
+         //             console.warn("Failed to parse file references header", err)
+         //          }
+
+             const {fileReferences} = await askQuestion(data.question, projectId)
 
                setFileReferences(fileReferences)
                setOpen(true)
@@ -98,10 +123,11 @@ export default function AskQuestionCard() {
                      }
                }
          } catch (err: any) {
-            if (err?.name === "AbortError") return
+            if (err?.name === "AbortError" || err?.message === "Failed to fetch") return
 
-            // *IMPORTANT*
-            // Print errors in browser window for debugging use shortcut -> (Ctrl + Shift + I)
+            // *VERY IMPORTANT*
+            // Print errors in browser window for debugging use shortcut -> (Ctrl + Shift + I) to open the window
+            // And use Ctrl + L to clear the browser window
             console.error("Streaming error:", err)
             setOpen(false)
             toast.error("Something went wrong. Try again!!!")
